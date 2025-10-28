@@ -34,7 +34,7 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 
 ## Installation
 
-Extract the contents of the zip file into your game directory, where `MonsterHunterWilds.exe` is located.
+Extract the contents of the zip file into your game directory where `MonsterHunterWilds.exe` is located, or drop the zip into a mod manager of your choosing.
 
 ## Building & Running
 
