@@ -1,0 +1,73 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Release",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "variables": [
+        {
+          "name": "PLUGIN_OUTPUT_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/plugins",
+          "type": "STRING"
+        },
+        {
+          "name": "PLUGIN_HOT_RELOAD_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/data/KBF/HotReload",
+          "type": "STRING"
+        }
+      ],
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ]
+    },
+    {
+      "name": "x64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "variables": [
+        {
+          "name": "PLUGIN_OUTPUT_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/plugins",
+          "type": "STRING"
+        },
+        {
+          "name": "PLUGIN_HOT_RELOAD_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/data/KBF/HotReload",
+          "type": "STRING"
+        }
+      ],
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ]
+    },
+    {
+      "name": "x64-Release-NoDB",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "variables": [
+        {
+          "name": "PLUGIN_OUTPUT_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/plugins",
+          "type": "STRING"
+        },
+        {
+          "name": "PLUGIN_HOT_RELOAD_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/data/KBF/HotReload",
+          "type": "STRING"
+        }
+      ],
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ]
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+[submodule "external/rapidjson"]
+	path = external/rapidjson
+	url = https://github.com/Tencent/rapidjson.git
+[submodule "external/glm"]
+	path = external/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "external/reframework"]
+	path = external/reframework
+	url = https://github.com/praydog/REFramework.git

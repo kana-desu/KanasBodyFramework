@@ -1,0 +1,4 @@
+#pragma once
+
+#define FORMAT_VERSION_ID     "VERSION"
+#define FORMAT_MOD_ARCHIVE_ID "MOD_ARCHIVE"
