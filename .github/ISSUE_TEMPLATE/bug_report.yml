@@ -2,7 +2,7 @@
 description: Report a bug or issue
 title: "[BUG] "
 labels: bug
-assignees: ''
+assignees: []
 
 body:
   - type: markdown
@@ -21,18 +21,18 @@ body:
       label: Does this bug cause a game crash?
       description: Select Yes or No
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
   - type: textarea
     id: reproduce
     attributes:
       label: To Reproduce
       description: Steps to reproduce the behavior
       placeholder: |
-        1. Go to ...
-        2. Click on ...
-        3. Scroll down ...
-        4. See error
+        1.
+        2.
+        3.
+        4.
   - type: textarea
     id: expected
     attributes:
@@ -43,10 +43,10 @@ body:
     id: logs
     attributes:
       label: Attached Logs
-      description: Please attach re2_framework_log.txt or KBF's debug log
+      description: Please attach re2_framework_log.txt and KBFs debug log where possible
       options:
-        - label: re2_framework_log.txt
-        - label: KBF Debug Log
+        - label: "REFramework Log"
+        - label: "KBF Debug Log"
   - type: textarea
     id: additional
     attributes:
