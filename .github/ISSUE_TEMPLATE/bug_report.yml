@@ -39,14 +39,18 @@ body:
       label: Expected behavior
       description: What you expected to happen
       placeholder: I expected that ...
-  - type: checkboxes
-    id: logs
+  - type: textarea
+    id: ref_log
     attributes:
-      label: Attached Logs
-      description: Please attach re2_framework_log.txt and KBFs debug log where possible
-      options:
-        - label: "REFramework Log"
-        - label: "KBF Debug Log"
+      label: REFramework Log
+      description: This log can be found at <Game Directory>/re2_framework_log.txt
+      placeholder: Paste or attach re2_framework_log.txt here...
+  - type: textarea
+    id: kbf_log
+    attributes:
+      label: KBFs Debug Log (Optional)
+      description: This log can copied by going to Debug > Log ingame.
+      placeholder: Paste here...
   - type: textarea
     id: additional
     attributes:
