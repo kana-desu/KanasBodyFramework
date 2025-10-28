@@ -2,7 +2,7 @@
 description: Suggest a new feature or improvement
 title: "[FEATURE] "
 labels: feature-req
-assignees: ''
+assignees: []
 
 body:
   - type: markdown
