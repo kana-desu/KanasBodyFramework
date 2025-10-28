@@ -1,0 +1,55 @@
+﻿name: 🐛 Bug Report
+description: Report a bug or issue
+title: "[BUG] "
+labels: bug
+assignees: ''
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out this bug report as completely as possible. Thanks!
+  - type: input
+    id: describe_bug
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+      placeholder: I noticed that ...
+  - type: dropdown
+    id: crash
+    attributes:
+      label: Does this bug cause a game crash?
+      description: Select Yes or No
+      options:
+        - Yes
+        - No
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: To Reproduce
+      description: Steps to reproduce the behavior
+      placeholder: |
+        1. Go to ...
+        2. Click on ...
+        3. Scroll down ...
+        4. See error
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What you expected to happen
+      placeholder: I expected that ...
+  - type: checkboxes
+    id: logs
+    attributes:
+      label: Attached Logs
+      description: Please attach re2_framework_log.txt or KBF's debug log
+      options:
+        - label: re2_framework_log.txt
+        - label: KBF Debug Log
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other context about the problem
+      placeholder: Optional

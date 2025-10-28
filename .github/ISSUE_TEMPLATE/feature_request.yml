@@ -1,0 +1,35 @@
+﻿name: ✨ Feature Request
+description: Suggest a new feature or improvement
+title: "[FEATURE] "
+labels: feature-req
+assignees: ''
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please provide as much detail as possible to help us understand your request.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: Describe the problem you want solved
+      placeholder: I'm always frustrated when ...
+  - type: textarea
+    id: solution
+    attributes:
+      label: Describe the solution you'd like
+      description: What you want to happen
+      placeholder: I propose that ...
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: Any alternative solutions or features you've considered
+      placeholder: Could also ...
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other context or screenshots about the feature request
+      placeholder: Optional
