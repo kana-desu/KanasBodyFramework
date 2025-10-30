@@ -28,13 +28,13 @@ Importantly, this mod also implements a hot-reloader for itself (`native/main_ho
 
 <em>KBF Requires REFramework Nightly __01191__ (or higher)</em>
 
-[![KBF Version](https://img.shields.io/github/v/release/kana-desu/KanasBodyFramework?label=KBF&style=for-the-badge&logo=github&color=7ccc9e)](https://github.com/kana-desu/KanasBodyFramework/releases)
+[![KBF Version](https://img.shields.io/github/v/release/kana-desu/KanasBodyFramework?label=KBF&style=for-the-badge&logo=github&color=579e75)](https://github.com/kana-desu/KanasBodyFramework/releases)
 [![REF Nightly](https://img.shields.io/badge/NIGHTLY_RELEASES-aaa?label=REFRAMEWORK&style=for-the-badge&logo=github&color=db8427)](https://github.com/praydog/REFramework-nightly/releases)
 
 
 ## Installation
 
-Extract the contents of the zip file into your game directory where `MonsterHunterWilds.exe` is located, or drop the zip into a mod manager of your choosing.
+Extract the contents of the zip files `KanasBodyFramework_vX.X.X` and `KanasBodyFramework_Fonts_vX.X.X` into your game directory where `MonsterHunterWilds.exe` is located, or drop the zips into a mod manager of your choosing.
 
 ---
 
