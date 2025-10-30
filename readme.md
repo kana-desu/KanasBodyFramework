@@ -44,7 +44,7 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 
 ## Installation
 
-Extract the contents of the zip file into your game directory, where `MonsterHunterWilds.exe` is located.
+Extract the contents of the zip file into your game directory where `MonsterHunterWilds.exe` is located, or drop the zip into a mod manager of your choosing.
 
 
 ## Building & Running
@@ -145,14 +145,14 @@ Please refer to the various tutorials in the plugins UI in-game, under `About > 
 <details>
 <summary><b>✨ I'd like to suggest a feature!</b></summary>
 
-Please [open an issue detailing your feature request](https://github.com/username/repo-name/issues/new?template=bug_report.md), or leave a comment on the mod's NexusMods page.
+Please [open an issue detailing your feature request](https://github.com/kana-desu/KanasBodyFramework/issues/new?template=feature_request.yml), or leave a comment on the mod's NexusMods page.
 
 </details>
 
 <details>
 <summary><b>🐛 I found a bug! How do I report it?</b></summary>
 
-Please [open an issue](https://github.com/username/repo-name/issues/new?template=bug_report.md) and include:  
+Please [open an issue](https://github.com/kana-desu/KanasBodyFramework/issues/new?template=bug_report.yml) and include:  
 - A clear description of the bug
 - Whether the bug causes a game crash or just incorrect behavior
 - Steps to reproduce it  
