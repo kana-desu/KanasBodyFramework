@@ -10,7 +10,11 @@
 
 **Kana's Body Framework (KBF)** is a mod for *Monster Hunter Wilds* that lets you modify all the bones of important characters (Players, NPCs), and create, share, & organize presets for them.
 
-This mod also serves as a very thorough native (C++) REFramework plugin reference, for which there is not much documentation within reframework itself, nor many open-source examples elsewhere.
+## Why this Plugin?
+
+I created this plugin to allow modification of a large number of bones per-frame with minimal CPU overhead (typically, 0.1 - 0.5ms), and thus impact on framerate.
+
+This repo also serves as a very thorough native (C++) REFramework plugin reference, for which there is not much documentation within reframework itself, nor many open-source examples elsewhere.
 
 Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_reload.cpp`) which is absolutely necessary for making any native plugin of this complexity. Feel free to pillage this for your own plugins.
 
