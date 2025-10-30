@@ -4,21 +4,7 @@
 
 # Kana's Body Framework
 
-
-<div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-  <!-- Left image -->
-  <img src="./.github/assets/duna.png" alt="" title="" width="180"/>
-  
-  <!-- Middle badges stacked vertically -->
-  <span style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-
 [![Ko-fi](https://img.shields.io/badge/support_me_on_ko--fi-F16061?style=for-the-badge&logo=kofi&logoColor=f5f5f5)](https://ko-fi.com/kana00)
-
-  </span>
-  
-  <!-- Right image -->
-  <img src="./.github/assets/lala.png" alt="" title="" width="180"/>
-</div>
 
 ## About
 
@@ -30,9 +16,8 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 
 ---
 
-<p align="center">
-  <img src="./.github/assets/monster-hunter-wilds-logo-2.png" alt="Monster Hunter Wilds Logo" width="200"/>
-</p>
+[<img src="./.github/assets/duna.png" alt="" title="" width="180"/>]()
+[<img src="./.github/assets/lala.png" alt="" title="" width="180"/>]()
 
 ## Download 
 
@@ -46,14 +31,17 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 
 Extract the contents of the zip file into your game directory where `MonsterHunterWilds.exe` is located, or drop the zip into a mod manager of your choosing.
 
+---
+
+<p align="center">
+  <img src="./.github/assets/monster-hunter-wilds-logo-2.png" alt="Monster Hunter Wilds Logo" width="200"/>
+</p>
 
 ## Building & Running
 
 The recommended way to build KBF is with CMake & the MSVC compiler via Visual Studio.
 
 </div>
-
----
 
 #### 1. Pull The Repo & Submodules
 
