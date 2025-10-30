@@ -3,14 +3,22 @@
 <img src="./.github/assets/monster-hunter-wilds-logo-1.png" alt="" title="" width="180"/>
 
 # Kana's Body Framework
+
+
+<div style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+  <!-- Left image -->
+  <img src="./.github/assets/duna.png" alt="" title="" width="180"/>
+  
+  <!-- Middle badges stacked vertically -->
+  <span style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+
 [![Ko-fi](https://img.shields.io/badge/support_me_on_ko--fi-F16061?style=for-the-badge&logo=kofi&logoColor=f5f5f5)](https://ko-fi.com/kana00)
 
-<!---
-<span>
-<img src="./.github/assets/.jpg" alt="" title="" width="200"/>
-<img src="./.github/assets/.jpg" alt="" title="" width="200"/>
-</span>
- -->
+  </span>
+  
+  <!-- Right image -->
+  <img src="./.github/assets/lala.png" alt="" title="" width="180"/>
+</div>
 
 ## About
 
@@ -27,14 +35,17 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 </p>
 
 ## Download 
+
 <em>KBF Requires REFramework Nightly __01191__ (or higher)</em>
 
-[![KBF Version](https://img.shields.io/npm/v/react-kofi-button?label=KBF&style=for-the-badge&logo=github&color=7ccc9e)]()
-[![REF Nightly](https://img.shields.io/badge/NIGHTLY_RELEASES-aaa?label=REFRAMEWORK&style=for-the-badge&logo=github&color=db8427)](https://github.com/praydog/REFramework-nightly/releases)
+[![KBF Version](https://img.shields.io/github/release/kana-desu/KanasBodyFramework?label=KBF&style=for-the-badge&logo=github&color=7ccc9e)]()
+[![REF Nightly](https://img.shields.io/badge/NIGHTLY-aaa?label=REFRAMEWORK&style=for-the-badge&logo=github&color=db8427)](https://github.com/praydog/REFramework-nightly/releases)
+
 
 ## Installation
 
 Extract the contents of the zip file into your game directory, where `MonsterHunterWilds.exe` is located.
+
 
 ## Building & Running
 
