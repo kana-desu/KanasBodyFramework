@@ -28,7 +28,7 @@ Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_
 
 <em>KBF Requires REFramework Nightly __01191__ (or higher)</em>
 
-[![KBF Version](https://img.shields.io/github/release/kana-desu/KanasBodyFramework?label=KBF&style=for-the-badge&logo=github&color=7ccc9e)](https://github.com/kana-desu/KanasBodyFramework/releases)
+[![KBF Version](https://img.shields.io/github/v/release/kana-desu/KanasBodyFramework?label=KBF&style=for-the-badge&logo=github&color=7ccc9e)](https://github.com/kana-desu/KanasBodyFramework/releases)
 [![REF Nightly](https://img.shields.io/badge/NIGHTLY-aaa?label=REFRAMEWORK&style=for-the-badge&logo=github&color=db8427)](https://github.com/praydog/REFramework-nightly/releases)
 
 
