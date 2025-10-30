@@ -1,15 +1,19 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 
-set(VER 1.0)
+set(VER 1.0.1)
 
 project(
-    KanaBodyFramework_Native
+    KanaBodyFramework
     LANGUAGES C CXX
     VERSION ${VER}
 )
 
 message(STATUS "Source Dir: " ${PROJECT_SOURCE_DIR})
 message(STATUS "Version: " ${VER})
+
+# --- Packaging Options --------------------------------------------------------------------------
+
+option(PACKAGE_FOR_DIST "Package build for distribution (v${VER})" OFF)
 
 # --- Compiler Definitions -----------------------------------------------------------------------
 
@@ -158,7 +162,7 @@ else()
             ${PROJECT_SOURCE_DIR}/
     )
 
-    if(DEFINED PLUGIN_OUTPUT_DIR AND IS_DIRECTORY "${PLUGIN_OUTPUT_DIR}")
+    if(NOT PACKAGE_FOR_DIST AND DEFINED PLUGIN_OUTPUT_DIR AND IS_DIRECTORY "${PLUGIN_OUTPUT_DIR}")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
                 "$<TARGET_FILE:${PROJECT_NAME}>"
@@ -170,5 +174,49 @@ else()
 
     get_target_property(_incs ${PROJECT_NAME} INCLUDE_DIRECTORIES)
     message(STATUS "Include dirs for ${PROJECT_NAME}: ${_incs}")
+
+endif()
+
+
+# ------------------------------------------------------------------------------
+# Post Build Packaging
+# ------------------------------------------------------------------------------
+
+# Detect debug / release for packaging check
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Debug>:VALID_PACKAGING_BUILD_TYPE=False>
+    $<$<CONFIG:RelWithDebInfo>:VALID_PACKAGING_BUILD_TYPE=False>
+    $<$<CONFIG:Release>:VALID_PACKAGING_BUILD_TYPE=True>
+    $<$<CONFIG:MinSizeRel>:VALID_PACKAGING_BUILD_TYPE=True>
+)
+
+# Package for Distribution
+if(PACKAGE_FOR_DIST)
+    if (NOT ${VALID_PACKAGING_BUILD_TYPE}) 
+        message(FATAL_ERROR "Cannot create distribution package from a debug build.")
+    endif()
+    
+    set(DIST_DIR ${CMAKE_SOURCE_DIR}/dist/out)
+    set(PACKAGE_NAME ${DIST_DIR}/KanasBodyFramework_v${VER}.zip)
+
+    # 1. Copy .dll to dist/out
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+            "$<TARGET_FILE:${PROJECT_NAME}>"
+            "${CMAKE_SOURCE_DIR}/dist/KBF/reframework/plugins/$<TARGET_FILE_NAME:${PROJECT_NAME}>"
+    )
+
+    # 2. Zip up the folder.
+    add_custom_command(
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMAND 
+            ${CMAKE_COMMAND} -E make_directory ${DIST_DIR} && 
+            ${CMAKE_COMMAND} -E tar "cf" ${PACKAGE_NAME} --format=zip .
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/dist/KBF
+        COMMENT "Packaging Release Ver ${Ver}"
+        VERBATIM)
+
+    message(STATUS "PACKAGING READY: Build will be packaged to " ${PACKAGE_NAME})
 
 endif()

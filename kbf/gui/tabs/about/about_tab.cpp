@@ -59,25 +59,25 @@ namespace kbf {
         CImGui::Spacing();
 
         drawTabBarSeparator("What is Kana's Body Framework?", "WhatIsKBF");
-        CImGui::TextWrapped(
-            "Kana's Body Framework (KBF) is primarily a successor to my mod Female Body Sliders For Everyone (FBS4all). The aim is to provide you with a one-stop plugin for modifying characters' bones in-game."
-        );
 
         CImGui::TextWrapped(
-            "This framework builds on top of some of the core funcitonality of FBS (see \"Migrating from FBS\" tutorial), and can be a more "
-            "efficient and flexible replacement for it if you don't use all the features of FBS, like Extra Layered Armour, etc."
+            "Kana's Body Framework is primarily a successor to my mod Female Body Sliders For Everyone (FBS4all)."
         );
-        CImGui::TextWrapped(
-            "Additionally, you can manually update the list of armours supported by KBF when new content drops if you find me too slow in updating it (see \"Manually Updating KBF\" tutorial)... Provided that the plugin doesn't break from the updates themselves first."
-        );
-        CImGui::Spacing();
-        CImGui::Separator();
-        CImGui::Spacing();
 
         CImGui::TextWrapped(
             "This framework allows you to modify model bone values on a per-character basis, and is not limited to your own player!"
             " Bones of other players, named npcs (e.g. alma, gemma...), and unnamed npcs (hunters that walk around) can also be modified."
         );
+
+        CImGui::TextWrapped(
+            "KBF is built on top of some of the core funcitonality of FBS (see \"Migrating from FBS\" tutorial), and can serve as an addition to it, or more "
+            "efficient and flexible replacement for it if you don't use all the features of FBS (Extra Layered Armour, etc.)"
+        );
+        CImGui::Spacing();
+        CImGui::Separator();
+        CImGui::Spacing();
+
+
         CImGui::TextWrapped(
             "This means, if you have a bunch of modded armour models that have different body shapes, etc., you can use them all at once while "
             " keeping the body shapes you like globally, or for specific characters."
@@ -88,14 +88,16 @@ namespace kbf {
         CImGui::Spacing();
 
         drawTabBarSeparator("Bug Reports", "Bug Reports");
+        if (CImGui::Button("Open an Issue on GitHub", ImVec2(CImGui::GetContentRegionAvail().x, 50.0f))) {
+#if defined(_WIN32)
+            ShellExecute(0, 0, "https://github.com/kana-desu/KanasBodyFramework/issues/new?template=bug_report.yml", 0, 0, SW_SHOW);
+#endif
+        }
         CImGui::TextWrapped(
-            "If you encounter any persistent or reoccurring bugs, please submit them on the mod's BUGS PAGE on nexusmods. I may move this to GitHub at a later date."
+            "If you encounter any persistent or reoccurring bugs, please submit them as an issue on GitHub using the button above."
         );
         CImGui::TextWrapped(
-            "When doing so, please include at least steps to reproduce the bug, or any error messages in pop-ups / KBF's console (Debug > Logs)."
-        );
-        CImGui::TextWrapped(
-            "I have limited time to find and fix bugs, so without this information, I might just have to ignore them!"
+            "When doing so, please include at least steps to reproduce the bug, and any error messages in pop-ups / KBF's console (Debug > Logs)."
         );
         
         CImGui::PopStyleVar();

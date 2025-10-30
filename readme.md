@@ -17,7 +17,7 @@ I created this plugin to allow modification of a large number of bones per-frame
 
 This repo also serves as a very thorough native (C++) REFramework plugin reference, for which there is not much documentation within reframework itself, nor many open-source examples elsewhere.
 
-Importantly, this mod also includes a hot-reloader for itself (`native/main_hot_reload.cpp`) which is absolutely necessary for making any native plugin of this complexity. Feel free to pillage this for your own plugins.
+Importantly, this mod also implements a hot-reloader for itself (`native/main_hot_reload.cpp`) which is absolutely necessary for making any native plugin of this complexity. Feel free to pillage this for your own plugins.
 
 ---
 
@@ -88,9 +88,9 @@ You can then attach to the process at run-time in Visual Studio via `Debug > Att
 
 ---
 
-#### 3. Build and load KBF
+#### 3. Configure KBF's Build Configs
 
-Firstly, make sure to set the plugin and hot-reload directories for the plugin in the configurations in `CMakeSettings.json`:
+Make sure to set the plugin and hot-reload directories for the plugin in the configurations in `CMakeSettings.json`:
 
 ```bash
 PLUGIN_HOT_RELOAD_DIR = <Game Directory>/reframework/data/KBF/HotReload
@@ -101,19 +101,24 @@ This allows the plugin to be built straight to the correct directory without you
 
 <br/>
 
-This project includes two CMake targets: `KanaBodyFramework_Native.dll` and `KanaBodyFramework_Native_logic.dll`.
+This project includes two CMake targets: `KanaBodyFramework.dll` and `KanaBodyFramework_logic.dll`.
 
 The former being the entry point to the plugin, and the latter being an (optional) hot-reloadable .dll holding the core part of the program.
 
+---
+
+#### 4. Build KBF
+
+
+1. To build a packaged distributable (mod .zip), build the target `KanaBodyFramework.dll` with the CMake Configuration `x64-Dist`. This will create a new .dll under `./dist/KBF/reframework/plugins` and zip `./dist/KBF` to `./dist/out`
+
+2. To build a release build (no hot-reloading) to the game's plugin folder, build the target `KanaBodyFramework.dll` with the CMake Configuration `x64-Release`.
+
+3. To build a hot-reloadable debug build to the game's plugin folder, build **both targets**: `KanaBodyFramework.dll`, then `KanaBodyFramework_logic.dll`, with the CMake Configuration `x64-Release-HotReload`/`x64-Debug-HotReload`.
+
 <br/>
 
-1. To build a release build (no hot-reloading), build the target `KanaBodyFramework_Native.dll` with the CMake Configuration `x64-Release-NoDB`.
-
-2. To build a hot-reloadable debug build, build **both targets**: `KanaBodyFramework_Native.dll`, then `KanaBodyFramework_Native_logic.dll`, with the CMake Configuration `x64-Release`/`x64-Debug`.
-
-<br/>
-
-When building via `2.`, you can rebuild `KanaBodyFramework_Native_logic.dll` while the game is running and it will be automatically hot-reloaded to avoid having to restart your game.
+When building via `3.`, you can rebuild `KanaBodyFramework_logic.dll` while the game is running and it will be automatically hot-reloaded to avoid having to restart your game.
 
 ---
 
