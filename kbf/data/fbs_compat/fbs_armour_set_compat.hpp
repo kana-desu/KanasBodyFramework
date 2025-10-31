@@ -9,7 +9,7 @@
 namespace kbf {
 
 	// Note: If you directly index these arrays, the idx will be 1 less than whatever FBS uses due to lua indexing starting at 1.
-	static constexpr std::array<const char*, 128> fbsBodyAmoursByIdx{
+	static constexpr std::array<const char*, 140> fbsBodyAmoursByIdx{
 		ANY_ARMOUR_ID,
 		"ch03_002_0002",
 		"ch03_002_0012",
@@ -137,10 +137,22 @@ namespace kbf {
 		"ch03_081_0002",
 		"ch03_081_0012",
 		"ch03_071_0002",
-		"ch03_071_0012"
+		"ch03_071_0012",
+		"ch03_080_0002",
+		"ch03_080_0012", 
+		"ch03_027_3002",
+		"ch03_027_3012", 
+		"ch03_100_1002", 
+		"ch03_100_0002", 
+		"ch03_100_0012",
+		"ch03_096_0002", 
+		"ch03_085_0002",
+		"ch03_085_0012",
+		"ch03_086_0002",
+		"ch03_086_0012"
 	};
 
-	static constexpr std::array<const char*, 135> fbsLegsAmoursByIdx{
+	static constexpr std::array<const char*, 145> fbsLegsAmoursByIdx{
 		ANY_ARMOUR_ID,
 		"ch03_002_0004",
 		"ch03_002_0014",
@@ -266,7 +278,17 @@ namespace kbf {
 		"ch03_081_0004",
 		"ch03_081_0014",
 		"ch03_071_0004",
-		"ch03_071_0014"
+		"ch03_071_0014",
+		"ch03_080_0014", 
+		"ch03_027_3004",
+		"ch03_027_3014",
+		"ch03_100_1004", 
+		"ch03_100_0004",
+		"ch03_100_0014", 
+		"ch03_085_0004",
+		"ch03_085_0014",
+		"ch03_086_0004",
+		"ch03_086_0014"
 	};
 
 	inline bool fbsArmourExists(size_t idx, bool body) {
