@@ -171,6 +171,10 @@ namespace kbf {
             const std::string& presetUUID = targetMap->at(armourSet);
             return getPresetByUUID(presetUUID);
         }
+        else if (activePresetGroup->armourHasPresetUUID(ArmourList::DefaultArmourSet(), piece)) {
+            const std::string& presetUUID = targetMap->at(ArmourList::DefaultArmourSet());
+            return getPresetByUUID(presetUUID);
+        }
 
         return nullptr;
     }
@@ -234,6 +238,10 @@ namespace kbf {
             // Check if the preset group has an assigned preset for the given armour set
             if (activePresetGroup->armourHasPresetUUID(armourSet, piece)) {
                 const std::string& presetUUID = targetMap->at(armourSet);
+                return getPresetByUUID(presetUUID);
+            }
+            else if (activePresetGroup->armourHasPresetUUID(ArmourList::DefaultArmourSet(), piece)) {
+                const std::string& presetUUID = targetMap->at(ArmourList::DefaultArmourSet());
                 return getPresetByUUID(presetUUID);
             }
 
