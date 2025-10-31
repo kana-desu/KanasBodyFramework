@@ -61,7 +61,7 @@ namespace kbf {
 		}
 
 		size_t size() const {
-			return setPresets.size() + helmPresets.size() + bodyPresets.size() + armsPresets.size() + coilPresets.size() + legsPresets.size();
+			return helmPresets.size() + bodyPresets.size() + armsPresets.size() + coilPresets.size() + legsPresets.size();
 		}
 	};
 
