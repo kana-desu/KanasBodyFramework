@@ -27,7 +27,7 @@ namespace kbf::watchers {
     }
 
     void FsWatcherWin::watch() {
-        std::cout << "[Sumire::FsWatcherWin] INFO: Beginning watch of dir " << watchDir << std::endl;
+        std::cout << "[KBF::FsWatcherWin] INFO: Beginning watch of dir " << watchDir << std::endl;
         watching = true;
 
         watcherThread = std::make_unique<std::thread>(& FsWatcherWin::asyncWatch, this);
@@ -111,10 +111,10 @@ namespace kbf::watchers {
     void FsWatcherWin::endWatch() {
         watching = false;
 
-        std::cout << "[Sumire::FsWatcherWin] INFO: Ending watch of dir " << watchDir << std::endl;
+        std::cout << "[KBF::FsWatcherWin] INFO: Ending watch of dir " << watchDir << std::endl;
         CancelIoEx(watchHandle.handle, NULL);
         watcherThread->join();
-        std::cout << "[Sumire::FsWatcherWin] INFO: Watch thread finished for dir " << watchDir << std::endl;
+        std::cout << "[KBF::FsWatcherWin] INFO: Watch thread finished for dir " << watchDir << std::endl;
 
         watcherThread = nullptr;
     }
@@ -142,7 +142,7 @@ namespace kbf::watchers {
         case FILE_ACTION_RENAMED_NEW_NAME: return FsWatchAction::FS_RENAME_NEW;
         case FILE_ACTION_RENAMED_OLD_NAME: return FsWatchAction::FS_RENAME_OLD;
         default:
-            throw std::runtime_error("[Sumire::FsWatcherWin] Tried to convert invalid FILE_ACTION.");
+            throw std::runtime_error("[KBF::FsWatcherWin] Tried to convert invalid FILE_ACTION.");
         }
 
         // This should never run
