@@ -605,11 +605,18 @@ namespace kbf {
 
     void AboutTab::drawChangelogTab() {
         CImGui::Spacing();
-        if (CImGui::CollapsingHeader("v0.1", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.0.0b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
-            //CImGui::Indent();
             WRAP_BULLET("-", "Initial Release! :)");
-            //CImGui::Unindent();
+        }
+        if (CImGui::CollapsingHeader("v1.0.1b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            WRAP_BULLET("-", "Build System Improvements");
+            WRAP_BULLET("-", "Small updates to about page to point to GitHub for issues, etc.");
+        }
+        if (CImGui::CollapsingHeader("v1.0.2b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            WRAP_BULLET("-", "Updated to support FBS compatibility for dreamspell event.");
         }
     }
 
