@@ -1035,7 +1035,7 @@ namespace kbf {
         constexpr float deleteButtonScale = 1.2f;
         constexpr float linkButtonScale = 1.0f;
         constexpr float sliderWidth = 80.0f;
-        constexpr float sliderSpeed = 0.01f;
+        constexpr float sliderSpeed = 0.001f;
         constexpr float tableVpad = 2.5f;
 
         constexpr ImGuiTableFlags boneModTableFlags =
@@ -1162,11 +1162,11 @@ namespace kbf {
     }
 
     void EditorTab::drawCompactBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, ImVec2 size, std::string fmtPrefix) {
-        bool changedX = ImBoneSlider(("##" + strID + "x").c_str(), size, &group.x, limit, "", (fmtPrefix + "x: %.2f").c_str());
+        bool changedX = ImBoneSlider(("##" + strID + "x").c_str(), size, &group.x, limit, "", (fmtPrefix + "x: %.3f").c_str());
         CImGui::SameLine();
-        bool changedY = ImBoneSlider(("##" + strID + "y").c_str(), size, &group.y, limit, "", (fmtPrefix + "y: %.2f").c_str());
+        bool changedY = ImBoneSlider(("##" + strID + "y").c_str(), size, &group.y, limit, "", (fmtPrefix + "y: %.3f").c_str());
         CImGui::SameLine();
-        bool changedZ = ImBoneSlider(("##" + strID + "z").c_str(), size, &group.z, limit, "", (fmtPrefix + "z: %.2f").c_str());
+        bool changedZ = ImBoneSlider(("##" + strID + "z").c_str(), size, &group.z, limit, "", (fmtPrefix + "z: %.3f").c_str());
 
         if (changedX && CImGui::IsKeyDown(ImGuiMod_Shift)) { group.y = group.x; group.z = group.x; }
         if (changedY && CImGui::IsKeyDown(ImGuiMod_Shift)) { group.x = group.y; group.z = group.y; }
@@ -1174,11 +1174,11 @@ namespace kbf {
     }
 
     void EditorTab::drawBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, float width, float speed) {
-        bool changedX = ImBoneSliderH(("##" + strID + "x").c_str(), width, &group.x, speed, limit, "x: %.2f");
+        bool changedX = ImBoneSliderH(("##" + strID + "x").c_str(), width, &group.x, speed, limit, "x: %.3f");
         CImGui::SameLine();
-        bool changedY = ImBoneSliderH(("##" + strID + "y").c_str(), width, &group.y, speed, limit, "y: %.2f");
+        bool changedY = ImBoneSliderH(("##" + strID + "y").c_str(), width, &group.y, speed, limit, "y: %.3f");
         CImGui::SameLine();
-        bool changedZ = ImBoneSliderH(("##" + strID + "z").c_str(), width, &group.z, speed, limit, "z: %.2f");
+        bool changedZ = ImBoneSliderH(("##" + strID + "z").c_str(), width, &group.z, speed, limit, "z: %.3f");
 
         if (changedX && CImGui::IsKeyDown(ImGuiMod_Shift)) { group.y = group.x; group.z = group.x; }
         if (changedY && CImGui::IsKeyDown(ImGuiMod_Shift)) { group.x = group.y; group.z = group.y; }
