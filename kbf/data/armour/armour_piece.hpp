@@ -27,7 +27,7 @@ namespace kbf {
 		APF_ARMS    = 0b0001000,
 		APF_COIL    = 0b0010000,
 		APF_LEGS    = 0b0100000,
-		APF_SLINGER = 0b0000000,
+		APF_SLINGER = 0b1000000,
 		APF_ALL     = 0b1111111
 	} ArmourPieceFlagBits;
 
