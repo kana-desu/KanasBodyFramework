@@ -79,12 +79,30 @@ namespace kbf {
 
 
         CImGui::TextWrapped(
-            "This means, if you have a bunch of modded armour models that have different body shapes, etc., you can use them all at once while "
+            "This means, if you have a bunch of modded armour models that have different body shapes, etc, you can use them all at once while "
             " keeping the body shapes you like globally, or for specific characters."
         );
         CImGui::TextWrapped(
             "If you have friends that also use KBF, you can share your presets with each other (see \"Sharing Presets\" tutorial) to see eachothers desired body types locally!"
         );
+
+        CImGui::Spacing();
+
+        drawTabBarSeparator("Help", "Help");
+
+        if (CImGui::Button("View Visual Tutorials on GitHub", ImVec2(CImGui::GetContentRegionAvail().x, 50.0f))) {
+#if defined(_WIN32)
+            ShellExecute(0, 0, "https://ko-fi.com/kana00", 0, 0, SW_SHOW);
+#endif
+        }
+        CImGui::TextWrapped(
+            "KBF is a reasonably complex plugin, so I have provided picture-based guides for core usage of it on GitHub via the above button."
+        );
+
+        CImGui::TextWrapped(
+            "You can also find some text-based tutorials under the \"Tutorials\" tab."
+        );
+
         CImGui::Spacing();
 
         drawTabBarSeparator("Bug Reports", "Bug Reports");
@@ -105,6 +123,16 @@ namespace kbf {
 
     void AboutTab::drawTutorialsTab() {
         CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8, 15));
+        CImGui::Spacing();
+
+        if (CImGui::Button("View Visual Tutorials on GitHub", ImVec2(CImGui::GetContentRegionAvail().x, 50.0f))) {
+#if defined(_WIN32)
+            ShellExecute(0, 0, "https://ko-fi.com/kana00", 0, 0, SW_SHOW);
+#endif
+        }
+
+        CImGui::Spacing();
+        CImGui::Separator();
         CImGui::Spacing();
 
         if (CImGui::CollapsingHeader("Getting Started"))           drawTutorials_GettingStarted();
@@ -604,19 +632,35 @@ namespace kbf {
     }
 
     void AboutTab::drawChangelogTab() {
+
         CImGui::Spacing();
-        if (CImGui::CollapsingHeader("v1.0.0b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.0.3b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
-            WRAP_BULLET("-", "Initial Release! :)");
+            CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "Added links to visual tutorials on GitHub.");
+            CImGui::SeparatorText("Changes");
+            WRAP_BULLET("-", "Adjusted non-compact bone sliders to have 3 decimal places of numerical accuracy.");
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a bug causing default presets in a preset group to not be used.");
+            WRAP_BULLET("-", "Fixed a bug where player override filenames written in UTF-8 would cause other plugins to crash that only support ANSI.");
+            WRAP_BULLET("-", "Fixed incorrect calculation of preset group size.");
+            CImGui::Spacing();
         }
-        if (CImGui::CollapsingHeader("v1.0.1b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.0.2b")) {
+            CImGui::Spacing();
+            WRAP_BULLET("-", "Updated to support FBS compatibility for dreamspell event.");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.0.1b")) {
             CImGui::Spacing();
             WRAP_BULLET("-", "Build System Improvements");
             WRAP_BULLET("-", "Small updates to about page to point to GitHub for issues, etc.");
-        }
-        if (CImGui::CollapsingHeader("v1.0.2b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
-            WRAP_BULLET("-", "Updated to support FBS compatibility for dreamspell event.");
+        }
+        if (CImGui::CollapsingHeader("v1.0.0b")) {
+            CImGui::Spacing();
+            WRAP_BULLET("-", "Initial Release! :)");
+            CImGui::Spacing();
         }
     }
 

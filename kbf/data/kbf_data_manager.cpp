@@ -15,6 +15,7 @@
 #include <kbf/util/functional/invoke_callback.hpp>
 #include <kbf/util/string/to_lower.hpp>
 #include <kbf/util/string/cvt_utf16_utf8.hpp>
+#include <kbf/util/string/ansi_encode.hpp>
 #include <kbf/util/io/zip_file.hpp>
 #include <kbf/data/ids/armour_list_ids.hpp>
 #include <kbf/data/bones/bone_symmetry_utils.hpp>
@@ -2106,7 +2107,7 @@ namespace kbf {
     }
 
     std::string KBFDataManager::getPlayerOverrideFilename(const PlayerData& player) const {
-        return player.name + "-" + (player.female ? "Female" : "Male") + "-" + player.hunterId;
+        return AnsiPercentEncode(player.name) + "-" + (player.female ? "Female" : "Male") + "-" + player.hunterId;
     }
 
     void KBFDataManager::validateObjectsUsingPresetGroups() {
