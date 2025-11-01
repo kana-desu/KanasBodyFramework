@@ -92,7 +92,7 @@ namespace kbf {
 
         if (CImGui::Button("View Visual Tutorials on GitHub", ImVec2(CImGui::GetContentRegionAvail().x, 50.0f))) {
 #if defined(_WIN32)
-            ShellExecute(0, 0, "https://ko-fi.com/kana00", 0, 0, SW_SHOW);
+            ShellExecute(0, 0, "https://github.com/kana-desu/KanasBodyFramework/tree/master/tutorials", 0, 0, SW_SHOW);
 #endif
         }
         CImGui::TextWrapped(
@@ -127,13 +127,11 @@ namespace kbf {
 
         if (CImGui::Button("View Visual Tutorials on GitHub", ImVec2(CImGui::GetContentRegionAvail().x, 50.0f))) {
 #if defined(_WIN32)
-            ShellExecute(0, 0, "https://ko-fi.com/kana00", 0, 0, SW_SHOW);
+            ShellExecute(0, 0, "https://github.com/kana-desu/KanasBodyFramework/tree/master/tutorials", 0, 0, SW_SHOW);
 #endif
         }
 
-        CImGui::Spacing();
         CImGui::Separator();
-        CImGui::Spacing();
 
         if (CImGui::CollapsingHeader("Getting Started"))           drawTutorials_GettingStarted();
         if (CImGui::CollapsingHeader("Creating Presets"))          drawTutorials_CreatingPresets();
@@ -642,7 +640,7 @@ namespace kbf {
             WRAP_BULLET("-", "Adjusted non-compact bone sliders to have 3 decimal places of numerical accuracy.");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug causing default presets in a preset group to not be used.");
-            WRAP_BULLET("-", "Fixed a bug where player override filenames written in UTF-8 would cause other plugins to crash that only support ANSI.");
+            WRAP_BULLET("-", "Fixed a bug where player override filenames written in UTF-8 would cause other plugins to crash that only support ANSI. If you made player overrides for players with non-ANSI names before this, it is recommended you remove these files are recreate them.");
             WRAP_BULLET("-", "Fixed incorrect calculation of preset group size.");
             CImGui::Spacing();
         }
