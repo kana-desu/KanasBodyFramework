@@ -140,7 +140,7 @@ namespace kbf {
     }
 
     void EditorTab::openSelectPresetGroupPanel() {
-        presetGroupPanel.openNew("Select Default Preset Group", "EditDefaultPanel_NpcTab", dataManager, wsSymbolFont, false);
+        presetGroupPanel.openNew("Select Preset Group", "EditDefaultPanel_NpcTab", dataManager, wsSymbolFont, false);
         presetGroupPanel.get()->focus();
 
         presetGroupPanel.get()->onSelectPresetGroup([&](std::string uuid) {
