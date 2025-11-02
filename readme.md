@@ -4,6 +4,7 @@
 
 # Kana's Body Framework
 
+[![Tutorials](https://img.shields.io/badge/tutorials-a5dde8?style=for-the-badge)](https://github.com/kana-desu/KanasBodyFramework/tree/master/tutorials)
 [![Ko-fi](https://img.shields.io/badge/support_me_on_ko--fi-F16061?style=for-the-badge&logo=kofi&logoColor=f5f5f5)](https://ko-fi.com/kana00)
 [![CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg?style=for-the-badge)](http://creativecommons.org/licenses/by-nc-sa/4.0/)
 
