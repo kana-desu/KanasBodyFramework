@@ -1052,7 +1052,7 @@ namespace kbf {
 
         std::string playerName = REInvokeStr(cPlayerContext, "get_PlayerName", {});
         if (playerName.empty()) {
-            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but name returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but name returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
             return PlayerFetchFlags::FETCH_ERROR_NULL;
         }
 
@@ -1060,7 +1060,7 @@ namespace kbf {
 
         REApi::ManagedObject* playerNetInfo = REInvokePtr<REApi::ManagedObject>(Net_UserInfoList, "getInfoSystem", { (void*)networkIndex }); // How tf does this determine the correct signature between System.Int32 & System.Guid??
         if (playerNetInfo == nullptr) {
-            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but playerNetInfo returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but playerNetInfo returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
             return PlayerFetchFlags::FETCH_ERROR_NULL;
         }
         //DEBUG_STACK.push(std::format("playerNetInfo PTR: {} - Properties:\n{}",       ptrToHexString(playerNetInfo),       reObjectPropertiesToString(playerNetInfo)),       DebugStack::Color::DEBUG);
@@ -1069,7 +1069,7 @@ namespace kbf {
         if (online) {
             hunterId = REInvokeStr(playerNetInfo, "get_ShortHunterId", {});
             if (hunterId.empty()) {
-                DEBUG_STACK.push(std::format("{} Fetched player at index {}, but hunterId returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Fetched player at index {}, but hunterId returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
                 return PlayerFetchFlags::FETCH_ERROR_NULL;
             }
         }
@@ -1077,7 +1077,7 @@ namespace kbf {
             // In offline mode, grab the main player's hunter ID from the context manager instead.
 			hunterId = REInvokeStr(netContextManager, "get_HunterShortId", {});
             if (hunterId.empty()) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch Hunter ID in singleplayer.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Failed to fetch Hunter ID in singleplayer.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
                 return PlayerFetchFlags::FETCH_ERROR_NULL;
             }
         }
