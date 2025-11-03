@@ -146,7 +146,6 @@ namespace kbf {
                     if (armourPiece.has_value()) {
                         const Preset* preset = dataManager.getActivePreset(player, armourPiece.value(), piece);
 
-						// TODO: Part enables are persistent until transform change, so these *could* be set along with pInfo fetch.
                         bool usePreview = hasPreview && (applyPreviewUnconditional || previewedPreset->armour == armourPiece.value());
                         if (preset == nullptr && !usePreview) continue;
 
