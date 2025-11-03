@@ -1,7 +1,8 @@
 #include <kbf/data/mesh/part_cache_manager.hpp>
 
 #include <kbf/debug/debug_stack.hpp>
-#include <kbf/data/field_parsers.hpp>
+#include <kbf/data/file/field_parsers.hpp>
+#include <kbf/data/file/kbf_file_upgrader.hpp>
 #include <kbf/data/ids/part_cache_ids.hpp>
 #include <kbf/data/armour/armour_list.hpp>
 

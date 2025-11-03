@@ -4,6 +4,7 @@
 #include <kbf/debug/debug_stack.hpp>
 
 #include <kbf/gui/components/toggle/imgui_toggle.h>
+#include <kbf/gui/shared/toggle_colours.hpp>
 #include <kbf/util/functional/invoke_callback.hpp>
 
 #define SETTINGS_TAB_LOG_TAG "[SettingsTab]"
@@ -150,20 +151,5 @@ namespace kbf {
 
 	void SettingsTab::drawPopouts() {};
 	void SettingsTab::closePopouts() {};
-
-	void SettingsTab::pushToggleColors(bool enabled) {
-		if (enabled) {
-			CImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.1f, 0.5f, 0.1f, 1.0f));
-			CImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.8f, 0.3f, 1.0f));
-		}
-		else {
-			CImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.1f, 0.1f, 1.0f));
-			CImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(0.8f, 0.3f, 0.3f, 1.0f));
-		}
-	}
-
-	void SettingsTab::popToggleColors() {
-		CImGui::PopStyleColor(2);
-	}
 
 }

@@ -15,6 +15,9 @@
 #include <kbf/data/bones/bone_symmetry_utils.hpp>
 #include <kbf/util/font/default_font_sizes.hpp>
 
+#include <kbf/gui/components/toggle/imgui_toggle.h>
+#include <kbf/gui/shared/toggle_colours.hpp>
+
 #include <kbf/util/string/to_lower.hpp>
 
 #include <kbf/gui/components/toggle/imgui_toggle.h>
@@ -234,35 +237,35 @@ namespace kbf {
         });
     }
 
-    void EditorTab::openPartRemoverPanel() {
+    void EditorTab::openPartOverridePanel() {
         ArmourSetWithCharacterSex armourSetWithSex{
             .set = openObject.ptrAfter.preset->armour,
             .characterFemale = openObject.ptrAfter.preset->female
         };
 
-        partRemoverPanel.openNew("Remove Armour Part", "EditPreset_PartRemoverPanel", dataManager, armourSetWithSex, wsSymbolFont);
+        partRemoverPanel.openNew("Show/Hide Armour Part", "EditPreset_PartRemoverPanel", dataManager, armourSetWithSex, wsSymbolFont);
         partRemoverPanel.get()->focus();
 
         partRemoverPanel.get()->onSelectPart([&](MeshPart part, ArmourPiece piece) {
             switch (piece) {
-			case ArmourPiece::AP_SET: openObject.ptrAfter.preset->set.removedParts.insert(part); break;
-			case ArmourPiece::AP_HELM: openObject.ptrAfter.preset->helm.removedParts.insert(part); break;
-			case ArmourPiece::AP_BODY: openObject.ptrAfter.preset->body.removedParts.insert(part); break;
-			case ArmourPiece::AP_ARMS: openObject.ptrAfter.preset->arms.removedParts.insert(part); break;
-			case ArmourPiece::AP_COIL: openObject.ptrAfter.preset->coil.removedParts.insert(part); break;
-			case ArmourPiece::AP_LEGS: openObject.ptrAfter.preset->legs.removedParts.insert(part); break;
+			case ArmourPiece::AP_SET: openObject.ptrAfter.preset->set.partOverrides.insert(part); break;
+			case ArmourPiece::AP_HELM: openObject.ptrAfter.preset->helm.partOverrides.insert(part); break;
+			case ArmourPiece::AP_BODY: openObject.ptrAfter.preset->body.partOverrides.insert(part); break;
+			case ArmourPiece::AP_ARMS: openObject.ptrAfter.preset->arms.partOverrides.insert(part); break;
+			case ArmourPiece::AP_COIL: openObject.ptrAfter.preset->coil.partOverrides.insert(part); break;
+			case ArmourPiece::AP_LEGS: openObject.ptrAfter.preset->legs.partOverrides.insert(part); break;
             }
             partRemoverPanel.close();
         });
 
         partRemoverPanel.get()->onCheckPartDisabled([&](MeshPart part, ArmourPiece piece) {
             switch (piece) {
-            case ArmourPiece::AP_SET:  return openObject.ptrAfter.preset->set.removedParts.find(part) != openObject.ptrAfter.preset->set.removedParts.end();
-            case ArmourPiece::AP_HELM: return openObject.ptrAfter.preset->helm.removedParts.find(part) != openObject.ptrAfter.preset->helm.removedParts.end();
-            case ArmourPiece::AP_BODY: return openObject.ptrAfter.preset->body.removedParts.find(part) != openObject.ptrAfter.preset->body.removedParts.end();
-            case ArmourPiece::AP_ARMS: return openObject.ptrAfter.preset->arms.removedParts.find(part) != openObject.ptrAfter.preset->arms.removedParts.end();
-            case ArmourPiece::AP_COIL: return openObject.ptrAfter.preset->coil.removedParts.find(part) != openObject.ptrAfter.preset->coil.removedParts.end();
-            case ArmourPiece::AP_LEGS: return openObject.ptrAfter.preset->legs.removedParts.find(part) != openObject.ptrAfter.preset->legs.removedParts.end();
+            case ArmourPiece::AP_SET:  return openObject.ptrAfter.preset->set.partOverrides.find(part) != openObject.ptrAfter.preset->set.partOverrides.end();
+            case ArmourPiece::AP_HELM: return openObject.ptrAfter.preset->helm.partOverrides.find(part) != openObject.ptrAfter.preset->helm.partOverrides.end();
+            case ArmourPiece::AP_BODY: return openObject.ptrAfter.preset->body.partOverrides.find(part) != openObject.ptrAfter.preset->body.partOverrides.end();
+            case ArmourPiece::AP_ARMS: return openObject.ptrAfter.preset->arms.partOverrides.find(part) != openObject.ptrAfter.preset->arms.partOverrides.end();
+            case ArmourPiece::AP_COIL: return openObject.ptrAfter.preset->coil.partOverrides.find(part) != openObject.ptrAfter.preset->coil.partOverrides.end();
+            case ArmourPiece::AP_LEGS: return openObject.ptrAfter.preset->legs.partOverrides.find(part) != openObject.ptrAfter.preset->legs.partOverrides.end();
             }
 
             return true;
@@ -1190,21 +1193,31 @@ namespace kbf {
         CImGui::SameLine();
         CImGui::Toggle(" Hide Weapon ", &(**preset).hideWeapon, ImGuiToggleFlags_Animated);
         CImGui::SameLine();
-        if (CImGui::Button("Remove Part", ImVec2(CImGui::GetContentRegionAvail().x, 0))) {
-            openPartRemoverPanel();
+        if (CImGui::Button("Show/Hide Part", ImVec2(CImGui::GetContentRegionAvail().x, 0))) {
+            openPartOverridePanel();
         }
+
+        constexpr const char* hintText = "Note: Shown/Hidden parts won't reset to default visibility until reloaded/re-equipped.";
+        const float hintWidth = CImGui::CalcTextSize(hintText).x;
+        CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+        CImGui::SetCursorPosX(CImGui::GetCursorPosX() + (CImGui::GetContentRegionAvail().x - hintWidth) * 0.5f);
+        CImGui::SetCursorPosY(CImGui::GetCursorPosY() - 10.0f);
+        CImGui::Text(hintText);
+        CImGui::PopStyleColor();
+
+        CImGui::Spacing();
         CImGui::Separator();
 
-		bool hasHelmParts = (**preset).helm.hasPartRemovers();
-		bool hasBodyParts = (**preset).body.hasPartRemovers();
-		bool hasArmsParts = (**preset).arms.hasPartRemovers();
-		bool hasCoilParts = (**preset).coil.hasPartRemovers();
-		bool hasLegsParts = (**preset).legs.hasPartRemovers();
+		bool hasHelmParts = (**preset).helm.hasPartOverrides();
+		bool hasBodyParts = (**preset).body.hasPartOverrides();
+		bool hasArmsParts = (**preset).arms.hasPartOverrides();
+		bool hasCoilParts = (**preset).coil.hasPartOverrides();
+		bool hasLegsParts = (**preset).legs.hasPartOverrides();
 		bool hasAnyParts = hasHelmParts || hasBodyParts || hasArmsParts || hasCoilParts || hasLegsParts;
         if (!hasAnyParts) {
             CImGui::Spacing();
             CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-            constexpr char const* noBoneStr = "No Parts Currently Being Removed.";
+            constexpr char const* noBoneStr = "No Parts Currently Being Shown/Hidden.";
             preAlignCellContentHorizontal(noBoneStr);
             CImGui::Text(noBoneStr);
             CImGui::PopStyleColor();
@@ -1214,27 +1227,27 @@ namespace kbf {
             CImGui::BeginChild("PartVisibilitiesTable");
             if (hasHelmParts) {
                 if (CImGui::CollapsingHeader("Helm Parts", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_PartVisibilitiesTable("Helm Parts", (**preset).helm.removedParts);
+                    drawPresetEditor_PartVisibilitiesTable("Helm Parts", (**preset).helm.partOverrides);
                 }
             }
             if (hasBodyParts) {
                 if (CImGui::CollapsingHeader("Body Parts", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_PartVisibilitiesTable("Body Parts", (**preset).body.removedParts);
+                    drawPresetEditor_PartVisibilitiesTable("Body Parts", (**preset).body.partOverrides);
 				}
             }
             if (hasArmsParts) {
                 if (CImGui::CollapsingHeader("Arms Parts", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_PartVisibilitiesTable("Arms Parts", (**preset).arms.removedParts);
+                    drawPresetEditor_PartVisibilitiesTable("Arms Parts", (**preset).arms.partOverrides);
                 }
 			}
             if (hasCoilParts) {
                 if (CImGui::CollapsingHeader("Coil Parts", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_PartVisibilitiesTable("Coil Parts", (**preset).coil.removedParts);
+                    drawPresetEditor_PartVisibilitiesTable("Coil Parts", (**preset).coil.partOverrides);
                 }
             }
             if (hasLegsParts) {
                 if (CImGui::CollapsingHeader("Legs Parts", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_PartVisibilitiesTable("Legs Parts", (**preset).legs.removedParts);
+                    drawPresetEditor_PartVisibilitiesTable("Legs Parts", (**preset).legs.partOverrides);
                 }
 			}
             CImGui::EndChild();
@@ -1242,8 +1255,8 @@ namespace kbf {
 
     }
 
-    void EditorTab::drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<MeshPart>& parts) {
-        std::vector<MeshPart> removedParts(parts.begin(), parts.end());
+    void EditorTab::drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<OverrideMeshPart>& parts) {
+        std::vector<OverrideMeshPart> overrideParts(parts.begin(), parts.end());
 
         constexpr float deleteButtonScale = 1.2f;
         constexpr float linkButtonScale = 1.0f;
@@ -1255,7 +1268,7 @@ namespace kbf {
             ImGuiTableFlags_RowBg
             | ImGuiTableFlags_PadOuterX
             | ImGuiTableFlags_Sortable;
-        CImGui::BeginTable("##PartRemoverList", 2, boneModTableFlags);
+        CImGui::BeginTable("##PartRemoverList", 3, boneModTableFlags);
 
         constexpr ImGuiTableColumnFlags stretchSortFlags =
             ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch;
@@ -1264,6 +1277,7 @@ namespace kbf {
 
         CImGui::TableSetupColumn("", fixedNoSortFlags, 0.0f);
         CImGui::TableSetupColumn("Part", stretchSortFlags, 0.0f);
+        CImGui::TableSetupColumn("Hide/Show", fixedNoSortFlags, 0.0f);
         CImGui::TableSetupScrollFreeze(0, 1);
         CImGui::TableHeadersRow();
 
@@ -1276,10 +1290,10 @@ namespace kbf {
         static bool sort = false;
 
         if (sort) {
-            std::sort(removedParts.begin(), removedParts.end(), [&](const MeshPart& a, const MeshPart& b) {
-                std::string lowa = toLower(a.name); std::string lowb = toLower(b.name);
+            std::sort(overrideParts.begin(), overrideParts.end(), [&](const OverrideMeshPart& a, const OverrideMeshPart& b) {
+                std::string lowa = toLower(a.part.name); std::string lowb = toLower(b.part.name);
                 return sortDirAscending ? lowa < lowb : lowa > lowb;
-                });
+            });
         }
 
         if (ImGuiTableSortSpecs* sort_specs = CImGui::TableGetSortSpecs()) {
@@ -1296,26 +1310,45 @@ namespace kbf {
             }
         }
 
-        std::vector<MeshPart> partRemoversToDelete{};
-        for (const MeshPart& part : removedParts) {
+        std::vector<OverrideMeshPart> partRemoversToDelete{};
+        for (OverrideMeshPart& partOverride : overrideParts) {
             CImGui::TableNextRow(0, selectableHeight);
             CImGui::TableNextColumn();
 
             CImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             CImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::GetFontSize() * deleteButtonScale) * 0.5f);
-            if (ImDeleteButton(("##del_" + part.name).c_str(), deleteButtonScale)) {
-                partRemoversToDelete.push_back(part);
+            if (ImDeleteButton(("##del_" + partOverride.part.name).c_str(), deleteButtonScale)) {
+                partRemoversToDelete.push_back(partOverride);
             }
             CImGui::PopStyleColor(2);
 
             CImGui::TableNextColumn();
-            CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::CalcTextSize(part.name.c_str()).y) * 0.5f);
-            CImGui::Text(part.name.c_str());
+            CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::CalcTextSize(partOverride.part.name.c_str()).y) * 0.5f);
+            CImGui::Text(partOverride.part.name.c_str());
+
+            CImGui::TableNextColumn();
+			CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::GetFrameHeight()) * 0.5f);
+			CImGui::SetCursorPosX(CImGui::GetCursorPosX() + (CImGui::GetColumnWidth() - 50.0f) * 0.5f);
+            pushToggleColors(partOverride.shown);
+            CImGui::Toggle(("##toggle_" + partOverride.part.name).c_str(), &partOverride.shown, ImGuiToggleFlags_Animated);
+            popToggleColors();
+
+			// Update value of 'shown' in the set. Kind of ugly. Too bad!
+            auto it = parts.find(partOverride);
+            if (it != parts.end() && it->shown != partOverride.shown) {
+                auto tmp = *it;    // make a copy
+                tmp.shown = partOverride.shown;
+                parts.erase(it);
+                parts.insert(std::move(tmp));
+            }
+
+			const char* tooltipText = partOverride.shown ? "This part will always be shown." : "This part will always be hidden.";
+            CImGui::SetItemTooltip(tooltipText);
         }
 
-        for (const MeshPart& partName : partRemoversToDelete) {
-            parts.erase(partName);
+        for (const OverrideMeshPart& part : partRemoversToDelete) {
+            parts.erase(part);
         }
 
         CImGui::PopStyleVar();

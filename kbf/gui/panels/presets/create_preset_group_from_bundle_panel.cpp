@@ -200,7 +200,7 @@ namespace kbf {
             if (!preset) continue; // Skip if preset not found
 
             for (ArmourPiece piece = ArmourPiece::AP_MIN; piece <= ArmourPiece::AP_MAX_EXCLUDING_SLINGER; piece = static_cast<ArmourPiece>(static_cast<int>(piece) + 1)) {
-                if (preset->hasModifiers(piece) || preset->hasRemovers(piece)) {
+                if (preset->hasModifiers(piece) || preset->hasPartOverrides(piece)) {
                     // Base (set) modifiers can be applied as many times as we want.
                     std::unordered_map<ArmourSet, std::string>* presetMap = presetGroup.getPresetMap(piece);
 					bool presetAlreadyAssigned = piece != ArmourPiece::AP_SET && presetMap->find(preset->armour) != presetMap->end();
@@ -215,7 +215,7 @@ namespace kbf {
                 }
             }
            
-            if (!preset->hasAnyModifiers() && !preset->hasAnyRemovers()) {
+            if (!preset->hasAnyModifiers() && !preset->hasAnyPartOverrides()) {
                 DEBUG_STACK.push(std::format("{} Preset \"{}\" ({}) was ignored while assigning to preset group as it contains no modifiers/removers.", CREATE_PRESET_GROUP_PANEL_LOG_TAG, preset->name, preset->armour.name), DebugStack::Color::WARNING);
                 conflictCount++;
 			}

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kbf/data/bones/bone_modifier.hpp>
-#include <kbf/data/mesh/mesh_part.hpp>
+#include <kbf/data/preset/override_mesh_part.hpp>
 
 #include <set>
 #include <map>
@@ -18,19 +18,19 @@ namespace kbf {
 		BoneModifierMap modifiers;
 
 		// Parts
-		std::set<MeshPart> removedParts;
+		std::set<OverrideMeshPart> partOverrides;
 
 		bool operator==(const PresetPieceSettings& other) const {
 			return (
 				modifiers == other.modifiers &&
 				modLimit == other.modLimit &&
 				useSymmetry == other.useSymmetry &&
-				removedParts == other.removedParts
+				partOverrides == other.partOverrides
 			);
 		}
 
 		bool hasModifiers() const { return !modifiers.empty(); }
-		bool hasPartRemovers() const { return !removedParts.empty(); }
+		bool hasPartOverrides() const { return !partOverrides.empty(); }
 	};
 
 }

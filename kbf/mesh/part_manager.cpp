@@ -40,7 +40,7 @@ namespace kbf {
 	bool PartManager::applyPreset(const Preset* preset, ArmourPiece piece) {
 		if (preset == nullptr) return false;
 
-		const std::set<MeshPart> removedParts = preset->getPieceSettings(piece).removedParts;
+		const std::set<OverrideMeshPart> partOverrides = preset->getPieceSettings(piece).partOverrides;
 		// TODO: Should probably check that the parts being removed actually exist in the mesh.
 
 		REApi::ManagedObject* mesh = nullptr;
@@ -65,13 +65,21 @@ namespace kbf {
 		}
 		if (targetParts == nullptr) return false;
 
+		// Only mask out visible items
 		for (const MeshPart& part : *targetParts) {
-			bool enable = removedParts.find(part) == removedParts.end();
+			if (partOverrides.find(part) == partOverrides.end()) continue;
+
+			bool vis = partOverrides.find(part)->shown;
+
 			if (part.type == MeshPartType::PART_GROUP) {
-				REInvokeVoid(mesh, "setPartsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)enable });
+				//bool vis = REInvoke<bool>(mesh, "getPartsEnable(System.UInt64)", { (void*)part.index }, InvokeReturnType::BOOL);
+				//vis &= enable;
+				REInvokeVoid(mesh, "setPartsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)vis });
 			}
 			else if (part.type == MeshPartType::MATERIAL) {
-				REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)enable });
+				//bool vis = REInvoke<bool>(mesh, "getMaterialsEnable(System.UInt64)", { (void*)part.index }, InvokeReturnType::BOOL);
+				//vis &= enable;
+				REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)vis });
 			}
 		}
 
@@ -169,33 +177,5 @@ namespace kbf {
 			//REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)(static_cast<uint64_t>(i)), (void*)false });
 		}
 	}
-
-	//std::set<std::string> BoneManager::getBoneNames(REApi::ManagedObject* jointArr) const {
-	//	int arrSize = REInvoke<int>(jointArr, "GetLength(System.Int32)", { (void*)0 }, InvokeReturnType::DWORD);
-
-	//	std::set<std::string> boneNames;
-	//	for (size_t i = 0; i < arrSize; i++) {
-	//		REApi::ManagedObject* joint = REInvokePtr<REApi::ManagedObject>(jointArr, "get_Item(System.Int32)", { (void*)i });
-	//		if (joint) {
-	//			std::string jointName = REInvokeStr(joint, "get_Name", {});
-	//			bool isValid = REInvoke<bool>(joint, "get_Valid", {}, InvokeReturnType::BOOL);
-	//			if (isValid) boneNames.insert(jointName);
-	//		}
-	//	}
-	//	return boneNames;
-	//}
-
-	//void BoneManager::DEBUG_printBoneList(REApi::ManagedObject* jointArr, std::string message) const {
-	//	int arrSize = REInvoke<int>(jointArr, "GetLength(System.Int32)", { (void*)0 }, InvokeReturnType::DWORD);
-
-	//	for (size_t i = 0; i < arrSize; i++) {
-	//		REApi::ManagedObject* joint = REInvokePtr<REApi::ManagedObject>(jointArr, "get_Item(System.Int32)", { (void*)i });
-	//		if (joint) {
-	//			std::string jointName = REInvokeStr(joint, "get_Name", {});
-	//			bool isValid = REInvoke<bool>(joint, "get_Valid", {}, InvokeReturnType::BOOL);
-	//			DEBUG_STACK.push(std::format("{} [{}] {} {} ({}) [{}]", KBF_BONE_MANAGER_LOG_TAG, i, message, jointName, ptrToHexString(joint), isValid ? "VALID" : "INVALID"), DebugStack::Color::DEBUG);
-	//		}
-	//	}
-	//}
 
 }

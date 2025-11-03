@@ -72,15 +72,15 @@ namespace kbf {
 			}
 		}
 
-		bool hasRemovers(ArmourPiece piece) const {
+		bool hasPartOverrides(ArmourPiece piece) const {
 			switch (piece)
 			{
-			case ArmourPiece::AP_SET:  return set.hasPartRemovers();
-			case ArmourPiece::AP_HELM: return helm.hasPartRemovers();
-			case ArmourPiece::AP_BODY: return body.hasPartRemovers();
-			case ArmourPiece::AP_ARMS: return arms.hasPartRemovers();
-			case ArmourPiece::AP_COIL: return coil.hasPartRemovers();
-			case ArmourPiece::AP_LEGS: return legs.hasPartRemovers();
+			case ArmourPiece::AP_SET:  return set.hasPartOverrides();
+			case ArmourPiece::AP_HELM: return helm.hasPartOverrides();
+			case ArmourPiece::AP_BODY: return body.hasPartOverrides();
+			case ArmourPiece::AP_ARMS: return arms.hasPartOverrides();
+			case ArmourPiece::AP_COIL: return coil.hasPartOverrides();
+			case ArmourPiece::AP_LEGS: return legs.hasPartOverrides();
 			default:                   return false;
 			}
 		}
@@ -94,13 +94,13 @@ namespace kbf {
 				   hasModifiers(ArmourPiece::AP_LEGS);
 		}
 
-		bool hasAnyRemovers() const {
-			return hasRemovers(ArmourPiece::AP_SET) ||
-				   hasRemovers(ArmourPiece::AP_HELM) ||
-				   hasRemovers(ArmourPiece::AP_BODY) ||
-				   hasRemovers(ArmourPiece::AP_ARMS) ||
-				   hasRemovers(ArmourPiece::AP_COIL) ||
-				   hasRemovers(ArmourPiece::AP_LEGS);
+		bool hasAnyPartOverrides() const {
+			return hasPartOverrides(ArmourPiece::AP_SET) ||
+				   hasPartOverrides(ArmourPiece::AP_HELM) ||
+				   hasPartOverrides(ArmourPiece::AP_BODY) ||
+				   hasPartOverrides(ArmourPiece::AP_ARMS) ||
+				   hasPartOverrides(ArmourPiece::AP_COIL) ||
+				   hasPartOverrides(ArmourPiece::AP_LEGS);
 		}
 	};
 

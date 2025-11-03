@@ -52,7 +52,7 @@ namespace kbf {
 		void openCopyPresetPanel();
 		void openCopyPresetGroupPanel();
 		void openSelectBonePanel(ArmourPiece piece);
-		void openPartRemoverPanel();
+		void openPartOverridePanel();
 		void openAssignPresetPanel(ArmourSet armourSet, ArmourPiece piece);
 		UniquePanel<PresetPanel>       presetPanel;
 		UniquePanel<PresetGroupPanel>  presetGroupPanel;
@@ -99,7 +99,7 @@ namespace kbf {
 		void drawCompactBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, ImVec2 size, std::string fmtPrefix = "");
 		void drawBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, float width, float speed);
 		void drawPresetEditor_PartVisibilities(Preset** preset);
-		void drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<MeshPart>& parts);
+		void drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<OverrideMeshPart>& parts);
 
 		bool canSavePreset(std::string& errMsg) const;
 

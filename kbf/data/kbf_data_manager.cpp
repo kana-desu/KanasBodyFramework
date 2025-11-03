@@ -1,6 +1,6 @@
 #include <kbf/data/kbf_data_manager.hpp>
 
-#include <kbf/data/field_parsers.hpp>
+#include <kbf/data/file/field_parsers.hpp>
 #include <kbf/data/ids/config_ids.hpp>
 #include <kbf/data/ids/preset_ids.hpp>
 #include <kbf/data/fbs_compat/fbs_preset_ids.hpp>
@@ -10,6 +10,7 @@
 #include <kbf/data/ids/format_ids.hpp>
 #include <kbf/data/ids/kbf_file_ids.hpp>
 #include <kbf/data/ids/settings_ids.hpp>
+#include <kbf/data/file/kbf_file_upgrader.hpp>
 #include <kbf/debug/debug_stack.hpp>
 #include <kbf/util/id/uuid_generator.hpp>
 #include <kbf/util/functional/invoke_callback.hpp>
@@ -796,7 +797,7 @@ namespace kbf {
     bool KBFDataManager::readKBF(std::string filepath, KBFFileData* out) const {
         assert(out != nullptr);
 
-        rapidjson::Document doc = loadConfigJson(filepath, nullptr);
+        rapidjson::Document doc = loadConfigJson(KbfFileType::DOT_KBF, filepath, nullptr);
         if (!doc.IsObject() || doc.HasParseError()) return false;
 
         bool parsed = true;
@@ -1028,7 +1029,7 @@ namespace kbf {
         }
     }
 
-    rapidjson::Document KBFDataManager::loadConfigJson(const std::string& path, std::function<bool()> onRequestCreateDefault) const {
+    rapidjson::Document KBFDataManager::loadConfigJson(KbfFileType fileType, const std::string& path, std::function<bool()> onRequestCreateDefault) const {
         bool exists = std::filesystem::exists(path);
         if (!exists && onRequestCreateDefault) {
             DEBUG_STACK.push(std::format("{} Json file does not exist at {}. Creating...", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::WARNING);
@@ -1054,6 +1055,29 @@ namespace kbf {
                 DEBUG_STACK.push(std::format("{} Created default json at {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::SUCCESS);
             }
         }
+
+        // Handle upgrading the file
+        static KbfFileUpgrader upgrader{};
+        KbfFileUpgrader::UpgradeResult res = upgrader.upgradeFile(config, fileType);
+
+        if (res == KbfFileUpgrader::UpgradeResult::FAILED) {
+			DEBUG_STACK.push(std::format("{} Failed to upgrade json file at {}. Please rectify or delete the file.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::ERROR);
+        }
+
+        if (res == KbfFileUpgrader::UpgradeResult::SUCCESS) {
+            DEBUG_STACK.push(std::format("{} Upgraded json file at \"{}\" to the latest format.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::SUCCESS);
+
+		    // Before rewriting the file, make a backup of the existing one
+			std::string backupPath = path + ".backup";
+			writeJsonFile(backupPath, json);
+			DEBUG_STACK.push(std::format("{} Created backup of the previous version at {}", KBF_DATA_MANAGER_LOG_TAG, backupPath), DebugStack::Color::INFO);
+
+            // Write the upgraded file back to disk
+            rapidjson::StringBuffer s;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+            config.Accept(writer);
+            writeJsonFile(path, s.GetString());
+		}
 
         return config;
     }
@@ -1112,7 +1136,7 @@ namespace kbf {
     bool KBFDataManager::loadSettings(KBFSettings* out) {
         assert(out != nullptr);
 
-        rapidjson::Document config = loadConfigJson(settingsPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::SETTINGS, settingsPath.string(), [&]() {
             KBFSettings temp{};
             return writeSettings(temp);
         });
@@ -1178,7 +1202,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading Alma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
 
-        rapidjson::Document config = loadConfigJson(almaConfigPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::ALMA_CONFIG, almaConfigPath.string(), [&]() {
             AlmaDefaults temp{};
             return writeAlmaConfig(temp);
         });
@@ -1242,7 +1266,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading Erik Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
 
-        rapidjson::Document config = loadConfigJson(erikConfigPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::ERIK_CONFIG, erikConfigPath.string(), [&]() {
             ErikDefaults temp{};
             return writeErikConfig(temp);
         });
@@ -1291,7 +1315,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading Gemma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
 
-        rapidjson::Document config = loadConfigJson(gemmaConfigPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::GEMMA_CONFIG, gemmaConfigPath.string(), [&]() {
             GemmaDefaults temp{};
             return writeGemmaConfig(temp);
         });
@@ -1337,7 +1361,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading NPC Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
 
-        rapidjson::Document config = loadConfigJson(npcConfigPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::NPC_CONFIG, npcConfigPath.string(), [&]() {
             NpcDefaults temp{};
             return writeNpcConfig(temp);
         });
@@ -1382,7 +1406,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading Player Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
 
-        rapidjson::Document config = loadConfigJson(playerConfigPath.string(), [&]() {
+        rapidjson::Document config = loadConfigJson(KbfFileType::PLAYER_CONFIG, playerConfigPath.string(), [&]() {
             PlayerDefaults temp{};
             return writePlayerConfig(temp);
         });
@@ -1425,7 +1449,7 @@ namespace kbf {
     bool KBFDataManager::loadPreset(const std::filesystem::path& path, Preset* out) {
         assert(out != nullptr);
 
-        rapidjson::Document presetDoc = loadConfigJson(path.string(), nullptr);
+        rapidjson::Document presetDoc = loadConfigJson(KbfFileType::PRESET, path.string(), nullptr);
         if (!presetDoc.IsObject() || presetDoc.HasParseError()) return false;
 
         out->name = path.stem().string();
@@ -1505,36 +1529,40 @@ namespace kbf {
         parsed &= parseObject(object, PRESET_PIECE_SETTINGS_REMOVED_PARTS_ID, PRESET_PIECE_SETTINGS_REMOVED_PARTS_ID);
         if (parsed) {
             const rapidjson::Value& removedParts = object[PRESET_PIECE_SETTINGS_REMOVED_PARTS_ID];
-            std::vector<MeshPart> parts;
-            parsed &= loadRemovedParts(removedParts, &parts);
-            out->removedParts = std::set<MeshPart>(parts.begin(), parts.end());
+            std::vector<OverrideMeshPart> parts;
+            parsed &= loadOverrideParts(removedParts, &parts);
+            out->partOverrides = std::set<OverrideMeshPart>(parts.begin(), parts.end());
         }
 
         return parsed;
     }
 
-    bool KBFDataManager::loadRemovedParts(const rapidjson::Value& object, std::vector<MeshPart>* out) const {
+    bool KBFDataManager::loadOverrideParts(const rapidjson::Value& object, std::vector<OverrideMeshPart>* out) const {
         assert(out != nullptr);
 
         bool parsed = true;
         for (const auto& part : object.GetObject()) {
-            MeshPart meshPart{};
-            meshPart.name = part.name.GetString();
+            OverrideMeshPart meshPart{};
+            meshPart.part.name = part.name.GetString();
             parsed &= part.value.IsObject();
             if (parsed) {
                 std::string typeStr;
-                parsed &= parseString(part.value, PRESET_REMOVED_PARTS_TYPE_ID, meshPart.name + "." + PRESET_REMOVED_PARTS_TYPE_ID, &typeStr);
-                parsed &= parseUint64(part.value, PRESET_REMOVED_PARTS_INDEX_ID, meshPart.name + "." + PRESET_REMOVED_PARTS_INDEX_ID, &meshPart.index);
+                parsed &= parseString(part.value, PRESET_OVERRIDE_PARTS_TYPE_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_TYPE_ID, &typeStr);
+                parsed &= parseUint64(part.value, PRESET_OVERRIDE_PARTS_INDEX_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_INDEX_ID, &meshPart.part.index);
                 if (typeStr == "PART_GROUP") {
-                    meshPart.type = MeshPartType::PART_GROUP;
+                    meshPart.part.type = MeshPartType::PART_GROUP;
                 }
                 else if (typeStr == "MATERIAL") {
-                    meshPart.type = MeshPartType::MATERIAL;
+                    meshPart.part.type = MeshPartType::MATERIAL;
                 }
                 else {
-                    DEBUG_STACK.push(std::format("{} Part cache has an invalid part type \"{}\" for part \"{}\". Skipping...", KBF_DATA_MANAGER_LOG_TAG, typeStr, meshPart.name), DebugStack::Color::WARNING);
+                    DEBUG_STACK.push(std::format("{} Part cache has an invalid part type \"{}\" for part \"{}\". Skipping...", KBF_DATA_MANAGER_LOG_TAG, typeStr, meshPart.part.name), DebugStack::Color::WARNING);
                     parsed = false;
                 }
+
+                bool hidden = false;
+				parsed &= parseBool(part.value, PRESET_OVERRIDE_PARTS_HIDE_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_HIDE_ID, &hidden);
+                meshPart.shown = !hidden;
             }
             if (parsed) out->push_back(meshPart);
         }
@@ -1646,10 +1674,10 @@ namespace kbf {
         writer.EndObject();
         writer.Key(PRESET_PIECE_SETTINGS_REMOVED_PARTS_ID);
         writer.StartObject();
-        for (const auto& part : pieceSettings.removedParts) {
-            writer.Key(part.name.c_str());
+        for (const OverrideMeshPart& partOverride : pieceSettings.partOverrides) {
+            writer.Key(partOverride.part.name.c_str());
 
-            rapidjson::StringBuffer compactBuf = getCompactRemovedPartJsonContent(part);
+            rapidjson::StringBuffer compactBuf = getCompactOverridePartJsonContent(partOverride);
             writer.RawValue(compactBuf.GetString(), compactBuf.GetSize(), rapidjson::kObjectType);
         }
         writer.EndObject();
@@ -1689,23 +1717,25 @@ namespace kbf {
         return buf;
     }
 
-    rapidjson::StringBuffer KBFDataManager::getCompactRemovedPartJsonContent(const MeshPart& part) const {
+    rapidjson::StringBuffer KBFDataManager::getCompactOverridePartJsonContent(const OverrideMeshPart& partOverride) const {
         rapidjson::StringBuffer buf;
         rapidjson::Writer<rapidjson::StringBuffer> compactWriter(buf); // one-line writer
 
         compactWriter.StartObject();
-        compactWriter.Key(PRESET_REMOVED_PARTS_TYPE_ID);
-        if (part.type == MeshPartType::PART_GROUP) {
+        compactWriter.Key(PRESET_OVERRIDE_PARTS_TYPE_ID);
+        if (partOverride.part.type == MeshPartType::PART_GROUP) {
             compactWriter.String("PART_GROUP");
         }
-        else if (part.type == MeshPartType::MATERIAL) {
+        else if (partOverride.part.type == MeshPartType::MATERIAL) {
             compactWriter.String("MATERIAL");
         }
         else {
             compactWriter.String("UNKNOWN");
         }
-        compactWriter.Key(PRESET_REMOVED_PARTS_INDEX_ID);
-        compactWriter.Uint64(part.index);
+        compactWriter.Key(PRESET_OVERRIDE_PARTS_INDEX_ID);
+        compactWriter.Uint64(partOverride.part.index);
+        compactWriter.Key(PRESET_OVERRIDE_PARTS_HIDE_ID);
+		compactWriter.Bool(!partOverride.shown);
         compactWriter.EndObject();
         return buf;
     }
@@ -1737,7 +1767,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading FBS preset from {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::INFO);
 
-        rapidjson::Document presetDoc = loadConfigJson(path.string(), nullptr);
+        rapidjson::Document presetDoc = loadConfigJson(KbfFileType::FBS_PRESET, path.string(), nullptr);
         if (!presetDoc.IsObject() || presetDoc.HasParseError()) return false;
 
         out->preset.name = std::format("{} ({})", path.stem().string(), body ? "body" : "legs");
@@ -1849,7 +1879,7 @@ namespace kbf {
     bool KBFDataManager::loadPresetGroup(const std::filesystem::path& path, PresetGroup* out) {
         assert(out != nullptr);
 
-        rapidjson::Document presetGroupDoc = loadConfigJson(path.string(), nullptr);
+        rapidjson::Document presetGroupDoc = loadConfigJson(KbfFileType::PRESET_GROUP, path.string(), nullptr);
         if (!presetGroupDoc.IsObject() || presetGroupDoc.HasParseError()) return false;
 
         out->name = path.stem().string();
@@ -2020,7 +2050,7 @@ namespace kbf {
 
         std::string utf8_path = cvt_utf16_to_utf8(path.wstring());
 
-        rapidjson::Document overrideDoc = loadConfigJson(utf8_path, nullptr);
+        rapidjson::Document overrideDoc = loadConfigJson(KbfFileType::PLAYER_OVERRIDE, utf8_path, nullptr);
         if (!overrideDoc.IsObject() || overrideDoc.HasParseError()) return false;
 
         bool parsed = loadPlayerOverrideData(overrideDoc, out);
@@ -2347,7 +2377,7 @@ namespace kbf {
 
         DEBUG_STACK.push(std::format("{} Loading armour list from \"{}\"", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::INFO);
 
-        rapidjson::Document armourListDoc = loadConfigJson(path.string(), nullptr);
+        rapidjson::Document armourListDoc = loadConfigJson(KbfFileType::ARMOUR_LIST, path.string(), nullptr);
         if (!armourListDoc.IsObject() || armourListDoc.HasParseError()) {
             DEBUG_STACK.push(std::format("{} Failed to parse Armour List at \"{}\". Using internal fallback...", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
             return false;

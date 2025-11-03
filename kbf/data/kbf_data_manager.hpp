@@ -1,5 +1,6 @@
 #pragma once
 
+#include <kbf/data/file/kbf_file_type.hpp>
 #include <kbf/data/bones/bone_cache_manager.hpp>
 #include <kbf/data/mesh/part_cache_manager.hpp>
 #include <kbf/data/preset/preset_group.hpp>
@@ -160,7 +161,7 @@ namespace kbf {
 		void verifyDirectoriesExist() const;
 		void createDirectoryIfNotExists(const std::filesystem::path& path) const;
 
-		rapidjson::Document loadConfigJson(const std::string& path, std::function<bool()> onRequestCreateDefault) const;
+		rapidjson::Document loadConfigJson(KbfFileType fileType, const std::string& path, std::function<bool()> onRequestCreateDefault) const;
 
 		// UNSAFE - Do not use directly. Call loadConfigJson instead.
 		std::string readJsonFile(const std::string& path) const;
@@ -188,13 +189,13 @@ namespace kbf {
 		bool loadPreset(const std::filesystem::path& path, Preset* out);
 		bool loadPresetData(const rapidjson::Value& doc, Preset* out) const;
 		bool loadPresetPieceSettings(const rapidjson::Value& object, PresetPieceSettings* out) const;
-		bool loadRemovedParts(const rapidjson::Value& object, std::vector<MeshPart>* out) const;
+		bool loadOverrideParts(const rapidjson::Value& object, std::vector<OverrideMeshPart>* out) const;
 		bool loadBoneModifiers(const rapidjson::Value& object, BoneModifierMap* out) const;
 		bool writePreset(const std::filesystem::path& path, const Preset& preset) const;
 		void writePresetJsonContent(const Preset& preset, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
 		void writePresetPieceSettingsJsonContent(const PresetPieceSettings& settings, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
 		rapidjson::StringBuffer getCompactBoneModifierJsonContent(const BoneModifier& modifier) const;
-		rapidjson::StringBuffer getCompactRemovedPartJsonContent(const MeshPart& part) const;
+		rapidjson::StringBuffer getCompactOverridePartJsonContent(const OverrideMeshPart& part) const;
 		bool loadPresets();
 
 		bool loadFBSPreset(const std::filesystem::path& path, bool body, bool female, std::string bundle, FBSPreset* out) const;
