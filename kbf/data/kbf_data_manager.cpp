@@ -190,7 +190,7 @@ namespace kbf {
             
             std::string presetUUID = "";
             if      (pieceId == "ch04_000_0000") presetUUID = presetDefaults.alma.handlersOutfit;
-            else if	(pieceId == "ch04_000_0001") presetUUID = presetDefaults.alma.scrivenersCoat;
+            else if	(pieceId == "ch04_000_0002") presetUUID = presetDefaults.alma.scrivenersCoat;
             else if	(pieceId == "ch04_000_0070") presetUUID = presetDefaults.alma.springBlossomKimono;
             else if	(pieceId == "ch04_000_0071") presetUUID = presetDefaults.alma.summerPoncho;
             else if	(pieceId == "ch04_000_0074") presetUUID = presetDefaults.alma.newWorldCommission;

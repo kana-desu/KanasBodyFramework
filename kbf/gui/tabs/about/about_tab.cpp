@@ -643,6 +643,7 @@ namespace kbf {
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed presets always causing all parts to show up, even if they are supposed to be disabled.");
             WRAP_BULLET("-", "Fixed some UI conflicts on the editor tab for bones which have identical names after an L_ or R_ prefix is removed.");
+            WRAP_BULLET("-", "Fixed presets not being applied to Alma's Scrivener's Coat outfit.");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.0.3b")) {

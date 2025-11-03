@@ -155,6 +155,7 @@ namespace kbf {
 
         { "ch04_000_0000" , NpcID::NPC_ID_ALMA },
         { "ch04_000_0001" , NpcID::NPC_ID_ALMA },
+        { "ch04_000_0002" , NpcID::NPC_ID_ALMA },
         { "ch04_000_0070" , NpcID::NPC_ID_ALMA },
         { "ch04_000_0071" , NpcID::NPC_ID_ALMA },
         { "ch04_000_0074" , NpcID::NPC_ID_ALMA },
