@@ -637,10 +637,12 @@ namespace kbf {
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Persistent files (e.g. presets, etc) will now be upgraded to the latest format automatically when there is an update.");
             WRAP_BULLET("-", "Added the option to always show a part, as well as hide it.");
+            WRAP_BULLET("-", "Added text indicating where bones are symmetrical modifiers (L & R) when editing a preset.");
             CImGui::SeparatorText("Changes");
             WRAP_BULLET("-", "Downgraded some KBF console errors to warnings.");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed presets always causing all parts to show up, even if they are supposed to be disabled.");
+            WRAP_BULLET("-", "Fixed some UI conflicts on the editor tab for bones which have identical names after an L_ or R_ prefix is removed.");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.0.3b")) {

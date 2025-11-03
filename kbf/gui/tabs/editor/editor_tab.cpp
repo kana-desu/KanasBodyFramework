@@ -974,6 +974,7 @@ namespace kbf {
         for (const SortableBoneModifier& bone : sortableModifiers) {
             // Display warning if any of the bones aren't in the bone cache
             bool hasWarning = enableWarnings && !dataManager.boneCache().boneExists(armourWithSex, piece, bone.boneName);
+            std::string boneKey = bone.name + (bone.isSymmetryProxy ? "LRProxy" : "Unique");
 
             ImU32 rowCol = i % 2 == 0 ? CImGui::GetColorU32(ImGuiCol_TableRowBg) : CImGui::GetColorU32(ImGuiCol_TableRowBgAlt);
             if (hasWarning) rowCol = CImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
@@ -986,25 +987,26 @@ namespace kbf {
             CImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             CImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (sliderHeight + tableVpad - CImGui::GetFontSize() * deleteButtonScale) * 0.5f);
-            if (ImDeleteButton(("##del_" + bone.name).c_str(), deleteButtonScale)) {
+            if (ImDeleteButton(("##del_" + boneKey).c_str(), deleteButtonScale)) {
                 bonesToDelete.push_back(&bone);
             }
             CImGui::PopStyleColor(2);
 
             CImGui::TableNextColumn();
-            CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (sliderHeight + tableVpad - CImGui::CalcTextSize(bone.name.c_str()).y) * 0.5f);
-            CImGui::Text(bone.name.c_str());
+            const std::string boneNameStr = bone.isSymmetryProxy ? (bone.name + " (L & R)") : bone.name;
+            CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (sliderHeight + tableVpad - CImGui::CalcTextSize(boneNameStr.c_str()).y) * 0.5f);
+            CImGui::Text(boneNameStr.c_str());
 
             CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 4));
 
             const ImVec2 size{ sliderWidth, sliderHeight };
             CImGui::TableNextColumn();
-            drawCompactBoneModifierGroup(bone.name + "_scale_", bone.modifier->scale, modLimit, size, "Scale ");
+            drawCompactBoneModifierGroup(boneKey + "_scale_", bone.modifier->scale, modLimit, size, "Scale ");
             CImGui::TableNextColumn();
-            drawCompactBoneModifierGroup(bone.name + "_position_", bone.modifier->position, modLimit, size, "Pos ");
+            drawCompactBoneModifierGroup(boneKey + "_position_", bone.modifier->position, modLimit, size, "Pos ");
             CImGui::TableNextColumn();
             glm::vec3 rotation = bone.modifier->getRotation();
-            drawCompactBoneModifierGroup(bone.name + "_rotation_", rotation, modLimit, size, "Rot ");
+            drawCompactBoneModifierGroup(boneKey + "_rotation_", rotation, modLimit, size, "Rot ");
             bone.modifier->setRotation(rotation);
 
             if (bone.isSymmetryProxy) *bone.reflectedModifier = bone.modifier->reflect();
@@ -1091,6 +1093,7 @@ namespace kbf {
         for (const SortableBoneModifier& bone : sortableModifiers) {
             // Display warning if any of the bones aren't in the bone cache
             bool hasWarning = enableWarnings && !dataManager.boneCache().boneExists(armourWithSex, piece, bone.boneName);
+            std::string boneKey = bone.name + (bone.isSymmetryProxy ? "LRProxy" : "Unique");
 
             ImU32 rowCol = i % 2 == 0 ? CImGui::GetColorU32(ImGuiCol_TableRowBg) : CImGui::GetColorU32(ImGuiCol_TableRowBgAlt);
             if (hasWarning) rowCol = CImGui::GetColorU32(ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
@@ -1104,7 +1107,7 @@ namespace kbf {
             CImGui::Text("Scale");
             CImGui::TableSetColumnIndex(3);
             CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 4));
-            drawBoneModifierGroup(bone.name + "_scale_", bone.modifier->scale, modLimit, sliderWidth, sliderSpeed);
+            drawBoneModifierGroup(boneKey + "_scale_", bone.modifier->scale, modLimit, sliderWidth, sliderSpeed);
             CImGui::PopStyleVar();
 
             // Middle Row
@@ -1115,21 +1118,22 @@ namespace kbf {
             CImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.9f, 0.3f, 0.3f, 1.0f));
             CImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.7f, 0.1f, 0.1f, 1.0f));
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (CImGui::GetFrameHeight() - CImGui::GetFontSize() * deleteButtonScale) * 0.5f);
-            if (ImDeleteButton(("##del_" + bone.name).c_str(), deleteButtonScale)) {
+            if (ImDeleteButton(("##del_" + boneKey).c_str(), deleteButtonScale)) {
                 bonesToDelete.push_back(&bone);
             }
             CImGui::PopStyleColor(2);
 
             CImGui::TableSetColumnIndex(1);
+            const std::string boneNameStr = bone.isSymmetryProxy ? (bone.name + " (L & R)") : bone.name;
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (CImGui::GetFrameHeight() - CImGui::GetTextLineHeight()) * 0.5f);
-            CImGui::Text(bone.name.c_str());
+            CImGui::Text(boneNameStr.c_str());
 
             CImGui::TableSetColumnIndex(2);
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (CImGui::GetFrameHeight() - CImGui::GetTextLineHeight()) * 0.5f);
             CImGui::Text("Position");
             CImGui::TableSetColumnIndex(3);
             CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 4));
-            drawBoneModifierGroup(bone.name + "_position_", bone.modifier->position, modLimit, sliderWidth, sliderSpeed);
+            drawBoneModifierGroup(boneKey + "_position_", bone.modifier->position, modLimit, sliderWidth, sliderSpeed);
             CImGui::PopStyleVar();
 
             // Bottom Row
@@ -1142,7 +1146,7 @@ namespace kbf {
             CImGui::TableSetColumnIndex(3);
             CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 4));
             glm::vec3 rotation = bone.modifier->getRotation();
-            drawBoneModifierGroup(bone.name + "_rotation_", rotation, modLimit, sliderWidth, sliderSpeed);
+            drawBoneModifierGroup(boneKey + "_rotation_", rotation, modLimit, sliderWidth, sliderSpeed);
             bone.modifier->setRotation(rotation);
             CImGui::PopStyleVar();
 
