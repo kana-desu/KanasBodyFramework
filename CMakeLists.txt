@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 
-set(VER 1.0.3)
+set(VER 1.0.4)
 
 project(
     KanaBodyFramework
@@ -31,6 +31,7 @@ set(GLM_PATH           external/glm)               # GLM
 set(KBF_SOURCES
     "kbf/data/armour/armour_list.cpp"
     "kbf/data/bones/bone_cache_manager.cpp"
+    "kbf/data/file/kbf_file_upgrader.cpp"
     "kbf/data/mesh/part_cache_manager.cpp"
     "kbf/data/kbf_data_manager.cpp"
     "kbf/gui/components/toggle/imgui_toggle.cpp"
