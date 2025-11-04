@@ -157,49 +157,6 @@ namespace kbf {
 		);
 
 		return true;
-
-		//// ====== 1. Add "hide" field ======
-		//if (!parseObject(doc, "removedParts", "removedParts")) {
-		//	DEBUG_STACK.push(
-		//		std::format("[KbfFileUpgrader] Preset upgrade to 1.0.4 failed - could not find \"removedParts\" array."),
-		//		DebugStack::Color::ERROR
-		//	);
-		//	return false;
-		//}
-
-		//rapidjson::Value& removedParts = doc["removedParts"];
-		//if (!removedParts.IsArray()) {
-		//	DEBUG_STACK.push(
-		//		std::format("[KbfFileUpgrader] Preset upgrade to 1.0.4 failed - \"removedParts\" is not an array."),
-		//		DebugStack::Color::ERROR
-		//	);
-		//	return false;
-		//}
-
-		//for (rapidjson::Value::ValueIterator itr = removedParts.Begin(); itr != removedParts.End(); ++itr) {
-		//	rapidjson::Value& partObj = *itr;
-		//	if (!partObj.IsObject()) {
-		//		DEBUG_STACK.push(
-		//			std::format("[KbfFileUpgrader] Preset upgrade to 1.0.4 failed - entry in \"removedParts\" array is not an object."),
-		//			DebugStack::Color::ERROR
-		//		);
-		//		return false;
-		//	}
-		//	rapidjson::Value hideField;
-		//	hideField.SetBool(true);
-		//	partObj.AddMember("hide", hideField, doc.GetAllocator());
-		//}
-
-		//// ======= 2. Rename "removedParts" to "partOverrides" ======
-		//rapidjson::Value partOverrides;
-		//partOverrides.SetArray();
-		//for (rapidjson::Value::ValueIterator itr = removedParts.Begin(); itr != removedParts.End(); ++itr) {
-		//	partOverrides.PushBack(*itr, doc.GetAllocator());
-		//}
-		//doc.RemoveMember("removedParts");
-		//doc.AddMember("partOverrides", partOverrides, doc.GetAllocator());
-
-		//return true;
 	}
 
 }

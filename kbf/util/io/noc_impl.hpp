@@ -11,42 +11,6 @@
 #include <shlobj.h>
 #include <string>
 
-//inline std::string noc_browse_folder_open(std::string saved_path) {
-//    TCHAR path[MAX_PATH];
-//
-//    // Callback function to set default folder
-//    auto callback = [](HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) -> int {
-//        if (uMsg == BFFM_INITIALIZED) {
-//            // Set the initial directory
-//            SendMessage(hwnd, BFFM_SETSELECTION, TRUE, lpData);
-//        }
-//        return 0;
-//    };
-//
-//    BROWSEINFO bi = { 0 };
-//    bi.lpszTitle = TEXT("Browse for folder...");
-//    bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_EDITBOX;
-//    bi.lpfn = callback;
-//    bi.lParam = (LPARAM)saved_path.c_str(); // path to preselect
-//
-//    LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
-//
-//    if (pidl != nullptr) {
-//        SHGetPathFromIDList(pidl, path);
-//
-//        // Free memory used
-//        IMalloc* imalloc = nullptr;
-//        if (SUCCEEDED(SHGetMalloc(&imalloc))) {
-//            imalloc->Free(pidl);
-//            imalloc->Release();
-//        }
-//
-//        return path;
-//    }
-//
-//    return "";
-//}
-
 inline std::string noc_browse_folder_open(const std::string& defaultPath = "") {
     std::string result;
 
