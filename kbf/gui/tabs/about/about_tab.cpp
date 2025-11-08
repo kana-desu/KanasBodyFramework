@@ -639,6 +639,8 @@ namespace kbf {
             WRAP_BULLET("-", "Added more options to control when weapons are not hidden (always show in tent, while sharpening, while riding seikret).");
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked after eating a meal / starting a cutscene.");
+            WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked during cutscenes.");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.0.4b")) {

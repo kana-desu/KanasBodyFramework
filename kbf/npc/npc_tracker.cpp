@@ -170,6 +170,10 @@ namespace kbf {
         const bool guildCard        = SituationWatcher::inCustomSituation(CustomSituation::isInHunterGuildCard);
         const bool cutscene         = SituationWatcher::inCustomSituation(CustomSituation::isInCutscene);
 
+        // Try refetch once after cutscene ends/begins to avoid being untracked.
+        needsAllNpcFetch |= (frameIsCutscene && !cutscene) || (!frameIsCutscene && cutscene);
+        frameIsCutscene = cutscene;
+
         if      (mainMenu        ) thisUpdateSituation = CustomSituation::isInMainMenuScene;   
         else if (saveSelect      ) thisUpdateSituation = CustomSituation::isInSaveSelectGUI;   
         else if (characterCreator) thisUpdateSituation = CustomSituation::isInCharacterCreator;
