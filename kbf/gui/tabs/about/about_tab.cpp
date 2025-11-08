@@ -639,6 +639,7 @@ namespace kbf {
             WRAP_BULLET("-", "Added more options to control when weapons are not hidden (always show in tent, while sharpening, while riding seikret).");
             WRAP_BULLET("-", "Added the option to hide kinsects when the weapon is hidden.");
             CImGui::SeparatorText("Changes");
+            WRAP_BULLET("-", "When importing an FBS preset, Custom Bone modifiers will be automatically moved under the correct piece tab (where the bone exists), instead of being non-functional in the base-armature.");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked after eating a meal / starting a cutscene.");
             WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked during cutscenes.");

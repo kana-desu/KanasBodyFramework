@@ -1805,9 +1805,11 @@ namespace kbf {
         if (!parsed) return false;
 
         // Get all the modifiers (this is a horrible file read)
-        BoneModifierMap& targetModifiers = out->preset.set.modifiers; //body ? out->preset.body.modifiers : out->preset.legs.modifiers;
-        const auto addModifierIfNotExistsFn = [&targetModifiers](const std::string& boneName) {
-            if (targetModifiers.find(boneName) == targetModifiers.end()) targetModifiers.emplace(boneName, BoneModifier{});
+        BoneModifierMap& baseArmatureModifiers = out->preset.set.modifiers; 
+        BoneModifierMap& presetSpecificModifiers = body ? out->preset.body.modifiers : out->preset.legs.modifiers;
+        const auto addModifierIfNotExistsFn = [&presetSpecificModifiers, &baseArmatureModifiers](const std::string& boneName) {
+            BoneModifierMap& targetMap = boneName.starts_with("CustomBone") ? presetSpecificModifiers : baseArmatureModifiers;
+            if (targetMap.find(boneName) == targetMap.end()) targetMap.emplace(boneName, BoneModifier{});
         };
 
         std::unordered_map<std::string, glm::vec3> rotations{};
@@ -1840,38 +1842,41 @@ namespace kbf {
             else if (isScaleY) boneName = keyName.substr(0, keyName.size() - std::string("ScalevecY").size());
             else if (isScaleZ) boneName = keyName.substr(0, keyName.size() - std::string("ScalevecZ").size());
 
+            BoneModifierMap& targetMap = boneName.starts_with("CustomBone") ? presetSpecificModifiers : baseArmatureModifiers;
+
             float modValue = 0.0f;
             parsed &= parseFloat(presetDoc, keyName.c_str(), keyName.c_str(), &modValue);
 
             if      (isEulerX) { addModifierIfNotExistsFn(boneName); rotations[boneName].x = modValue; }
             else if (isEulerY) { addModifierIfNotExistsFn(boneName); rotations[boneName].y = modValue; }
             else if (isEulerZ) { addModifierIfNotExistsFn(boneName); rotations[boneName].z = modValue; }
-            else if (isPosX)   { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].position.x = modValue; }
-            else if (isPosY)   { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].position.y = modValue; }
-            else if (isPosZ)   { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].position.z = modValue; }
-            else if (isScaleX) { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].scale.x = modValue; }
-            else if (isScaleY) { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].scale.y = modValue; }
-            else if (isScaleZ) { addModifierIfNotExistsFn(boneName); targetModifiers[boneName].scale.z = modValue; }
+            else if (isPosX)   { addModifierIfNotExistsFn(boneName); targetMap[boneName].position.x = modValue; }
+            else if (isPosY)   { addModifierIfNotExistsFn(boneName); targetMap[boneName].position.y = modValue; }
+            else if (isPosZ)   { addModifierIfNotExistsFn(boneName); targetMap[boneName].position.z = modValue; }
+            else if (isScaleX) { addModifierIfNotExistsFn(boneName); targetMap[boneName].scale.x = modValue; }
+            else if (isScaleY) { addModifierIfNotExistsFn(boneName); targetMap[boneName].scale.y = modValue; }
+            else if (isScaleZ) { addModifierIfNotExistsFn(boneName); targetMap[boneName].scale.z = modValue; }
         }
 
         for (const auto& [boneName, rotation] : rotations) {
-            targetModifiers[boneName].setRotation(rotation);
+			BoneModifierMap& targetMap = boneName.starts_with("CustomBone") ? presetSpecificModifiers : baseArmatureModifiers;
+            targetMap[boneName].setRotation(rotation);
         }
 
         // add a placeholder for whichever part this is *supposed* to be for (But FBS doesn't support)
         if (body) {
-            out->preset.body.modifiers.emplace("fbs_compat_part_marker (DISPLAY ONLY)", BoneModifier{});
+            out->preset.body.modifiers.emplace("Auto-Generated FBS Compatability Part Marker (DISPLAY ONLY)", BoneModifier{});
         }
         else {
-            out->preset.legs.modifiers.emplace("fbs_compat_part_marker (DISPLAY ONLY)", BoneModifier{});
+            out->preset.legs.modifiers.emplace("Auto-Generated FBS Compatability Part Marker (DISPLAY ONLY)", BoneModifier{});
         }
 
         // Do a pass over to enforce symmetry as FBS does not automatically populate symmetrical bones (though they might exist)
-        for (auto& [boneName, modifier] : targetModifiers) {
+        for (auto& [boneName, modifier] : baseArmatureModifiers) {
             std::string complement = "";
-            const auto _ = getSymmetryProxyModifier(boneName, targetModifiers, &complement);
+            const auto _ = getSymmetryProxyModifier(boneName, baseArmatureModifiers, &complement);
             if (!complement.empty()) {
-                targetModifiers[complement] = modifier.reflect();
+                baseArmatureModifiers[complement] = modifier.reflect();
 			}
 		}
 
