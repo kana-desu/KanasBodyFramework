@@ -235,6 +235,9 @@ namespace kbf {
         needsAllPlayerFetch |= (frameIsCutscene && !cutscene) || (!frameIsCutscene && cutscene); 
         frameIsCutscene = cutscene;
 
+		needsAllPlayerFetch |= (frameIsGuildCard && !guildCard) || (!frameIsGuildCard && guildCard);
+		frameIsGuildCard = guildCard;
+
         if      (mainMenu        ) thisUpdateSituation = CustomSituation::isInMainMenuScene;   
         else if (saveSelect      ) thisUpdateSituation = CustomSituation::isInSaveSelectGUI;   
         else if (characterCreator) thisUpdateSituation = CustomSituation::isInCharacterCreator;
@@ -866,9 +869,13 @@ namespace kbf {
 	}
 
     bool PlayerTracker::fetchPlayers_HunterGuildCard_BasicInfo(PlayerInfo& outInfo) {
-        // TODO Maybe check field IsWaitingOpenProfile
+        //bool* isSelfProfile_test = re_memory_ptr<bool>(guiManager, 0x465);
 
-        bool* isSelfProfile = re_memory_ptr<bool>(guiManager, 0x454); //REFieldPtr<bool>(guiManager, "_HunterProfile_IsSelfProfile", true);
+        // UPDATE NOTE: The offset here *might* change here? Still not sure why this function provides incorrect offsets...
+        constexpr uint64_t offset_IsSelfProfile = 0x50;
+        bool* isSelfProfile = REFieldPtr<bool>(guiManager, "_HunterProfile_IsSelfProfile", true);
+		isSelfProfile = reinterpret_cast<bool*>((uintptr_t)isSelfProfile + offset_IsSelfProfile);
+
         if (isSelfProfile == nullptr) return false;
 
         bool isSelfProfile_value = *isSelfProfile;

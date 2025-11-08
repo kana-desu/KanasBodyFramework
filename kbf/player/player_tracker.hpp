@@ -114,9 +114,9 @@ namespace kbf {
         std::optional<CustomSituation> lastSituation = std::nullopt;
         size_t frameBoneFetchCount = 0;
 
-        // Cutscene end tracking
+        // Cutscene & Guild card start-end tracking
         bool frameIsCutscene = false;
-
+		bool frameIsGuildCard = false;
     };
 
 }

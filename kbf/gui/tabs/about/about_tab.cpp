@@ -641,6 +641,7 @@ namespace kbf {
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked after eating a meal / starting a cutscene.");
             WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked during cutscenes.");
+            WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked when opening / closing guild cards.");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.0.4b")) {
