@@ -81,14 +81,44 @@ namespace kbf {
 
 		CImGui::Spacing();
 		pushToggleColors(settings.enableDuringQuestsOnly);
-		settingsChanged |= CImGui::Toggle(" Enable During Quests Only", &settings.enableDuringQuestsOnly, ImGuiToggleFlags_Animated);
+		settingsChanged |= CImGui::Toggle(" Enable KBF During Quests Only", &settings.enableDuringQuestsOnly, ImGuiToggleFlags_Animated);
 		popToggleColors();
 		CImGui::SetItemTooltip("Only apply modifiers in quests where the number applications is minimal.");
+
+		CImGui::Spacing();
+		CImGui::Spacing();
+		drawTabBarSeparator("Weapon Hiding", "WeaponHiding");
+		CImGui::Spacing();
+
+		pushToggleColors(settings.enableHideWeapons);
+		settingsChanged |= CImGui::Toggle(" Enable Weapon Hiding", &settings.enableHideWeapons, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("Disable this if you want to manage weapon visibility using a mod other than KBF (e.g. \"Hide Sheathed Weapons\" mod).");
+
+		pushToggleColors(settings.forceShowWeaponInTent);
+		settingsChanged |= CImGui::Toggle(" Always Show Weapon in Tent", &settings.forceShowWeaponInTent, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("Enabling this will ensure weapons are never hidden when you are in a tent.");
+
+		pushToggleColors(settings.forceShowWeaponWhenSharpening);
+		settingsChanged |= CImGui::Toggle(" Always Show Weapon when Sharpening", &settings.forceShowWeaponWhenSharpening, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("Enabling this will ensure weapons are never hidden when you are sharpening.");
+
+		pushToggleColors(settings.forceShowWeaponWhenOnSeikret);
+		settingsChanged |= CImGui::Toggle(" Always Show Weapon when Riding a Seikret", &settings.forceShowWeaponWhenOnSeikret, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("Enabling this will ensure weapons are never hidden when you are riding your seikret.");
 
 		pushToggleColors(settings.hideWeaponsOutsideOfCombatOnly);
 		settingsChanged |= CImGui::Toggle(" Hide Weapons Outside of Combat Only", &settings.hideWeaponsOutsideOfCombatOnly, ImGuiToggleFlags_Animated);
 		popToggleColors();
 		CImGui::SetItemTooltip("Enabling this will ensure your weapon is always visible during combat.");
+
+		CImGui::Spacing();
+		CImGui::Spacing();
+		drawTabBarSeparator("Part Hiding", "PartHiding");
+		CImGui::Spacing();
 
 		pushToggleColors(settings.hideSlingerOutsideOfCombatOnly);
 		settingsChanged |= CImGui::Toggle(" Hide Slinger Outside of Combat Only", &settings.hideSlingerOutsideOfCombatOnly, ImGuiToggleFlags_Animated);

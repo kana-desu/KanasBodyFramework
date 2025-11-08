@@ -34,9 +34,12 @@ namespace kbf {
 		PlayerPointers         pointers;
 		PlayerOptionalPointers optionalPointers;
 
-		bool visible = false;
-		bool weaponDrawn = false;
-		bool inCombat = false;
+		bool visible         = false;
+		bool weaponDrawn     = false;
+		bool inCombat        = false;
+		bool inTent          = false;
+		bool isSharpening    = false;
+		bool isRidingSeikret = false;
 
 		float distanceFromCameraSq;
 	};

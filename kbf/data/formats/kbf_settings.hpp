@@ -11,6 +11,10 @@ namespace kbf {
 		int   maxConcurrentApplications      = 10;
 		int   maxBoneFetchesPerFrame         = 1;
 		bool  enableDuringQuestsOnly         = false;
+		bool  enableHideWeapons              = true;
+		bool  forceShowWeaponInTent          = true;
+		bool  forceShowWeaponWhenSharpening  = true;
+		bool  forceShowWeaponWhenOnSeikret   = true;
 		bool  hideWeaponsOutsideOfCombatOnly = true;
 		bool  hideSlingerOutsideOfCombatOnly = true;
 		bool  enableProfiling                = false;

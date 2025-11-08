@@ -432,7 +432,7 @@ namespace kbf {
             "\n\nPlayerManageInfo: {}\nHunterCharacter: {}\ncHunterCreateInfo: {}\nEventModelSetupper: {}\nVolumeOccludee: {}"
             "\n\nHelm: {}\nBody: {}\nArms: {}\nCoil: {}\nLegs: {}\nSlinger: {}"
             "\n\nWp_Parent: {}\nWpSub_Parent: {}\nWp_ReserveParent: {}\nWpSub_ReserveParent: {}"
-            "\n\nVisible: {}\nWeapon Drawn: {}\nIn Combat: {}"
+            "\n\nVisible: {}\nWeapon Drawn: {}\nIn Combat: {}\nIn Tent: {}\nSharpening: {}\nRiding Seikret: {}"
             "\n\nCamera Distance Sq: {}", 
             ptrToHexString(info.pointers.Transform),
             ptrToHexString(info.optionalPointers.cPlayerManageInfo),
@@ -453,6 +453,9 @@ namespace kbf {
 			info.visible ? "YES" : "NO",
             info.weaponDrawn ? "YES" : "NO",
 			info.inCombat ? "YES" : "NO",
+			info.inTent ? "YES" : "NO",
+			info.isSharpening ? "YES" : "NO",
+			info.isRidingSeikret ? "YES" : "NO",
             info.distanceFromCameraSq
         ).c_str());
             

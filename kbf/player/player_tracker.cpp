@@ -181,15 +181,22 @@ namespace kbf {
                 }
 
                 if (!applyError) {
-				    // Handle weapon & slinger visibility
-                    bool weaponVisible = info.weaponDrawn || !hideWeapon ||
-                        (info.inCombat && dataManager.settings().hideWeaponsOutsideOfCombatOnly);
+				    // Weapon Visibility
+                    if (dataManager.settings().enableHideWeapons) {
 
-				    if (pInfo->Wp_Parent_GameObject)           REInvokeVoid(pInfo->Wp_Parent_GameObject,           "set_DrawSelf", { (void*)(weaponVisible) });
-				    if (pInfo->WpSub_Parent_GameObject)        REInvokeVoid(pInfo->WpSub_Parent_GameObject,        "set_DrawSelf", { (void*)(weaponVisible) });
-				    if (pInfo->Wp_ReserveParent_GameObject)    REInvokeVoid(pInfo->Wp_ReserveParent_GameObject,    "set_DrawSelf", { (void*)(weaponVisible) });
-				    if (pInfo->WpSub_ReserveParent_GameObject) REInvokeVoid(pInfo->WpSub_ReserveParent_GameObject, "set_DrawSelf", { (void*)(weaponVisible) });
-            
+                        bool weaponVisible = info.weaponDrawn || !hideWeapon 
+                            || (info.inCombat && dataManager.settings().hideWeaponsOutsideOfCombatOnly)
+                            || (info.inTent && dataManager.settings().forceShowWeaponInTent)
+							|| (info.isRidingSeikret && dataManager.settings().forceShowWeaponWhenOnSeikret)
+							|| (info.isSharpening && dataManager.settings().forceShowWeaponWhenSharpening);
+
+				        if (pInfo->Wp_Parent_GameObject)           REInvokeVoid(pInfo->Wp_Parent_GameObject,           "set_DrawSelf", { (void*)(weaponVisible) });
+				        if (pInfo->WpSub_Parent_GameObject)        REInvokeVoid(pInfo->WpSub_Parent_GameObject,        "set_DrawSelf", { (void*)(weaponVisible) });
+				        if (pInfo->Wp_ReserveParent_GameObject)    REInvokeVoid(pInfo->Wp_ReserveParent_GameObject,    "set_DrawSelf", { (void*)(weaponVisible) });
+				        if (pInfo->WpSub_ReserveParent_GameObject) REInvokeVoid(pInfo->WpSub_ReserveParent_GameObject, "set_DrawSelf", { (void*)(weaponVisible) });
+                    }
+                
+					// Slinger Visibility
 				    bool slingerVisible = !hideSlinger || (info.inCombat && dataManager.settings().hideSlingerOutsideOfCombatOnly);
 				    if (pInfo->Slinger_GameObject) REInvokeVoid(pInfo->Slinger_GameObject, "set_DrawSelf", { (void*)(slingerVisible) });
                 }
@@ -1120,8 +1127,17 @@ namespace kbf {
         info.visible = false;
         info.distanceFromCameraSq = FLT_MAX;
 
-        info.weaponDrawn = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsWeaponOn", {}, InvokeReturnType::BOOL);
-        info.inCombat    = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsCombat", {}, InvokeReturnType::BOOL);
+        info.weaponDrawn     = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsWeaponOn", {}, InvokeReturnType::BOOL);
+        info.inCombat        = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsCombat", {}, InvokeReturnType::BOOL);
+        info.inTent          = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsInAllTent", {}, InvokeReturnType::BOOL);
+		info.isRidingSeikret = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsPorterRiding", {}, InvokeReturnType::BOOL);
+
+        // UPDATE NOTE: These will likely change with future updates!!
+        // ITEM_0019 = Whetstone (v=20)
+        // ITEM_0297 = Whetfish Fin (v=270)
+        // ITEM_0710 = Whetfish Fin+ (v=683)
+		uint32_t itemDef_ID = REInvoke<uint32_t>(info.optionalPointers.HunterCharacter, "get_UsedItemID", {}, InvokeReturnType::DWORD);
+        info.isSharpening = (itemDef_ID == 20 || itemDef_ID == 270 || itemDef_ID == 683);
 
         const bool motionSkipped = REInvoke<bool>(info.optionalPointers.Motion, "get_SkipUpdate", {}, InvokeReturnType::BOOL);
         if (motionSkipped) return;

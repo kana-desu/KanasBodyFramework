@@ -58,7 +58,7 @@ namespace kbf {
         validateObjectsUsingPresetGroups();
 
         // Armour list stuff
-        #if _DEBUG
+        #if KBF_DEBUG_BUILD
 		DEBUG_STACK.push(std::format("{} Note: Debug Build - using & writing fallback armour list...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::WARNING);
             writeArmourList(armourListPath, ArmourList::FALLBACK_MAPPING);
         #endif
@@ -1151,6 +1151,10 @@ namespace kbf {
         parseInt(config, SETTINGS_MAX_CONCURRENT_APPLICATIONS_ID, SETTINGS_MAX_CONCURRENT_APPLICATIONS_ID, &out->maxConcurrentApplications);
         parseInt(config, SETTINGS_MAX_BONE_FETCHES_PER_FRAME_ID, SETTINGS_MAX_BONE_FETCHES_PER_FRAME_ID, &out->maxBoneFetchesPerFrame);
         parseBool(config, SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID, SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID, &out->enableDuringQuestsOnly);
+        parseBool(config, SETTINGS_ENABLE_HIDE_WEAPONS_ID, SETTINGS_ENABLE_HIDE_WEAPONS_ID, &out->enableHideWeapons);
+        parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID, SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID, &out->forceShowWeaponInTent);
+        parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID, SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID, &out->forceShowWeaponWhenSharpening);
+        parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID, SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID, &out->forceShowWeaponWhenOnSeikret);
         parseBool(config, SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID, SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID, &out->hideWeaponsOutsideOfCombatOnly);
         parseBool(config, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, &out->hideSlingerOutsideOfCombatOnly);
         parseBool(config, SETTINGS_ENABLE_PROFILING_ID, SETTINGS_ENABLE_PROFILING_ID, &out->enableProfiling);
@@ -1180,6 +1184,14 @@ namespace kbf {
         writer.Int(settings.maxBoneFetchesPerFrame);
         writer.Key(SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID);
         writer.Bool(settings.enableDuringQuestsOnly);
+		writer.Key(SETTINGS_ENABLE_HIDE_WEAPONS_ID);
+		writer.Bool(settings.enableHideWeapons);
+		writer.Key(SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID);
+		writer.Bool(settings.forceShowWeaponInTent);
+		writer.Key(SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID);
+		writer.Bool(settings.forceShowWeaponWhenSharpening);
+		writer.Key(SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID);
+		writer.Bool(settings.forceShowWeaponWhenOnSeikret);
         writer.Key(SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID);
         writer.Bool(settings.hideWeaponsOutsideOfCombatOnly);
         writer.Key(SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID);

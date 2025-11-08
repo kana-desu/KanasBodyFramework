@@ -632,7 +632,16 @@ namespace kbf {
     void AboutTab::drawChangelogTab() {
 
         CImGui::Spacing();
-        if (CImGui::CollapsingHeader("v1.0.4b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.0.5b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "Added the option to disable weapon hiding entirely (so you can leave this up to other mods to decide).");
+            WRAP_BULLET("-", "Added more options to control when weapons are not hidden (always show in tent, while sharpening, while riding seikret).");
+            CImGui::SeparatorText("Changes");
+            CImGui::SeparatorText("Fixes");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.0.4b")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Persistent files (e.g. presets, etc) will now be upgraded to the latest format automatically when there is an update.");
