@@ -20,8 +20,6 @@
 
 #include <kbf/util/string/to_lower.hpp>
 
-#include <kbf/gui/components/toggle/imgui_toggle.h>
-
 #include <format>
 #include <unordered_set>
 
@@ -643,90 +641,87 @@ namespace kbf {
         CImGui::Spacing();
         CImGui::Spacing();
 
-        if (CImGui::BeginTabBar("PresetEditorTabs")) {
-            ArmourID armourID = ArmourList::getArmourIdFromSet(openObject.ptrAfter.preset->armour);
+        if (CImGui::BeginTabBar("PresetEditorTabs"))
+        {
+            Preset** p = &openObject.ptrAfter.preset;
+            ArmourID id = ArmourList::getArmourIdFromSet((**p).armour);
 
             if (CImGui::BeginTabItem("Properties")) {
                 CImGui::Spacing();
-                drawPresetEditor_Properties(&openObject.ptrAfter.preset);
+                drawPresetEditor_Properties(p);
                 CImGui::EndTabItem();
             }
             if (CImGui::IsItemClicked()) selectBonePanel.close();
 
             if (CImGui::BeginTabItem("Base Armature")) {
                 CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_SET);
+                drawPresetEditor_BoneModifiers(p, ArmourPiece::AP_SET);
                 CImGui::EndTabItem();
             }
-			if (CImGui::IsItemClicked()) selectBonePanel.close();
-
-            bool disableHead = !armourID.hasPiece(ArmourPiece::AP_HELM);
-			if (disableHead) CImGui::BeginDisabled();
-            if (CImGui::BeginTabItem("Head")) {
-                CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_HELM);
-                CImGui::EndTabItem();
-			}
-			if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableHead) CImGui::EndDisabled();
-			if (disableHead) CImGui::SetItemTooltip("Preset's armour set has no helmet");
-
-            bool disableBody = !armourID.hasPiece(ArmourPiece::AP_BODY);
-			if (disableBody) CImGui::BeginDisabled();
-            if (CImGui::BeginTabItem("Body")) {
-                CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_BODY);
-                CImGui::EndTabItem();
-			}
-			if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableBody) CImGui::EndDisabled();
-			if (disableBody) CImGui::SetItemTooltip("Preset's armour set has no chestpiece");
-
-			bool disableArms = !armourID.hasPiece(ArmourPiece::AP_ARMS);
-			if (disableArms) CImGui::BeginDisabled();
-            if (CImGui::BeginTabItem("Arms")) {
-                CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_ARMS);
-                CImGui::EndTabItem();
-            }
-			if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableArms) CImGui::EndDisabled();
-			if (disableArms) CImGui::SetItemTooltip("Preset's armour set has no vambraces");
-
-			bool disableWaist = !armourID.hasPiece(ArmourPiece::AP_COIL);
-			if (disableWaist) CImGui::BeginDisabled();
-            if (CImGui::BeginTabItem("Waist")) {
-                CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_COIL);
-                CImGui::EndTabItem();
-			}
-			if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableWaist) CImGui::EndDisabled();
-			if (disableWaist) CImGui::SetItemTooltip("Preset's armour set has no coil");
-
-			bool disableLegs = !armourID.hasPiece(ArmourPiece::AP_LEGS);
-			if (disableLegs) CImGui::BeginDisabled();
-            if (CImGui::BeginTabItem("Legs")) {
-                CImGui::Spacing();
-                drawPresetEditor_BoneModifiers(&openObject.ptrAfter.preset, ArmourPiece::AP_LEGS);
-                CImGui::EndTabItem();
-			}
             if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableLegs) CImGui::EndDisabled();
-			if (disableLegs) CImGui::SetItemTooltip("Preset's armour set has no greaves");
-            
-            bool disableParts = openObject.ptrAfter.preset->armour == ArmourList::DefaultArmourSet();
-            if (disableParts) CImGui::BeginDisabled();
+
+            drawPresetEditor_ArmourTab("Head",  ArmourPiece::AP_HELM, "helmet",     p, id);
+            drawPresetEditor_ArmourTab("Body",  ArmourPiece::AP_BODY, "chestpiece", p, id);
+            drawPresetEditor_ArmourTab("Arms",  ArmourPiece::AP_ARMS, "vambraces",  p, id);
+            drawPresetEditor_ArmourTab("Waist", ArmourPiece::AP_COIL, "coil",       p, id);
+            drawPresetEditor_ArmourTab("Legs",  ArmourPiece::AP_LEGS, "greaves",    p, id);
+
             if (CImGui::BeginTabItem("Parts")) {
                 CImGui::Spacing();
-                drawPresetEditor_PartVisibilities(&openObject.ptrAfter.preset);
+                drawPresetEditor_PartVisibilities(p);
                 CImGui::EndTabItem();
             }
             if (CImGui::IsItemClicked()) selectBonePanel.close();
-			if (disableParts) CImGui::EndDisabled();
-            if (disableParts) CImGui::SetItemTooltip("Must select a specific armour set instead of \"Any\" in order to remove parts");
+
             CImGui::EndTabBar();
         }
+    }
+
+    bool EditorTab::drawPresetEditor_ArmourTab(
+        const char* label,
+        ArmourPiece piece,
+        const char* englishName,
+        Preset** preset,
+        ArmourID id
+    ) {
+        constexpr auto beginFauxDisableTabItem = []() {
+            ImVec4 off = *CImGui::GetStyleColorVec4(ImGuiCol_TextDisabled);
+            CImGui::PushStyleColor(ImGuiCol_Text, off);
+            CImGui::PushStyleVar(ImGuiStyleVar_Alpha, CImGui::GetStyle().Alpha * 0.7f);
+         };
+
+        constexpr auto endFauxDisableTabItem = []() {
+            CImGui::PopStyleVar();
+            CImGui::PopStyleColor();
+        };
+
+        const bool disabled = !id.hasPiece(piece);
+        if (disabled) beginFauxDisableTabItem();
+
+        bool open = false;
+        if (CImGui::BeginTabItem(label)) {
+            if (disabled) endFauxDisableTabItem();
+            CImGui::Spacing();
+            drawPresetEditor_BoneModifiers(preset, piece);
+            CImGui::EndTabItem();
+            open = true;
+        }
+        else if (disabled) {
+            endFauxDisableTabItem();
+            CImGui::SetItemTooltip(
+                std::format(
+                    "Note: This preset's armour set: \"{}\" ({}) has no {}",
+                    (**preset).armour.name,
+                    (**preset).armour.female ? "F" : "M",
+                    englishName
+                ).c_str()
+            );
+        }
+
+        if (CImGui::IsItemClicked())
+            selectBonePanel.close();
+
+        return open;
     }
 
     void EditorTab::drawPresetEditor_Properties(Preset** preset) {
@@ -1197,9 +1192,14 @@ namespace kbf {
         CImGui::SameLine();
         CImGui::Toggle(" Hide Weapon ", &(**preset).hideWeapon, ImGuiToggleFlags_Animated);
         CImGui::SameLine();
+
+        bool disableHidePart = (**preset).armour == ArmourList::DefaultArmourSet();
+        if (disableHidePart) CImGui::BeginDisabled();
         if (CImGui::Button("Show/Hide Part", ImVec2(CImGui::GetContentRegionAvail().x, 0))) {
             openPartOverridePanel();
         }
+		if (disableHidePart) CImGui::EndDisabled();
+        if (disableHidePart) CImGui::SetItemTooltip("Cannot show/hide parts when the preset's armour set is set to \"Any\"");
 
         constexpr const char* hintText = "Note: Shown/Hidden parts won't reset to default visibility until reloaded/re-equipped.";
         const float hintWidth = CImGui::CalcTextSize(hintText).x;
