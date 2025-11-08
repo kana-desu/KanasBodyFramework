@@ -33,6 +33,9 @@ namespace kbf {
 		reframework::API::ManagedObject* Wp_ReserveParent_GameObject    = nullptr;
 		reframework::API::ManagedObject* WpSub_ReserveParent_GameObject = nullptr;
 
+		reframework::API::ManagedObject* Wp_Insect        = nullptr;
+		reframework::API::ManagedObject* Wp_ReserveInsect = nullptr;
+
 		reframework::API::ManagedObject* Slinger_GameObject = nullptr;
 
 		std::unique_ptr<BoneManager> boneManager = nullptr;

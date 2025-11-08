@@ -95,6 +95,11 @@ namespace kbf {
 		popToggleColors();
 		CImGui::SetItemTooltip("Disable this if you want to manage weapon visibility using a mod other than KBF (e.g. \"Hide Sheathed Weapons\" mod).");
 
+		pushToggleColors(settings.enableHideKinsect);
+		settingsChanged |= CImGui::Toggle(" Hide Kinsects Alongside Weapons", &settings.enableHideKinsect, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("Enabling this will cause kinsects to also be hidden whenever a weapon is hidden.");
+
 		pushToggleColors(settings.forceShowWeaponInTent);
 		settingsChanged |= CImGui::Toggle(" Always Show Weapon in Tent", &settings.forceShowWeaponInTent, ImGuiToggleFlags_Animated);
 		popToggleColors();

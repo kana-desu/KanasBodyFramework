@@ -407,6 +407,8 @@ namespace kbf {
 		std::string wpSubParentStr        = missingStr;
 		std::string wpReserveParentStr    = missingStr;
 		std::string wpSubReserveParentStr = missingStr;
+        std::string wpKinsectStr          = missingStr;
+        std::string wpReserveKinsectStr   = missingStr;
 
         constexpr auto getArmourStr = [](const std::optional<ArmourSet>& armour) {
 			return armour.has_value() ? std::format("{} ({})", armour.value().name, armour.value().female ? "F" : "M") : std::string{ "UNKNOWN" };
@@ -424,14 +426,15 @@ namespace kbf {
 			wpSubParentStr        = ptrToHexString(pInfo->WpSub_Parent_GameObject);
 			wpReserveParentStr    = ptrToHexString(pInfo->Wp_ReserveParent_GameObject);
 			wpSubReserveParentStr = ptrToHexString(pInfo->WpSub_ReserveParent_GameObject);
-
+            wpKinsectStr          = ptrToHexString(pInfo->Wp_Insect);
+            wpReserveKinsectStr   = ptrToHexString(pInfo->Wp_ReserveInsect);
         }
         
         CImGui::SetItemTooltip(std::format(
             "Transform: {}"
             "\n\nPlayerManageInfo: {}\nHunterCharacter: {}\ncHunterCreateInfo: {}\nEventModelSetupper: {}\nVolumeOccludee: {}"
             "\n\nHelm: {}\nBody: {}\nArms: {}\nCoil: {}\nLegs: {}\nSlinger: {}"
-            "\n\nWp_Parent: {}\nWpSub_Parent: {}\nWp_ReserveParent: {}\nWpSub_ReserveParent: {}"
+            "\n\nWp_Parent: {}\nWpSub_Parent: {}\nWp_ReserveParent: {}\nWpSub_ReserveParent: {}\nWp_Kinsect: {}\nWp_ResrveKinsect: {}"
             "\n\nVisible: {}\nWeapon Drawn: {}\nIn Combat: {}\nIn Tent: {}\nSharpening: {}\nRiding Seikret: {}"
             "\n\nCamera Distance Sq: {}", 
             ptrToHexString(info.pointers.Transform),
@@ -450,6 +453,8 @@ namespace kbf {
             wpSubParentStr,
             wpReserveParentStr,
             wpSubReserveParentStr,
+			wpKinsectStr,
+			wpReserveKinsectStr,
 			info.visible ? "YES" : "NO",
             info.weaponDrawn ? "YES" : "NO",
 			info.inCombat ? "YES" : "NO",

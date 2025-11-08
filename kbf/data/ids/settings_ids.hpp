@@ -9,6 +9,7 @@
 #define SETTINGS_MAX_BONE_FETCHES_PER_FRAME_ID          "maxBoneFetchesPerFrame"
 #define SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID           "enableDuringQuestsOnly"
 #define SETTINGS_ENABLE_HIDE_WEAPONS_ID                 "enableHideWeapons"
+#define SETTINGS_ENABLE_HIDE_KINSECT_ID                 "enableHideKinsect"
 #define SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID           "forceShowWeaponInTent"
 #define SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID   "forceShowWeaponWhenSharpening"
 #define SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID   "forceShowWeaponWhenOnSeikret"

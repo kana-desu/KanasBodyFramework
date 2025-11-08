@@ -12,6 +12,7 @@ namespace kbf {
 		int   maxBoneFetchesPerFrame         = 1;
 		bool  enableDuringQuestsOnly         = false;
 		bool  enableHideWeapons              = true;
+		bool  enableHideKinsect              = true;
 		bool  forceShowWeaponInTent          = true;
 		bool  forceShowWeaponWhenSharpening  = true;
 		bool  forceShowWeaponWhenOnSeikret   = true;

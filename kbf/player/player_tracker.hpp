@@ -54,7 +54,7 @@ namespace kbf {
 		void fetchPlayer_Visibility(PlayerInfo& info);
         bool fetchPlayer_EquippedArmours(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
 		bool fetchPlayer_ArmourTransforms(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
-		bool fetchPlayer_WeaponObjects(PersistentPlayerInfo& pInfo);
+		bool fetchPlayer_WeaponObjects(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
         bool fetchPlayer_Bones(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
 		bool fetchPlayer_Parts(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
         void clearPlayerSlot(size_t index);

@@ -1152,6 +1152,7 @@ namespace kbf {
         parseInt(config, SETTINGS_MAX_BONE_FETCHES_PER_FRAME_ID, SETTINGS_MAX_BONE_FETCHES_PER_FRAME_ID, &out->maxBoneFetchesPerFrame);
         parseBool(config, SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID, SETTINGS_ENABLE_DURING_QUESTS_ONLY_ID, &out->enableDuringQuestsOnly);
         parseBool(config, SETTINGS_ENABLE_HIDE_WEAPONS_ID, SETTINGS_ENABLE_HIDE_WEAPONS_ID, &out->enableHideWeapons);
+		parseBool(config, SETTINGS_ENABLE_HIDE_KINSECT_ID, SETTINGS_ENABLE_HIDE_KINSECT_ID, &out->enableHideKinsect);
         parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID, SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID, &out->forceShowWeaponInTent);
         parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID, SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID, &out->forceShowWeaponWhenSharpening);
         parseBool(config, SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID, SETTINGS_FORCE_SHOW_WEAPON_WHEN_ON_SEIKRET_ID, &out->forceShowWeaponWhenOnSeikret);
@@ -1186,6 +1187,8 @@ namespace kbf {
         writer.Bool(settings.enableDuringQuestsOnly);
 		writer.Key(SETTINGS_ENABLE_HIDE_WEAPONS_ID);
 		writer.Bool(settings.enableHideWeapons);
+		writer.Key(SETTINGS_ENABLE_HIDE_KINSECT_ID);
+		writer.Bool(settings.enableHideKinsect);
 		writer.Key(SETTINGS_FORCE_SHOW_WEAPON_IN_TENT_ID);
 		writer.Bool(settings.forceShowWeaponInTent);
 		writer.Key(SETTINGS_FORCE_SHOW_WEAPON_WHEN_SHARPENING_ID);

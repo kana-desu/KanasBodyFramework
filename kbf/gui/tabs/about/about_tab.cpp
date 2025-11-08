@@ -637,6 +637,7 @@ namespace kbf {
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Added the option to disable weapon hiding entirely (so you can leave this up to other mods to decide).");
             WRAP_BULLET("-", "Added more options to control when weapons are not hidden (always show in tent, while sharpening, while riding seikret).");
+            WRAP_BULLET("-", "Added the option to hide kinsects when the weapon is hidden.");
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug causing players and npcs to become untracked after eating a meal / starting a cutscene.");

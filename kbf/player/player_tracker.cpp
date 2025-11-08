@@ -37,10 +37,10 @@ namespace kbf {
         auto& api = REApi::get();
 
         // Main Menu Singletons
-		sceneManager = api->get_native_singleton("via.SceneManager");
-		assert(sceneManager != nullptr && "Could not get sceneManager!");
-		saveDataManager = api->get_managed_singleton("app.SaveDataManager");
-		assert(saveDataManager != nullptr && "Could not get saveDataManager!");
+        sceneManager = api->get_native_singleton("via.SceneManager");
+        assert(sceneManager != nullptr && "Could not get sceneManager!");
+        saveDataManager = api->get_managed_singleton("app.SaveDataManager");
+        assert(saveDataManager != nullptr && "Could not get saveDataManager!");
 
         // Guild Card Singletons
         guiManager = api->get_managed_singleton("app.GUIManager");
@@ -51,25 +51,25 @@ namespace kbf {
         assert(playerManager != nullptr && "Could not get playerManager!");
         networkManager = api->get_managed_singleton("app.NetworkManager");
         assert(networkManager != nullptr && "Could not get networkManager!");
-		netContextManager = REInvokePtr<REApi::ManagedObject>(networkManager, "get_ContextManager", {});
-		assert(netContextManager != nullptr && "Could not get netContextManager!");
+        netContextManager = REInvokePtr<REApi::ManagedObject>(networkManager, "get_ContextManager", {});
+        assert(netContextManager != nullptr && "Could not get netContextManager!");
         netUserInfoManager = REInvokePtr<REApi::ManagedObject>(networkManager, "get_UserInfoManager", {});
         assert(netUserInfoManager != nullptr && "Could not get networkManager!");
         Net_UserInfoList = REInvokePtr<REApi::ManagedObject>(netUserInfoManager, "getUserInfoList(app.net_session_manager.SESSION_TYPE)", { (void*)1 });
-		assert(Net_UserInfoList != nullptr && "Could not get Net_UserInfoList!");
+        assert(Net_UserInfoList != nullptr && "Could not get Net_UserInfoList!");
 
         kbf::HookManager::add_tdb("app.HunterCharacter", "isEquipBuildEnd", onIsEquipBuildEndHook, nullptr, false);
-		kbf::HookManager::add_tdb("app.HunterCharacter", "warp",            onWarpHook,            nullptr, false);
+        kbf::HookManager::add_tdb("app.HunterCharacter", "warp",            onWarpHook,            nullptr, false);
 
         kbf::HookManager::add_tdb("app.GUI010102", "callback_ListSelect", saveSelectListSelectHook, nullptr, false);
     }
 
     const std::vector<PlayerData> PlayerTracker::getPlayerList() const {
-		std::vector<PlayerData> playerDataList;
+        std::vector<PlayerData> playerDataList;
         for (const auto& info : playerInfos) {
             if (info != nullptr) playerDataList.push_back(info->playerData);
         }
-		return playerDataList;
+        return playerDataList;
     }
 
     void PlayerTracker::updatePlayers() {
@@ -81,10 +81,10 @@ namespace kbf {
         bool inQuest = SituationWatcher::inSituation(isinQuestPlayingasGuest) || SituationWatcher::inSituation(isinQuestPlayingasHost);
         if (dataManager.settings().enableDuringQuestsOnly && !inQuest) return;
 
-		// Additionally consider one extra 'preview preset' for those currently being edited in the GUI
-		const Preset* previewedPreset = dataManager.getPreviewedPreset();
-		const bool hasPreview = previewedPreset != nullptr;
-		const bool applyPreviewUnconditional = hasPreview && previewedPreset->armour == ArmourList::DefaultArmourSet();
+        // Additionally consider one extra 'preview preset' for those currently being edited in the GUI
+        const Preset* previewedPreset = dataManager.getPreviewedPreset();
+        const bool hasPreview = previewedPreset != nullptr;
+        const bool applyPreviewUnconditional = hasPreview && previewedPreset->armour == ArmourList::DefaultArmourSet();
 
         // Only apply first n players based on distance to camera
         const int maxPlayersToApply = std::max<int>(dataManager.settings().maxConcurrentApplications, 0);
@@ -101,7 +101,7 @@ namespace kbf {
                 players.begin() + std::min<size_t>(maxPlayersToApply, players.size()),
                 players.end(),
                 [&](const std::pair<const PlayerData*, size_t>& a, const std::pair<const PlayerData*, size_t>& b) {
-				    return playerInfos[a.second]->distanceFromCameraSq < playerInfos[b.second]->distanceFromCameraSq;
+                    return playerInfos[a.second]->distanceFromCameraSq < playerInfos[b.second]->distanceFromCameraSq;
                 }
             );
         }
@@ -115,16 +115,16 @@ namespace kbf {
             if (playerInfos[idx] == nullptr) continue;
             if (playerApplyDelays[player] && playerApplyDelays[player].has_value()) continue;
 
-			const PlayerInfo* infoPtr = playerInfos[idx].get();
+            const PlayerInfo* infoPtr = playerInfos[idx].get();
             if (infoPtr == nullptr) {
                 playerApplyDelays.erase(player);
                 continue;
             }
 
-			const PlayerInfo& info = *playerInfos[idx];
+            const PlayerInfo& info = *playerInfos[idx];
             if (!info.visible) continue;
 
-			PersistentPlayerInfo* pInfo = persistentPlayerInfos[idx].get();
+            PersistentPlayerInfo* pInfo = persistentPlayerInfos[idx].get();
             if (pInfo == nullptr) continue;
             if (!pInfo->areSetPointersValid()) {
                 persistentPlayerInfos[idx] = nullptr;
@@ -133,7 +133,7 @@ namespace kbf {
 
             if (pInfo->boneManager && pInfo->partManager) {
 
-				// Always apply base presets when they are present, but refrain from re-applying the same base preset multiple times.
+                // Always apply base presets when they are present, but refrain from re-applying the same base preset multiple times.
                 std::unordered_set<std::string> presetBasesApplied{};
 
                 bool hideWeapon = false;
@@ -141,7 +141,7 @@ namespace kbf {
 
                 bool applyError = false;
                 for (ArmourPiece piece = ArmourPiece::AP_MIN_EXCLUDING_SET; piece <= ArmourPiece::AP_MAX_EXCLUDING_SLINGER; piece = static_cast<ArmourPiece>(static_cast<int>(piece) + 1)) {
-					std::optional<ArmourSet>& armourPiece = pInfo->armourInfo.getPiece(piece);
+                    std::optional<ArmourSet>& armourPiece = pInfo->armourInfo.getPiece(piece);
 
                     if (armourPiece.has_value()) {
                         const Preset* preset = dataManager.getActivePreset(player, armourPiece.value(), piece);
@@ -181,24 +181,29 @@ namespace kbf {
                 }
 
                 if (!applyError) {
-				    // Weapon Visibility
+                    // Weapon Visibility
                     if (dataManager.settings().enableHideWeapons) {
 
                         bool weaponVisible = info.weaponDrawn || !hideWeapon 
                             || (info.inCombat && dataManager.settings().hideWeaponsOutsideOfCombatOnly)
                             || (info.inTent && dataManager.settings().forceShowWeaponInTent)
-							|| (info.isRidingSeikret && dataManager.settings().forceShowWeaponWhenOnSeikret)
-							|| (info.isSharpening && dataManager.settings().forceShowWeaponWhenSharpening);
+                            || (info.isRidingSeikret && dataManager.settings().forceShowWeaponWhenOnSeikret)
+                            || (info.isSharpening && dataManager.settings().forceShowWeaponWhenSharpening);
 
-				        if (pInfo->Wp_Parent_GameObject)           REInvokeVoid(pInfo->Wp_Parent_GameObject,           "set_DrawSelf", { (void*)(weaponVisible) });
-				        if (pInfo->WpSub_Parent_GameObject)        REInvokeVoid(pInfo->WpSub_Parent_GameObject,        "set_DrawSelf", { (void*)(weaponVisible) });
-				        if (pInfo->Wp_ReserveParent_GameObject)    REInvokeVoid(pInfo->Wp_ReserveParent_GameObject,    "set_DrawSelf", { (void*)(weaponVisible) });
-				        if (pInfo->WpSub_ReserveParent_GameObject) REInvokeVoid(pInfo->WpSub_ReserveParent_GameObject, "set_DrawSelf", { (void*)(weaponVisible) });
+                        if (pInfo->Wp_Parent_GameObject)           REInvokeVoid(pInfo->Wp_Parent_GameObject,           "set_DrawSelf", { (void*)(weaponVisible) });
+                        if (pInfo->WpSub_Parent_GameObject)        REInvokeVoid(pInfo->WpSub_Parent_GameObject,        "set_DrawSelf", { (void*)(weaponVisible) });
+                        if (pInfo->Wp_ReserveParent_GameObject)    REInvokeVoid(pInfo->Wp_ReserveParent_GameObject,    "set_DrawSelf", { (void*)(weaponVisible) });
+                        if (pInfo->WpSub_ReserveParent_GameObject) REInvokeVoid(pInfo->WpSub_ReserveParent_GameObject, "set_DrawSelf", { (void*)(weaponVisible) });
+                    
+                        bool kinsectVisible = !dataManager.settings().enableHideKinsect || weaponVisible;
+
+                        if (pInfo->Wp_Insect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
+                        if (pInfo->Wp_ReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
                     }
                 
-					// Slinger Visibility
-				    bool slingerVisible = !hideSlinger || (info.inCombat && dataManager.settings().hideSlingerOutsideOfCombatOnly);
-				    if (pInfo->Slinger_GameObject) REInvokeVoid(pInfo->Slinger_GameObject, "set_DrawSelf", { (void*)(slingerVisible) });
+                    // Slinger Visibility
+                    bool slingerVisible = !hideSlinger || (info.inCombat && dataManager.settings().hideSlingerOutsideOfCombatOnly);
+                    if (pInfo->Slinger_GameObject) REInvokeVoid(pInfo->Slinger_GameObject, "set_DrawSelf", { (void*)(slingerVisible) });
                 }
             }
         }
@@ -235,8 +240,8 @@ namespace kbf {
         needsAllPlayerFetch |= (frameIsCutscene && !cutscene) || (!frameIsCutscene && cutscene); 
         frameIsCutscene = cutscene;
 
-		needsAllPlayerFetch |= (frameIsGuildCard && !guildCard) || (!frameIsGuildCard && guildCard);
-		frameIsGuildCard = guildCard;
+        needsAllPlayerFetch |= (frameIsGuildCard && !guildCard) || (!frameIsGuildCard && guildCard);
+        frameIsGuildCard = guildCard;
 
         if      (mainMenu        ) thisUpdateSituation = CustomSituation::isInMainMenuScene;   
         else if (saveSelect      ) thisUpdateSituation = CustomSituation::isInSaveSelectGUI;   
@@ -247,7 +252,7 @@ namespace kbf {
         if (thisUpdateSituation != lastSituation) {
             lastSituation = thisUpdateSituation;
             reset();
-		}
+        }
 
         if      (mainMenu        ) fetchPlayers_MainMenu();
         else if (saveSelect      ) fetchPlayers_SaveSelect();
@@ -261,22 +266,22 @@ namespace kbf {
         // Player info only needs to be fetched once, as it will never change until we leave and re-enter.
         if (playerSlotTable.size() > 0) return;
 
-		//- Basic Info -------------------------------------
+        //- Basic Info -------------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Basic Info");
 
         int saveIdx = -1;
         PlayerInfo info{};
         bool fetchedBasicInfo = fetchPlayers_MainMenu_BasicInfo(info, saveIdx);
-		if (!fetchedBasicInfo) return;
+        if (!fetchedBasicInfo) return;
 
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Basic Info");
-		//--------------------------------------------------
+        //--------------------------------------------------
 
         PersistentPlayerInfo persistentInfo{};
         persistentInfo.playerData = info.playerData;
         persistentInfo.index      = 0;
 
-		//- Equipped Armours -------------------------------
+        //- Equipped Armours -------------------------------
         bool fetchedArmours = fetchPlayer_EquippedArmours(info, persistentInfo);
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Equipped Armours");
 
@@ -288,7 +293,7 @@ namespace kbf {
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Equipped Armours");
         //--------------------------------------------------
 
-		//- Armour Transforms ------------------------------
+        //- Armour Transforms ------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Armour Transforms");
 
         bool fetchedTransforms = fetchPlayer_ArmourTransforms(info, persistentInfo);
@@ -297,10 +302,10 @@ namespace kbf {
             return;
         }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Armour Transforms");
-		//--------------------------------------------------
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Armour Transforms");
+        //--------------------------------------------------
 
-		//- Bones ------------------------------------------
+        //- Bones ------------------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Bones");
 
         bool fetchedBones = fetchPlayer_Bones(info, persistentInfo);
@@ -315,10 +320,10 @@ namespace kbf {
             return;
         }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Bones");
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Bones");
         //--------------------------------------------------
 
-		//- Parts ------------------------------------------
+        //- Parts ------------------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Parts");
 
         bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
@@ -327,19 +332,19 @@ namespace kbf {
             return;
         }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Parts");
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Parts");
         //--------------------------------------------------
 
-		//- Weapon Objects ---------------------------------
+        //- Weapon Objects ---------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Weapon Objects");
 
-		bool fetchedWeapons = fetchPlayers_MainMenu_WeaponObjects(info, persistentInfo);
+        bool fetchedWeapons = fetchPlayers_MainMenu_WeaponObjects(info, persistentInfo);
         if (!fetchedWeapons) {
             DEBUG_STACK.push(std::format("{} Failed to fetch weapon objects for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
             return;
-		}
+        }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Weapon Objects");
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Weapon Objects");
         //--------------------------------------------------
 
         playerApplyDelays[persistentInfo.playerData] = std::chrono::high_resolution_clock::now();
@@ -347,7 +352,7 @@ namespace kbf {
 
         playerSlotTable.emplace(info.playerData, 0);
         playerInfos[0] = std::make_unique<PlayerInfo>(std::move(info));
-	}
+    }
 
     bool PlayerTracker::fetchPlayers_MainMenu_BasicInfo(PlayerInfo& outInfo, int& outSaveIdx) {
         outInfo = PlayerInfo{};
@@ -385,19 +390,19 @@ namespace kbf {
 
         // TODO: Note, there is also mcNpcVisualController for use with NPCs
         REApi::ManagedObject* mcPreviewHunterVisualController = REFieldPtr<REApi::ManagedObject>(outInfo.optionalPointers.EventModelSetupper, "_HunterVisualController", false);
-		if (mcPreviewHunterVisualController == nullptr) return false;
+        if (mcPreviewHunterVisualController == nullptr) return false;
 
         int32_t* equipAppearanceSaveIndex = REFieldPtr<int32_t>(mcPreviewHunterVisualController, "_EquipAppearanceSaveIndex", true);
-		if (equipAppearanceSaveIndex == nullptr) return false;
+        if (equipAppearanceSaveIndex == nullptr) return false;
         // This is sketch af, the field ptr here is off by 0x10 for some reason... would be better to straight read the memmory.
         // WARNING: This might change with game updates.
         equipAppearanceSaveIndex = reinterpret_cast<int32_t*>((uintptr_t)equipAppearanceSaveIndex + 0x10);
 
-		outSaveIdx = *equipAppearanceSaveIndex;
+        outSaveIdx = *equipAppearanceSaveIndex;
 
         PlayerData mainHunter{};
         bool fetchedMainHunter = getSavePlayerData(outSaveIdx, mainHunter);
-		if (!fetchedMainHunter) return false;
+        if (!fetchedMainHunter) return false;
 
         outInfo.playerData = mainHunter;
         outInfo.index      = 0;
@@ -409,15 +414,16 @@ namespace kbf {
     bool PlayerTracker::fetchPlayers_MainMenu_WeaponObjects(const PlayerInfo& info, PersistentPlayerInfo& outPInfo) {
         if (info.optionalPointers.EventModelSetupper == nullptr) return false;
 
-        outPInfo.Wp_Parent_GameObject    = REFieldPtr<REApi::ManagedObject>(info.optionalPointers.EventModelSetupper, "_WeaponObj",    false);
-        outPInfo.WpSub_Parent_GameObject = REFieldPtr<REApi::ManagedObject>(info.optionalPointers.EventModelSetupper, "_WeaponSubObj", false);
+        outPInfo.Wp_Parent_GameObject    = REFieldPtr<REApi::ManagedObject>(info.optionalPointers.EventModelSetupper, "_WeaponObj",         false);
+        outPInfo.WpSub_Parent_GameObject = REFieldPtr<REApi::ManagedObject>(info.optionalPointers.EventModelSetupper, "_WeaponSubObj",      false);
+        outPInfo.Wp_Insect               = REFieldPtr<REApi::ManagedObject>(info.optionalPointers.EventModelSetupper, "_WeaponExternalObj", false);
 
         return (outPInfo.Wp_Parent_GameObject || outPInfo.WpSub_Parent_GameObject);
     }
 
     void PlayerTracker::fetchPlayers_SaveSelect() {
-		//- Basic Info -------------------------------------
-		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Basic Info");
+        //- Basic Info -------------------------------------
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Basic Info");
 
         PlayerInfo info{};
         bool fetchedBasicInfo = fetchPlayers_SaveSelect_BasicInfo(info);
@@ -427,26 +433,26 @@ namespace kbf {
             return;
         }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Basic Info");
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Basic Info");
         //--------------------------------------------------
 
         PersistentPlayerInfo persistentInfo{};
         persistentInfo.playerData = info.playerData;
         persistentInfo.index = 0;
 
-		//- Equipped Armours -------------------------------
-		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Equipped Armours");
+        //- Equipped Armours -------------------------------
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Equipped Armours");
 
         bool fetchedArmours = fetchPlayer_EquippedArmours(info, persistentInfo);
         if (!fetchedArmours) {
             return;
         }
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Equipped Armours");
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Equipped Armours");
         //--------------------------------------------------
 
-		//- Armour Transforms ------------------------------
-		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Armour Transforms");
+        //- Armour Transforms ------------------------------
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Armour Transforms");
 
         bool fetchedTransforms = fetchPlayer_ArmourTransforms(info, persistentInfo);
         if (!fetchedTransforms) {
@@ -464,14 +470,14 @@ namespace kbf {
             persistentInfo.Transform_legs,
             persistentInfo.Slinger_GameObject);
 
-		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Armour Transforms");
-		//--------------------------------------------------
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Armour Transforms");
+        //--------------------------------------------------
 
         if (hashedArmourTransforms != saveSelectHashedArmourTransformsCache) {
             saveSelectHashedArmourTransformsCache = hashedArmourTransforms;
 
-		    //- Bones ------------------------------------------
-		    BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Bones");
+            //- Bones ------------------------------------------
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Bones");
 
             bool fetchedBones = fetchPlayer_Bones(info, persistentInfo);
             if (!fetchedBones) {
@@ -485,11 +491,11 @@ namespace kbf {
                 return;
             }
 
-		    END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Bones");
+            END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Bones");
             //--------------------------------------------------
 
-		    //- Parts ------------------------------------------
-		    BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Parts");
+            //- Parts ------------------------------------------
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Parts");
 
             bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
             if (!fetchedParts) {
@@ -497,11 +503,11 @@ namespace kbf {
                 return;
             }
 
-		    END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Parts");
+            END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Parts");
             //--------------------------------------------------
 
-		    //- Weapon Objects ------------------------------e---
-		    BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Weapon Objects");
+            //- Weapon Objects ------------------------------e---
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Weapon Objects");
 
             bool fetchedWeapons = fetchPlayers_SaveSelect_WeaponObjects(info, persistentInfo);
             if (!fetchedWeapons) {
@@ -509,7 +515,7 @@ namespace kbf {
                 return;
             }
 
-		    END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Weapon Objects");
+            END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Weapon Objects");
             //--------------------------------------------------
 
             playerApplyDelays[persistentInfo.playerData] = std::chrono::high_resolution_clock::now();
@@ -546,7 +552,7 @@ namespace kbf {
 
             // Mannequin_Hunter > SaveSelectHunter_XX / XY
             constexpr const char* playerTransformNamePrefixXX = "SaveSelect_HunterXX";
-		    constexpr const char* playerTransformNamePrefixXY = "SaveSelect_HunterXY";
+            constexpr const char* playerTransformNamePrefixXY = "SaveSelect_HunterXY";
             const int numComponents = REInvoke<int>(transformComponents, "GetLength", { (void*)0 }, InvokeReturnType::DWORD);
 
             for (int i = 0; i < numComponents; i++) {
@@ -560,7 +566,7 @@ namespace kbf {
                 std::string name = REInvokeStr(gameObject, "get_Name", {});
                 if (name.starts_with(mainHunter.female ? playerTransformNamePrefixXX : playerTransformNamePrefixXY)) {
                     outInfo.pointers.Transform = transform;
-					saveSelectHunterTransformCache = transform;
+                    saveSelectHunterTransformCache = transform;
                     break;
                 }
 
@@ -586,12 +592,17 @@ namespace kbf {
         constexpr const char* weaponStrPrefix = "Wp";
         constexpr const char* weaponParentStr = "Wp_Parent";
         constexpr const char* weaponSubParentStr = "WpSub_Parent";
+
+        constexpr const char* itStrPrefix = "it";
+        constexpr const char* weaponKinsectStr = "it1003_";
         const int numComponents = REInvoke<int>(transformComponents, "GetLength", { (void*)0 }, InvokeReturnType::DWORD);
 
         bool foundMainWp = false;
         bool foundSubWp  = false;
+        bool foundKinsect = false;
         for (int i = 0; i < numComponents; i++) {
-            if (foundMainWp && foundSubWp) break;
+            // TODO: Best to find out if wep is insect glaive so this exit condition can still be used...
+            if (foundMainWp && foundSubWp && foundKinsect) break;
 
             REApi::ManagedObject* transform = REInvokePtr<REApi::ManagedObject>(transformComponents, "get_Item", { (void*)i });
             if (transform == nullptr) continue;
@@ -616,10 +627,19 @@ namespace kbf {
                     }
                 }
             }
+            else if (name.starts_with(itStrPrefix)) {
+                if (!foundKinsect && name.starts_with(weaponKinsectStr)) {
+                    REApi::ManagedObject* Wp10Insect = REInvokePtr<REApi::ManagedObject>(gameObject, "getComponent(System.Type)", { (void*)REApi::get()->typeof("app.Wp10Insect") });
+                    if (Wp10Insect != nullptr) {
+                        outPInfo.Wp_Insect = gameObject;
+                        foundKinsect = true;
+                    }
+                }
+            }
         }
 
         return foundMainWp || foundSubWp;
-	}
+    }
 
     void PlayerTracker::fetchPlayers_CharacterCreator() {
         //- Basic Info -------------------------------------
@@ -712,7 +732,7 @@ namespace kbf {
 
         playerSlotTable.emplace(info.playerData, 0);
         playerInfos[0] = std::make_unique<PlayerInfo>(std::move(info));
-	}
+    }
 
     bool PlayerTracker::fetchPlayers_CharacterCreator_BasicInfo(PlayerInfo& outInfo) {
         PlayerData hunter{};
@@ -866,7 +886,7 @@ namespace kbf {
 
         playerSlotTable.emplace(info.playerData, 0);
         playerInfos[0] = std::make_unique<PlayerInfo>(std::move(info));
-	}
+    }
 
     bool PlayerTracker::fetchPlayers_HunterGuildCard_BasicInfo(PlayerInfo& outInfo) {
         //bool* isSelfProfile_test = re_memory_ptr<bool>(guiManager, 0x465);
@@ -874,7 +894,7 @@ namespace kbf {
         // UPDATE NOTE: The offset here *might* change here? Still not sure why this function provides incorrect offsets...
         constexpr uint64_t offset_IsSelfProfile = 0x50;
         bool* isSelfProfile = REFieldPtr<bool>(guiManager, "_HunterProfile_IsSelfProfile", true);
-		isSelfProfile = reinterpret_cast<bool*>((uintptr_t)isSelfProfile + offset_IsSelfProfile);
+        isSelfProfile = reinterpret_cast<bool*>((uintptr_t)isSelfProfile + offset_IsSelfProfile);
 
         if (isSelfProfile == nullptr) return false;
 
@@ -1063,8 +1083,8 @@ namespace kbf {
         REApi::ManagedObject* HunterCharacter      = REInvokePtr<REApi::ManagedObject>(cPlayerManageInfo,    "get_Character",     {}); // app.HunterCharacter
         REApi::ManagedObject* cPlayerContextHolder = REInvokePtr<REApi::ManagedObject>(cPlayerManageInfo,    "get_ContextHolder", {}); // app.cPlayerContextHolder
         REApi::ManagedObject* cPlayerContext       = REInvokePtr<REApi::ManagedObject>(cPlayerContextHolder, "get_Pl",            {}); // app.cPlayerContext
-		REApi::ManagedObject* cHunterContext       = REInvokePtr<REApi::ManagedObject>(cPlayerContextHolder, "get_Hunter",        {}); // app.cHunterContext
-		REApi::ManagedObject* cHunterCreateInfo    = REInvokePtr<REApi::ManagedObject>(cHunterContext,       "get_CreateInfo",    {}); // app.cHunterCreateInfo
+        REApi::ManagedObject* cHunterContext       = REInvokePtr<REApi::ManagedObject>(cPlayerContextHolder, "get_Hunter",        {}); // app.cHunterContext
+        REApi::ManagedObject* cHunterCreateInfo    = REInvokePtr<REApi::ManagedObject>(cHunterContext,       "get_CreateInfo",    {}); // app.cHunterCreateInfo
 
         std::string playerName = REInvokeStr(cPlayerContext, "get_PlayerName", {});
         if (playerName.empty()) {
@@ -1091,7 +1111,7 @@ namespace kbf {
         }
         else {
             // In offline mode, grab the main player's hunter ID from the context manager instead.
-			hunterId = REInvokeStr(netContextManager, "get_HunterShortId", {});
+            hunterId = REInvokeStr(netContextManager, "get_HunterShortId", {});
             if (hunterId.empty()) {
                 DEBUG_STACK.push(std::format("{} Failed to fetch Hunter ID in singleplayer.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
                 return PlayerFetchFlags::FETCH_ERROR_NULL;
@@ -1099,7 +1119,7 @@ namespace kbf {
         }
 
         bool female      = REInvoke<bool>(HunterCharacter, "get_IsFemale",   {}, InvokeReturnType::BOOL);
-		bool weaponDrawn = REInvoke<bool>(HunterCharacter, "get_IsWeaponOn", {}, InvokeReturnType::BOOL);
+        bool weaponDrawn = REInvoke<bool>(HunterCharacter, "get_IsWeaponOn", {}, InvokeReturnType::BOOL);
         bool inCombat    = REInvoke<bool>(HunterCharacter, "get_IsCombat",   {}, InvokeReturnType::BOOL);
 
         PlayerData playerData{};
@@ -1120,12 +1140,12 @@ namespace kbf {
         optPointers.cPlayerManageInfo = cPlayerManageInfo;
         optPointers.HunterCharacter   = HunterCharacter;
         optPointers.Motion            = Motion;
-		optPointers.cHunterCreateInfo = cHunterCreateInfo;
+        optPointers.cHunterCreateInfo = cHunterCreateInfo;
 
         out.playerData       = playerData;
         out.index            = i;
         out.pointers         = pointers;
-		out.optionalPointers = optPointers;
+        out.optionalPointers = optPointers;
         out.visible          = false;
         out.inCombat         = inCombat;
         out.weaponDrawn      = weaponDrawn;
@@ -1140,13 +1160,13 @@ namespace kbf {
         info.weaponDrawn     = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsWeaponOn", {}, InvokeReturnType::BOOL);
         info.inCombat        = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsCombat", {}, InvokeReturnType::BOOL);
         info.inTent          = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsInAllTent", {}, InvokeReturnType::BOOL);
-		info.isRidingSeikret = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsPorterRiding", {}, InvokeReturnType::BOOL);
+        info.isRidingSeikret = REInvoke<bool>(info.optionalPointers.HunterCharacter, "get_IsPorterRiding", {}, InvokeReturnType::BOOL);
 
         // UPDATE NOTE: These will likely change with future updates!!
         // ITEM_0019 = Whetstone (v=20)
         // ITEM_0297 = Whetfish Fin (v=270)
         // ITEM_0710 = Whetfish Fin+ (v=683)
-		uint32_t itemDef_ID = REInvoke<uint32_t>(info.optionalPointers.HunterCharacter, "get_UsedItemID", {}, InvokeReturnType::DWORD);
+        uint32_t itemDef_ID = REInvoke<uint32_t>(info.optionalPointers.HunterCharacter, "get_UsedItemID", {}, InvokeReturnType::DWORD);
         info.isSharpening = (itemDef_ID == 20 || itemDef_ID == 270 || itemDef_ID == 683);
 
         const bool motionSkipped = REInvoke<bool>(info.optionalPointers.Motion, "get_SkipUpdate", {}, InvokeReturnType::BOOL);
@@ -1222,7 +1242,7 @@ namespace kbf {
         }
 
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Weapons");
-        bool fetechedWeapons = fetchPlayer_WeaponObjects(pInfo);
+        bool fetechedWeapons = fetchPlayer_WeaponObjects(info, pInfo);
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Weapons");
 
         frameBoneFetchCount++; // Consider moving this to top to limit effect of failed fetches - may make fetches inaccessible if there are enough errors though.
@@ -1236,17 +1256,17 @@ namespace kbf {
 
         std::array<ArmourSet, 6> foundArmours = findAllArmoursInObjectFromList(info.pointers.Transform, info.playerData.female);
         for (size_t i = 0; foundArmours.size() < 5; i++) {
-			if (i == static_cast<int>(ArmourPiece::AP_HELM) - 1) continue; // Helm is optional due to toggle
-			if (i == static_cast<int>(ArmourPiece::AP_SLINGER) - 1) continue; // Slinger is also just optional
+            if (i == static_cast<int>(ArmourPiece::AP_HELM) - 1) continue; // Helm is optional due to toggle
+            if (i == static_cast<int>(ArmourPiece::AP_SLINGER) - 1) continue; // Slinger is also just optional
             if (foundArmours[i] == ArmourList::DefaultArmourSet()) return false;
-		}
+        }
 
-		pInfo.armourInfo.helm    = foundArmours[static_cast<size_t>(ArmourPiece::AP_HELM)    - 1];
-		pInfo.armourInfo.body    = foundArmours[static_cast<size_t>(ArmourPiece::AP_BODY)    - 1];
-		pInfo.armourInfo.arms    = foundArmours[static_cast<size_t>(ArmourPiece::AP_ARMS)    - 1];
-		pInfo.armourInfo.coil    = foundArmours[static_cast<size_t>(ArmourPiece::AP_COIL)    - 1];
-		pInfo.armourInfo.legs    = foundArmours[static_cast<size_t>(ArmourPiece::AP_LEGS)    - 1];
-		pInfo.armourInfo.slinger = foundArmours[static_cast<size_t>(ArmourPiece::AP_SLINGER) - 1];
+        pInfo.armourInfo.helm    = foundArmours[static_cast<size_t>(ArmourPiece::AP_HELM)    - 1];
+        pInfo.armourInfo.body    = foundArmours[static_cast<size_t>(ArmourPiece::AP_BODY)    - 1];
+        pInfo.armourInfo.arms    = foundArmours[static_cast<size_t>(ArmourPiece::AP_ARMS)    - 1];
+        pInfo.armourInfo.coil    = foundArmours[static_cast<size_t>(ArmourPiece::AP_COIL)    - 1];
+        pInfo.armourInfo.legs    = foundArmours[static_cast<size_t>(ArmourPiece::AP_LEGS)    - 1];
+        pInfo.armourInfo.slinger = foundArmours[static_cast<size_t>(ArmourPiece::AP_SLINGER) - 1];
 
         return true;
     }
@@ -1254,13 +1274,13 @@ namespace kbf {
     bool PlayerTracker::fetchPlayer_ArmourTransforms(const PlayerInfo& info, PersistentPlayerInfo& pInfo) {
         if (info.pointers.Transform == nullptr) return false;
         // Note: Helm is optional due to toggle
-		if (!pInfo.armourInfo.body.has_value()) return false;
-		if (!pInfo.armourInfo.arms.has_value()) return false;
-		if (!pInfo.armourInfo.coil.has_value()) return false;
-		if (!pInfo.armourInfo.legs.has_value()) return false;
+        if (!pInfo.armourInfo.body.has_value()) return false;
+        if (!pInfo.armourInfo.arms.has_value()) return false;
+        if (!pInfo.armourInfo.coil.has_value()) return false;
+        if (!pInfo.armourInfo.legs.has_value()) return false;
 
         // Base transform is fetched every frame
-		pInfo.Transform_base = info.pointers.Transform;
+        pInfo.Transform_base = info.pointers.Transform;
 
         // TODO: Can probably reduce to 1, 100
         constexpr size_t maxDepth = 1;
@@ -1272,12 +1292,12 @@ namespace kbf {
         }
         if (pInfo.armourInfo.body.has_value()) {
             std::string bodyId = ArmourList::getArmourId(pInfo.armourInfo.body.value(), ArmourPiece::AP_BODY, info.playerData.female);
-			pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId, maxDepth, maxBreadth);
+            pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId, maxDepth, maxBreadth);
         }
         if (pInfo.armourInfo.arms.has_value()) {
             std::string armsId = ArmourList::getArmourId(pInfo.armourInfo.arms.value(), ArmourPiece::AP_ARMS, info.playerData.female);
-			pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId, maxDepth, maxBreadth);
-		}
+            pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId, maxDepth, maxBreadth);
+        }
         if (pInfo.armourInfo.coil.has_value()) {
             std::string coilId = ArmourList::getArmourId(pInfo.armourInfo.coil.value(), ArmourPiece::AP_COIL, info.playerData.female);
             pInfo.Transform_coil = findTransform(info.pointers.Transform, coilId, maxDepth, maxBreadth);
@@ -1292,38 +1312,48 @@ namespace kbf {
             pInfo.Slinger_GameObject = (slingerTransform) ? REInvokePtr<REApi::ManagedObject>(slingerTransform, "get_GameObject", {}) : nullptr;
         }
 
-		return (pInfo.Transform_base &&
+        return (pInfo.Transform_base &&
                pInfo.Transform_body &&
                pInfo.Transform_arms && 
                pInfo.Transform_coil &&
                pInfo.Transform_legs);
     }
 
-    bool PlayerTracker::fetchPlayer_WeaponObjects(PersistentPlayerInfo& pInfo) {
+    bool PlayerTracker::fetchPlayer_WeaponObjects(const PlayerInfo& info, PersistentPlayerInfo& pInfo) {
         if (pInfo.Transform_base == nullptr) return false;
 
+        // TOOD: Could grab these from HunterCharacter::get_Weapon() / ::get_ReserveWeapon() / get_SubWeapon() / get_ReserveSubWeapon()
         REApi::ManagedObject* Wp_Parent           = findTransform(pInfo.Transform_base, "Wp_Parent");
-		REApi::ManagedObject* WpSub_Parent        = findTransform(pInfo.Transform_base, "WpSub_Parent");
-		REApi::ManagedObject* Wp_ReserveParent    = findTransform(pInfo.Transform_base, "Wp_ReserveParent");
-		REApi::ManagedObject* WpSub_ReserveParent = findTransform(pInfo.Transform_base, "WpSub_ReserveParent");
+        REApi::ManagedObject* WpSub_Parent        = findTransform(pInfo.Transform_base, "WpSub_Parent");
+        REApi::ManagedObject* Wp_ReserveParent    = findTransform(pInfo.Transform_base, "Wp_ReserveParent");
+        REApi::ManagedObject* WpSub_ReserveParent = findTransform(pInfo.Transform_base, "WpSub_ReserveParent");
 
-		if (Wp_Parent == nullptr)           return false;
-		if (WpSub_Parent == nullptr)        return false;
-		if (Wp_ReserveParent == nullptr)    return false;
-		if (WpSub_ReserveParent == nullptr) return false;
+        if (Wp_Parent == nullptr)           return false;
+        if (WpSub_Parent == nullptr)        return false;
+        if (Wp_ReserveParent == nullptr)    return false;
+        if (WpSub_ReserveParent == nullptr) return false;
 
-		pInfo.Wp_Parent_GameObject           = REInvokePtr<REApi::ManagedObject>(Wp_Parent          , "get_GameObject", {});
-		pInfo.WpSub_Parent_GameObject        = REInvokePtr<REApi::ManagedObject>(WpSub_Parent       , "get_GameObject", {});
-		pInfo.Wp_ReserveParent_GameObject    = REInvokePtr<REApi::ManagedObject>(Wp_ReserveParent   , "get_GameObject", {});
-		pInfo.WpSub_ReserveParent_GameObject = REInvokePtr<REApi::ManagedObject>(WpSub_ReserveParent, "get_GameObject", {});
+        pInfo.Wp_Parent_GameObject           = REInvokePtr<REApi::ManagedObject>(Wp_Parent          , "get_GameObject", {});
+        pInfo.WpSub_Parent_GameObject        = REInvokePtr<REApi::ManagedObject>(WpSub_Parent       , "get_GameObject", {});
+        pInfo.Wp_ReserveParent_GameObject    = REInvokePtr<REApi::ManagedObject>(Wp_ReserveParent   , "get_GameObject", {});
+        pInfo.WpSub_ReserveParent_GameObject = REInvokePtr<REApi::ManagedObject>(WpSub_ReserveParent, "get_GameObject", {});
 
-		return (pInfo.Wp_Parent_GameObject && pInfo.WpSub_Parent_GameObject && pInfo.Wp_ReserveParent_GameObject && pInfo.WpSub_ReserveParent_GameObject);
+        // Kinsect
+        if (info.optionalPointers.HunterCharacter) {
+            REApi::ManagedObject* Wp_Insect        = REInvokePtr<REApi::ManagedObject>(info.optionalPointers.HunterCharacter, "get_Wp10Insect", {});
+            REApi::ManagedObject* Wp_ReserveInsect = REInvokePtr<REApi::ManagedObject>(info.optionalPointers.HunterCharacter, "get_ReserveWp10Insect", {});
+        
+            if (Wp_Insect)        pInfo.Wp_Insect        = REInvokePtr<REApi::ManagedObject>(Wp_Insect,        "get_GameObject", {});
+            if (Wp_ReserveInsect) pInfo.Wp_ReserveInsect = REInvokePtr<REApi::ManagedObject>(Wp_ReserveInsect, "get_GameObject", {});
+        }
+
+        return (pInfo.Wp_Parent_GameObject && pInfo.WpSub_Parent_GameObject && pInfo.Wp_ReserveParent_GameObject && pInfo.WpSub_ReserveParent_GameObject);
     }
 
     bool PlayerTracker::fetchPlayer_Bones(const PlayerInfo& info, PersistentPlayerInfo& pInfo) {
-		if (info.pointers.Transform == nullptr) return false;
+        if (info.pointers.Transform == nullptr) return false;
         if (!pInfo.Transform_body) return false;
-		if (!pInfo.Transform_legs) return false;
+        if (!pInfo.Transform_legs) return false;
 
         pInfo.boneManager = std::make_unique<BoneManager>(
             dataManager, 
@@ -1332,7 +1362,7 @@ namespace kbf {
             pInfo.Transform_helm,
             pInfo.Transform_body, 
             pInfo.Transform_arms,
-			pInfo.Transform_coil,
+            pInfo.Transform_coil,
             pInfo.Transform_legs, 
             info.playerData.female);
 
@@ -1359,29 +1389,29 @@ namespace kbf {
     }
 
     bool PlayerTracker::getSavePlayerData(int saveIdx, PlayerData& out) const {
-		if (saveIdx < 0 || saveIdx >= 3) return false; // Invalid save index
+        if (saveIdx < 0 || saveIdx >= 3) return false; // Invalid save index
 
-		out = PlayerData{};
+        out = PlayerData{};
 
-		REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager, "getUserSaveData(System.Int32)", { (void*)saveIdx });
-		if (currentSaveData == nullptr) return false;
+        REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager, "getUserSaveData(System.Int32)", { (void*)saveIdx });
+        if (currentSaveData == nullptr) return false;
 
         char* activeByte = re_memory_ptr<char>(currentSaveData, 0x3AC);
         if (activeByte == nullptr || *activeByte == 0) return false;
 
-		REApi::ManagedObject* cBasicParam = REInvokePtr<REApi::ManagedObject>(currentSaveData, "get_BasicData", {});
-		if (cBasicParam == nullptr) return false;
+        REApi::ManagedObject* cBasicParam = REInvokePtr<REApi::ManagedObject>(currentSaveData, "get_BasicData", {});
+        if (cBasicParam == nullptr) return false;
 
-		REApi::ManagedObject* cCharacterEdit_Hunter = REInvokePtr<REApi::ManagedObject>(currentSaveData, "get_CharacterEdit_Hunter", {});
-		if (cCharacterEdit_Hunter == nullptr) return false;
+        REApi::ManagedObject* cCharacterEdit_Hunter = REInvokePtr<REApi::ManagedObject>(currentSaveData, "get_CharacterEdit_Hunter", {});
+        if (cCharacterEdit_Hunter == nullptr) return false;
 
-		std::string playerName = REFieldStr(cBasicParam, "CharName", REStringType::SYSTEM_STRING, false);
-		if (playerName.empty()) return false;
+        std::string playerName = REFieldStr(cBasicParam, "CharName", REStringType::SYSTEM_STRING, false);
+        if (playerName.empty()) return false;
 
-		std::string hunterShortId = REFieldStr(currentSaveData, "HunterShortId", REStringType::SYSTEM_STRING, false);
+        std::string hunterShortId = REFieldStr(currentSaveData, "HunterShortId", REStringType::SYSTEM_STRING, false);
         if (hunterShortId.empty()) return false;
 
-		int* genderIdentity = REFieldPtr<int>(cCharacterEdit_Hunter, "GenderIdentity", true);
+        int* genderIdentity = REFieldPtr<int>(cCharacterEdit_Hunter, "GenderIdentity", true);
         if (genderIdentity == nullptr) return false;
         bool female = *genderIdentity == 1;
 
@@ -1468,17 +1498,17 @@ namespace kbf {
     }
 
     int PlayerTracker::saveSelectListSelectHook(int argc, void** argv, REFrameworkTypeDefinitionHandle* arg_tys, unsigned long long ret_addr) {
-		if (argc < 5) return REFRAMEWORK_HOOK_CALL_ORIGINAL;
+        if (argc < 5) return REFRAMEWORK_HOOK_CALL_ORIGINAL;
         if (g_instance) {
             uint32_t selectedSaveIdx = reinterpret_cast<uint32_t>(argv[4]);
             if (g_instance->lastSelectedSaveIdx != selectedSaveIdx) {
-			    g_instance->lastSelectedSaveIdx = selectedSaveIdx;
+                g_instance->lastSelectedSaveIdx = selectedSaveIdx;
                 g_instance->reset();
                 //DEBUG_STACK.push(std::format("Save select state change detected | Idx = {}", selectedSaveIdx));
             }
         }
         return REFRAMEWORK_HOOK_CALL_ORIGINAL;
-	}
+    }
 
     int PlayerTracker::detectPlayer(void* hunterCharacterPtr, const std::string& logStrSuffix) {
         bool inQuest = SituationWatcher::inSituation(isinQuestPlayingasGuest)
@@ -1502,8 +1532,8 @@ namespace kbf {
             playerSlotTable.erase(playerInfos[index]->playerData);
             occupiedNormalGameplaySlots[index] = false;
             playerInfos[index] = nullptr;
-			persistentPlayerInfos[index] = nullptr;
+            persistentPlayerInfos[index] = nullptr;
         }
-	}
+    }
 
 }
