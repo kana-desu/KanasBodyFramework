@@ -643,6 +643,8 @@ namespace kbf {
         if (CImGui::CollapsingHeader("v1.0.6b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "Greatly improved crash handling. The plugin will now attempt to disable itself upon hitting an error, instead of fully crashing the game.");
+            WRAP_BULLET("-", "On plugin crash, much more detailed debug info will now be written to REFramework's log.");
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
             CImGui::Spacing();

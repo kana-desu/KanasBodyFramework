@@ -5,7 +5,8 @@
 #include <kbf/cimgui/cimgui_funcs.hpp>
 
 #include <windows.h>
-#include <psapi.h>
+#include <dbghelp.h>
+#include <psapi.h>  
 
 #include <iostream>
 
@@ -14,7 +15,12 @@ namespace kbf {
 	bool KBF::pluginDisabled = false;
 
     KBF::KBF() {
+        SymInitialize(GetCurrentProcess(), nullptr, TRUE);
         instance.initialize();
+    }
+
+    KBF::~KBF() {
+		SymCleanup(GetCurrentProcess());
     }
 
     KBF& KBF::get() {
@@ -22,14 +28,18 @@ namespace kbf {
         return kbf;
     }
 
+    int KBF::handleException(const char* line, EXCEPTION_POINTERS * ep) {
+        KBF::get().condStackTrace(line, ep);
+        return EXCEPTION_EXECUTE_HANDLER;
+	}
+
     void KBF::onPreUpdateMotion() {
         if (pluginDisabled) return;
 
         __try {
             get().instance.onPreUpdateMotion();
         }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
-			condStackTrace("onPreUpdateMotion");
+        __except (handleException("onPreUpdateMotion", GetExceptionInformation())) {
             pluginDisabled = true;
         }
     }
@@ -42,8 +52,7 @@ namespace kbf {
         __try {
 		    get().instance.onPostLateUpdateBehavior();
         }
-        __except (EXCEPTION_EXECUTE_HANDLER) {
-			condStackTrace("onPostLateUpdateBehavior");
+        __except (handleException("onPostLateUpdateBehavior", GetExceptionInformation())) {
             pluginDisabled = true;
         }
     }
@@ -60,54 +69,68 @@ namespace kbf {
                     instance.draw();
                 }
             }
-            __except (EXCEPTION_EXECUTE_HANDLER) {
-			    condStackTrace("drawUI");
+            __except (handleException("drawUI", GetExceptionInformation())) {
                 pluginDisabled = true;
 		    }
         }
 
     }
 
-    void KBF::condStackTrace(const char* line) {
+    void KBF::condStackTrace(const char* line, EXCEPTION_POINTERS* ep) {
         if (!pluginDisabled) {
             reframework::API::get()->log_error(std::format("KBF Encountered a crash in function: {}. Stack Trace:", line).c_str());
-            logStackTrace();
+            logStackTrace(ep);
 			logKbfDebugLog();
 		}
     }
 
-    void KBF::logStackTrace() {
-        void* stack[62];
-        unsigned short frames = CaptureStackBackTrace(0, 62, stack, nullptr);
+    void KBF::logStackTrace(EXCEPTION_POINTERS* ep) {
+        // Use CaptureStackBackTrace alternative for context-based stack walking
+        CONTEXT context = *ep->ContextRecord;
+        STACKFRAME64 stackFrame = {};
+        HANDLE process = GetCurrentProcess();
+        HANDLE thread = GetCurrentThread();
 
+        DWORD machineType = IMAGE_FILE_MACHINE_AMD64; // or IMAGE_FILE_MACHINE_I386 on 32-bit
 
-        for (unsigned short i = 0; i < frames; i++) {
+        stackFrame.AddrPC.Offset = context.Rip; // x64
+        stackFrame.AddrPC.Mode = AddrModeFlat;
+        stackFrame.AddrFrame.Offset = context.Rbp;
+        stackFrame.AddrFrame.Mode = AddrModeFlat;
+        stackFrame.AddrStack.Offset = context.Rsp;
+        stackFrame.AddrStack.Mode = AddrModeFlat;
+
+        while (StackWalk64(machineType, process, thread, &stackFrame, &context, nullptr,
+            SymFunctionTableAccess64, SymGetModuleBase64, nullptr)) {
+            if (stackFrame.AddrPC.Offset == 0) break;
+
             HMODULE module = nullptr;
             DWORD64 moduleBase = 0;
-
-            // get the module handle for this address
-            if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<LPCSTR>(stack[i]), &module)) {
+            if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                reinterpret_cast<LPCSTR>(stackFrame.AddrPC.Offset),
+                &module)) {
                 MODULEINFO info = {};
-                if (GetModuleInformation(GetCurrentProcess(), module, &info, sizeof(info))) {
+                if (GetModuleInformation(process, module, &info, sizeof(info))) {
                     moduleBase = reinterpret_cast<DWORD64>(info.lpBaseOfDll);
                 }
             }
 
             const char* moduleName = module ? "" : "UnknownModule";
-
             char moduleFileName[MAX_PATH] = {};
             if (module) GetModuleFileNameA(module, moduleFileName, MAX_PATH);
             if (moduleFileName[0]) moduleName = moduleFileName;
 
-            DWORD64 offset = reinterpret_cast<DWORD64>(stack[i]) - moduleBase;
+            DWORD64 offset = stackFrame.AddrPC.Offset - moduleBase;
 
-            reframework::API::get()->log_error(std::format("Frame {}: {} + 0x{:016x}", i, moduleName, offset).c_str());
+            reframework::API::get()->log_error(
+                std::format("Frame: {} + 0x{:016x}", moduleName, offset).c_str()
+            );
         }
     }
 
     void KBF::logKbfDebugLog() {
-        reframework::API::get()->log_error("KBF Debug Log Start:");
+        reframework::API::get()->log_error(std::format("KBF Debug Log Start (VERSION={}):", KBF_VERSION).c_str());
 		reframework::API::get()->log_error(DEBUG_STACK.string().c_str());
 		reframework::API::get()->log_error("KBF Debug Log End");
     }

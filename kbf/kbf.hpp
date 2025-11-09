@@ -20,9 +20,11 @@ namespace kbf {
 
 	private:
 		KBF();
+		~KBF();
 
-		static void condStackTrace(const char* line);
-		static void logStackTrace();
+		static int handleException(const char* line, EXCEPTION_POINTERS* ep);
+		static void condStackTrace(const char* line, EXCEPTION_POINTERS* ep);
+		static void logStackTrace(EXCEPTION_POINTERS* ep);
 		static void logKbfDebugLog();
 
 		KBFInstance instance;
