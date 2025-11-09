@@ -127,7 +127,7 @@ namespace kbf {
 			CImGui::BeginDisabled();
 			CImGui::Button("Kana's Body Framework (CRASHED)", ImVec2(CImGui::GetContentRegionAvail().x, 0));
 			CImGui::SetItemTooltip(
-				"Kana's Body Framework has detected a crash, and has been disabled to prevent further issues.\n"
+				"Kana's Body Framework has detected a crash, and has been disabled until game reboot to prevent further issues.\n"
 				"Please check REFramework's log and submit a bug report with it attached.");
 			CImGui::EndDisabled();
 

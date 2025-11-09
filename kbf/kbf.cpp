@@ -85,13 +85,12 @@ namespace kbf {
     }
 
     void KBF::logStackTrace(EXCEPTION_POINTERS* ep) {
-        // Use CaptureStackBackTrace alternative for context-based stack walking
         CONTEXT context = *ep->ContextRecord;
         STACKFRAME64 stackFrame = {};
         HANDLE process = GetCurrentProcess();
         HANDLE thread = GetCurrentThread();
 
-        DWORD machineType = IMAGE_FILE_MACHINE_AMD64; // or IMAGE_FILE_MACHINE_I386 on 32-bit
+        DWORD machineType = IMAGE_FILE_MACHINE_AMD64;
 
         stackFrame.AddrPC.Offset = context.Rip; // x64
         stackFrame.AddrPC.Mode = AddrModeFlat;
@@ -123,8 +122,9 @@ namespace kbf {
 
             DWORD64 offset = stackFrame.AddrPC.Offset - moduleBase;
 
+            // Log the current frame
             reframework::API::get()->log_error(
-                std::format("Frame: {} + 0x{:016x}", moduleName, offset).c_str()
+                std::format("Frame:    {} + 0x{:016x}", moduleName, offset).c_str()
             );
         }
     }
