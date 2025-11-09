@@ -1,0 +1,1 @@
+python resolve_symbols.py "C:\SteamLibrary\steamapps\common\MonsterHunterWilds\reframework\data\KBF\KanaBodyFramework_logic.dll.pdb" 0x2508cc 0x250900 0x251000

@@ -1,3 +1,5 @@
 out/
 .vs/
 dist/out
+debug/*.bat
+!debug/resolve_symbols_example.bat
