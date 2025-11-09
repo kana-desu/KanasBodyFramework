@@ -21,7 +21,12 @@ namespace kbf {
 	private:
 		KBF();
 
+		static void condStackTrace(const char* line);
+		static void logStackTrace();
+		static void logKbfDebugLog();
+
 		KBFInstance instance;
+		static bool pluginDisabled;
 	};
 
 }

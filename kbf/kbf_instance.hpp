@@ -14,6 +14,7 @@ namespace kbf {
 		KBFInstance() = default;
 		~KBFInstance() = default;
 
+		__declspec(noinline)
 		void initialize() {
 			kbfDataManager.loadData();
 			//kbf::SituationWatcher::initialize();
@@ -74,6 +75,7 @@ namespace kbf {
 				.build();
 		}
 
+		__declspec(noinline)
 		void draw() {
 			ImGuiStyle reframeworkStyle;
 			ImGuiStyle* activeStyle = CImGui::GetStylePtr();
@@ -105,6 +107,39 @@ namespace kbf {
 			memcpy(activeStyle, &reframeworkStyle, sizeof(ImGuiStyle));
 		}
 
+		__declspec(noinline)
+		void drawDisabled() {
+			drawWindow = false;
+
+			ImGuiStyle reframeworkStyle;
+			ImGuiStyle* activeStyle = CImGui::GetStylePtr();
+			memcpy(&reframeworkStyle, activeStyle, sizeof(ImGuiStyle));
+			// Fix default style
+			CImGui::StyleColorsDarkByArg(activeStyle);
+
+			CImGui::Spacing();
+			CImGui::Separator();
+
+			CImGui::PushStyleColor(ImGuiCol_Button,        ImVec4(0.70f, 0.15f, 0.15f, 1.0f));
+			CImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.80f, 0.20f, 0.20f, 1.0f));
+			CImGui::PushStyleColor(ImGuiCol_ButtonActive,  ImVec4(0.60f, 0.12f, 0.12f, 1.0f));
+
+			CImGui::BeginDisabled();
+			CImGui::Button("Kana's Body Framework (CRASHED)", ImVec2(CImGui::GetContentRegionAvail().x, 0));
+			CImGui::SetItemTooltip(
+				"Kana's Body Framework has detected a crash, and has been disabled to prevent further issues.\n"
+				"Please check REFramework's log and submit a bug report with it attached.");
+			CImGui::EndDisabled();
+
+			CImGui::PopStyleColor(3);
+
+			CImGui::Separator();
+			CImGui::Spacing();
+
+			memcpy(activeStyle, &reframeworkStyle, sizeof(ImGuiStyle));
+		}
+
+		__declspec(noinline)
 		void onPreUpdateMotion() {
 			if (!kbfDataManager.settings().enabled) return;
 
@@ -128,6 +163,7 @@ namespace kbf {
 			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "(Pre) OnUpdateMotion");
 		}
 
+		__declspec(noinline)
 		void onPostLateUpdateBehavior() {
 			if (!kbfDataManager.settings().enabled) return;
 

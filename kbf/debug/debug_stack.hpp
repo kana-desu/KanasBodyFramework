@@ -15,6 +15,22 @@ namespace kbf {
     public:
         DebugStack(size_t limit) : limit{ limit } {}
 
+        struct Color {
+            static constexpr glm::vec3 ERROR   = glm::vec3(0.839f, 0.365f, 0.365f);  // #D65D5D
+            static constexpr glm::vec3 WARNING = glm::vec3(0.902f, 0.635f, 0.235f);  // #E6A23C
+            static constexpr glm::vec3 INFO    = glm::vec3(0.753f, 0.753f, 0.753f);  // #C0C0C0
+            static constexpr glm::vec3 DEBUG   = glm::vec3(0.365f, 0.678f, 0.886f);  // #5DADE2
+            static constexpr glm::vec3 SUCCESS = glm::vec3(0.451f, 0.776f, 0.424f);  // #73C66C
+
+            static std::string type(glm::vec3 col) {
+				if (col == ERROR)   return "ERROR";
+				if (col == WARNING) return "WARNING";
+				if (col == INFO)    return "INFO";
+				if (col == DEBUG)   return "DEBUG";
+				if (col == SUCCESS) return "SUCCESS";
+            }
+        };
+
         void push(LogData logData) {
             std::lock_guard<std::mutex> lock(mux);
             stack.push_back(logData);
@@ -57,14 +73,6 @@ namespace kbf {
         auto begin() const { return stack.begin(); }
         auto end() const { return stack.end(); }
 
-        struct Color {
-            static constexpr glm::vec3 ERROR   = glm::vec3(0.839f, 0.365f, 0.365f);  // #D65D5D
-            static constexpr glm::vec3 WARNING = glm::vec3(0.902f, 0.635f, 0.235f);  // #E6A23C
-            static constexpr glm::vec3 INFO    = glm::vec3(0.753f, 0.753f, 0.753f);  // #C0C0C0
-            static constexpr glm::vec3 DEBUG   = glm::vec3(0.365f, 0.678f, 0.886f);  // #5DADE2
-            static constexpr glm::vec3 SUCCESS = glm::vec3(0.451f, 0.776f, 0.424f);  // #73C66C		
-        };
-
         static inline std::chrono::system_clock ::time_point now() noexcept { return std::chrono::system_clock::now(); }
 
         std::string string() const {
@@ -88,7 +96,7 @@ namespace kbf {
                     << std::setw(2) << local_tm.tm_sec << ":"
                     << std::setw(4) << milliseconds;
 
-				result += std::format("[{}] {}\n", oss.str(), log.data);
+				result += std::format("[{}] [{}] {}\n", oss.str(), DebugStack::Color::type(log.colour), log.data);
             }
 
 			return result;
