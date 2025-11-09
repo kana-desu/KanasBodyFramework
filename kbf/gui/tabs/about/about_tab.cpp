@@ -632,7 +632,22 @@ namespace kbf {
     void AboutTab::drawChangelogTab() {
 
         CImGui::Spacing();
-        if (CImGui::CollapsingHeader("v1.0.5b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        /// ===== Template =====
+        //if (CImGui::CollapsingHeader("vX.X.Xb", ImGuiTreeNodeFlags_DefaultOpen)) {
+        //    CImGui::Spacing();
+        //    CImGui::SeparatorText("Additions");
+        //    CImGui::SeparatorText("Changes");
+        //    CImGui::SeparatorText("Fixes");
+        //    CImGui::Spacing();
+        //}
+        if (CImGui::CollapsingHeader("v1.0.6b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            CImGui::SeparatorText("Changes");
+            CImGui::SeparatorText("Fixes");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.0.5b")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Added the option to disable weapon hiding entirely (so you can leave this up to other mods to decide).");
