@@ -99,6 +99,7 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
         PRIVATE
             ${PROJECT_SOURCE_DIR}/
     )
+    target_link_libraries(${PROJECT_NAME}_logic PRIVATE Dbghelp)
 
     # Note: Copying the PDB file first IS IMPORTANT so the hot-reloader picks it up when it reads a dll change.
     if(DEFINED PLUGIN_HOT_RELOAD_DIR)
@@ -130,6 +131,7 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
     # Pass DLL name for loader to use
     target_compile_definitions(${PROJECT_NAME}
         PRIVATE LOGIC_DLL_NAME="$<TARGET_FILE_NAME:${PROJECT_NAME}_logic>")
+    target_link_libraries(${PROJECT_NAME} PRIVATE Dbghelp)
 
     add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_logic)
 
@@ -162,6 +164,7 @@ else()
         PRIVATE
             ${PROJECT_SOURCE_DIR}/
     )
+    target_link_libraries(${PROJECT_NAME} PRIVATE Dbghelp)
 
     if(NOT PACKAGE_FOR_DIST AND DEFINED PLUGIN_OUTPUT_DIR AND IS_DIRECTORY "${PLUGIN_OUTPUT_DIR}")
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
