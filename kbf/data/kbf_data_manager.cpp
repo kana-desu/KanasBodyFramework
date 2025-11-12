@@ -687,8 +687,11 @@ namespace kbf {
                 FBSPreset preset;
                 if (loadFBSPreset(entry.path(), isBody, female, bundle, &preset)) {
                     std::string subfolder = getRelativeSubfolder(dir, entry.path());
-                    if (!subfolder.empty()) {
-
+                    if (!subfolder.empty() && subfolder != ".") {
+                        preset.preset.name = std::format("[{}] {}",
+                            subfolder,
+                            preset.preset.name
+                        );
                     }
 
                     out->push_back(preset);
