@@ -197,8 +197,12 @@ namespace kbf {
                     
                         bool kinsectVisible = !dataManager.settings().enableHideKinsect || weaponVisible;
 
-                        if (pInfo->Wp_Insect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
-                        if (pInfo->Wp_ReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
+                        const static reframework::API::TypeDefinition* def_Kinsect = reframework::API::get()->tdb()->find_type("app.Wp10Insect");
+                        bool validWpInsect        = pInfo->Wp_Insect        && checkREPtrValidity(pInfo->Wp_Insect,        def_Kinsect);
+						bool validWpReserveInsect = pInfo->Wp_ReserveInsect && checkREPtrValidity(pInfo->Wp_ReserveInsect, def_Kinsect);
+
+                        if (validWpInsect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
+                        if (validWpReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
                     }
                 
                     // Slinger Visibility
