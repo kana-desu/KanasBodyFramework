@@ -18,6 +18,7 @@
 #include <kbf/util/string/cvt_utf16_utf8.hpp>
 #include <kbf/util/string/ansi_encode.hpp>
 #include <kbf/util/io/zip_file.hpp>
+#include <kbf/util/io/get_relative_subfolder.hpp>
 #include <kbf/data/ids/armour_list_ids.hpp>
 #include <kbf/data/bones/bone_symmetry_utils.hpp>
 
@@ -644,8 +645,6 @@ namespace kbf {
     }
 
     bool KBFDataManager::getFBSpresets(std::vector<FBSPreset>* out, bool female, std::string bundle, float* progressOut) const {
-        // TODO: Load these into base modifiers, but add a placeholder for body / legs so the mark shows up in the UI.
-
         if (!out) return false;
         if (!fbsDirectoryFound()) return false;
 
@@ -653,78 +652,76 @@ namespace kbf {
 
         bool hasFailure = false;
 
-        // Count total number of presets in both directories
-        size_t totalPresets = 0;
-        size_t processedCnt = 0;
         std::filesystem::path bodyPath = this->fbsPath / "Body";
         std::filesystem::path legPath = this->fbsPath / "Leg";
-        for (const auto& entry : std::filesystem::directory_iterator(bodyPath)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".json") {
-                totalPresets++;
-            }
-        }
-        for (const auto& entry : std::filesystem::directory_iterator(legPath)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".json") {
-                totalPresets++;
-            }
-        }
 
-        // Load all body presets
         if (!std::filesystem::exists(bodyPath)) {
             DEBUG_STACK.push(std::format("{} FBS Body presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, bodyPath.string()), DebugStack::Color::ERROR);
             return false;
         }
 
-        for (const auto& entry : std::filesystem::directory_iterator(bodyPath)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".json") {
-                FBSPreset preset;
-                if (loadFBSPreset(entry.path(), true, female, bundle, &preset)) {
-                    out->push_back(preset);
-                }
-                else {
-                    hasFailure = true;
-                }
-                if (progressOut) { 
-                    processedCnt++; 
-                    *progressOut = static_cast<float>(processedCnt) / static_cast<float>(totalPresets); 
-                }
-            }
-        }
-
-        // Load all leg presets
         if (!std::filesystem::exists(legPath)) {
             DEBUG_STACK.push(std::format("{} FBS Leg presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, legPath.string()), DebugStack::Color::ERROR);
             return false;
         }
 
-        for (const auto& entry : std::filesystem::directory_iterator(legPath)) {
-            if (entry.is_regular_file() && entry.path().extension() == ".json") {
+        // lambda to count total JSON files (including subfolders)
+        auto countJsonFiles = [](const std::filesystem::path& dir) -> size_t {
+            size_t count = 0;
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(dir)) {
+                if (entry.is_regular_file() && entry.path().extension() == ".json")
+                    count++;
+            }
+            return count;
+            };
+
+        size_t totalPresets = countJsonFiles(bodyPath) + countJsonFiles(legPath);
+        size_t processedCnt = 0;
+
+        // lambda to load presets recursively
+        auto loadPresetsFromDir = [&](const std::filesystem::path& dir, bool isBody) {
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(dir)) {
+                if (!entry.is_regular_file() || entry.path().extension() != ".json")
+                    continue;
+
                 FBSPreset preset;
-                if (loadFBSPreset(entry.path(), false, female, bundle, &preset)) {
+                if (loadFBSPreset(entry.path(), isBody, female, bundle, &preset)) {
+                    std::string subfolder = getRelativeSubfolder(dir, entry.path());
+                    if (!subfolder.empty()) {
+
+                    }
+
                     out->push_back(preset);
                 }
                 else {
                     hasFailure = true;
                 }
-                if (progressOut) {
+
+                if (progressOut && totalPresets > 0) {
                     processedCnt++;
                     *progressOut = static_cast<float>(processedCnt) / static_cast<float>(totalPresets);
                 }
             }
+            };
+
+        // Load body + leg presets (including subfolders)
+        loadPresetsFromDir(bodyPath, true);
+        loadPresetsFromDir(legPath, false);
+
+        // Rename duplicates between groups for uniqueness
+        std::unordered_map<std::string, std::vector<Preset*>> groups;
+        for (FBSPreset& fbspreset : *out) {
+            groups[fbspreset.preset.name].push_back(&fbspreset.preset);
         }
 
-        // Do a pass to make any body/leg presets with the name name uniquely identifyable
-        std::unordered_map<std::string, Preset*> existingNames;
-        for (FBSPreset& fbspreset : *out) {
-            if (existingNames.find(fbspreset.preset.name) != existingNames.end()) {
-                // Rename them
-                Preset* existingPreset = existingNames.at(fbspreset.preset.name);
-                Preset* duplicatePreset = &fbspreset.preset;
-                duplicatePreset->name = std::format("{} ({})", duplicatePreset->name, duplicatePreset->hasModifiers(ArmourPiece::AP_BODY) ? "Body" : "Legs");
-                existingPreset->name  = std::format("{} ({})", existingPreset->name,  existingPreset->hasModifiers(ArmourPiece::AP_BODY) ? "Body" : "Legs");
-            }
-            else {
-                existingNames.emplace(fbspreset.preset.name, &fbspreset.preset);
+        for (auto& [name, vec] : groups) {
+            if (vec.size() <= 1) continue;
+            for (Preset* p : vec) {
+                p->name = std::format(
+                    "{} ({})",
+                    name,
+                    p->hasModifiers(ArmourPiece::AP_BODY) ? "Body" : "Legs"
+                );
             }
         }
 
