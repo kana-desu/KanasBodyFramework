@@ -201,10 +201,6 @@ namespace kbf {
                         bool validWpInsect        = pInfo->Wp_Insect        && checkREPtrValidity(pInfo->Wp_Insect,        def_GameObject);
 						bool validWpReserveInsect = pInfo->Wp_ReserveInsect && checkREPtrValidity(pInfo->Wp_ReserveInsect, def_GameObject);
 
-                        if (pInfo->Wp_Insect) {
-                            DEBUG_STACK.push(pInfo->Wp_Insect->get_type_definition()->get_full_name());
-                        }
-
                         if (validWpInsect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
                         if (validWpReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
                     }
