@@ -197,9 +197,13 @@ namespace kbf {
                     
                         bool kinsectVisible = !dataManager.settings().enableHideKinsect || weaponVisible;
 
-                        const static reframework::API::TypeDefinition* def_Kinsect = reframework::API::get()->tdb()->find_type("app.Wp10Insect");
-                        bool validWpInsect        = pInfo->Wp_Insect        && checkREPtrValidity(pInfo->Wp_Insect,        def_Kinsect);
-						bool validWpReserveInsect = pInfo->Wp_ReserveInsect && checkREPtrValidity(pInfo->Wp_ReserveInsect, def_Kinsect);
+                        const static reframework::API::TypeDefinition* def_GameObject = reframework::API::get()->tdb()->find_type("via.GameObject");
+                        bool validWpInsect        = pInfo->Wp_Insect        && checkREPtrValidity(pInfo->Wp_Insect,        def_GameObject);
+						bool validWpReserveInsect = pInfo->Wp_ReserveInsect && checkREPtrValidity(pInfo->Wp_ReserveInsect, def_GameObject);
+
+                        if (pInfo->Wp_Insect) {
+                            DEBUG_STACK.push(pInfo->Wp_Insect->get_type_definition()->get_full_name());
+                        }
 
                         if (validWpInsect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
                         if (validWpReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
