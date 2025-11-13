@@ -42,7 +42,7 @@ namespace kbf {
         reframework::API::TypeDefinition* callerType = reframework::API::get()->tdb()->find_type(callerTypeName);
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (callerType == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch caller type definition: {}", callerTypeName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch caller type definition: {}", callerTypeName), DebugStack::Color::COL_ERROR);
         }
         #endif
         if (callerType == nullptr) return nullptr;
@@ -50,7 +50,7 @@ namespace kbf {
         reframework::API::Method* callerMethod = callerType->find_method(methodName);
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (callerMethod == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find method {}. {} has the following properties:\n{}", methodName, callerTypeName, reTypePropertiesToString(callerType)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find method {}. {} has the following properties:\n{}", methodName, callerTypeName, reTypePropertiesToString(callerType)), DebugStack::Color::COL_ERROR);
         }
         #endif
 		if (callerMethod == nullptr) return nullptr;
@@ -76,7 +76,7 @@ namespace kbf {
         reframework::API::TypeDefinition* callerType = reframework::API::get()->tdb()->find_type(callerTypeName);
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (callerType == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch caller type definition: {}", callerTypeName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch caller type definition: {}", callerTypeName), DebugStack::Color::COL_ERROR);
         }
         #endif
         if (callerType == nullptr) return nullptr;
@@ -84,7 +84,7 @@ namespace kbf {
         reframework::API::Method* callerMethod = callerType->find_method(methodName);
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (callerMethod == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find method {}. {} has the following properties:\n{}", methodName, callerTypeName, reTypePropertiesToString(callerType)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find method {}. {} has the following properties:\n{}", methodName, callerTypeName, reTypePropertiesToString(callerType)), DebugStack::Color::COL_ERROR);
         }
         #endif
 		if (callerMethod == nullptr) return nullptr;
@@ -124,10 +124,10 @@ namespace kbf {
 
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (caller->get_type_definition() == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch caller type definition for field {}", fieldName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch caller type definition for field {}", fieldName), DebugStack::Color::COL_ERROR);
         }
         else if (caller->get_type_definition()->find_field(fieldName) == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find field {}. Caller object has the following fields and methods:\n{}", fieldName, reObjectPropertiesToString(caller)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find field {}. Caller object has the following fields and methods:\n{}", fieldName, reObjectPropertiesToString(caller)), DebugStack::Color::COL_ERROR);
         }
         #endif
 
@@ -179,10 +179,10 @@ namespace kbf {
     ) {
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (caller->get_type_definition() == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::COL_ERROR);
         }
         else if (caller->get_type_definition()->find_method(methodName) == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::COL_ERROR);
         }
         #endif
 
@@ -218,10 +218,10 @@ namespace kbf {
     ) {
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (caller->get_type_definition() == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::COL_ERROR);
         }
         else if (caller->get_type_definition()->find_method(methodName) == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::COL_ERROR);
         }
         #endif
 
@@ -272,10 +272,10 @@ namespace kbf {
     ) {
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_ERROR)
         if (caller->get_type_definition() == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to fetch function type definition for method {}", methodName), DebugStack::Color::COL_ERROR);
         }
         else if (caller->get_type_definition()->find_method(methodName) == nullptr) {
-            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("Failed to find method {}. Caller object has the following fields and methods:\n{}", methodName, reObjectPropertiesToString(caller)), DebugStack::Color::COL_ERROR);
         }
         #endif
 

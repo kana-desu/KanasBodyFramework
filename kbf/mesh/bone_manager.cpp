@@ -140,7 +140,7 @@ namespace kbf {
 			if (piece != ArmourPiece::AP_SET) {
 				// Don't cache base bones as not tied to a specific armour set
 				ArmourSetWithCharacterSex armourWithSex{ armourInfo.getPiece(piece).value(), female};
-				dataManager.boneCache().cacheBones(armourWithSex, keys, piece);
+				dataManager.boneCacheManager().cache(armourWithSex, keys, piece);
 			}
 		}
 
@@ -170,7 +170,7 @@ namespace kbf {
 			if (joint) {
 				std::string jointName = REInvokeStr(joint, "get_Name", {});
 				bool isValid = REInvoke<bool>(joint, "get_Valid", {}, InvokeReturnType::BOOL);
-				DEBUG_STACK.push(std::format("{} [{}] {} {} ({}) [{}]", KBF_BONE_MANAGER_LOG_TAG, i, message, jointName, ptrToHexString(joint), isValid ? "VALID" : "INVALID"), DebugStack::Color::DEBUG);
+				DEBUG_STACK.push(std::format("{} [{}] {} {} ({}) [{}]", KBF_BONE_MANAGER_LOG_TAG, i, message, jointName, ptrToHexString(joint), isValid ? "VALID" : "INVALID"), DebugStack::Color::COL_DEBUG);
 			}
 		}
 	}

@@ -191,7 +191,7 @@ namespace kbf {
     }
 
     size_t CreatePresetGroupFromBundlePanel::assignPresetsToGroup(const std::vector<std::string>& presetUUIDs) {
-		DEBUG_STACK.push(std::format("{} Creating preset group \"{}\" ({}) from bundle \"{}\"...", CREATE_PRESET_GROUP_PANEL_LOG_TAG, presetGroup.name, presetGroup.uuid, selectedBundle), DebugStack::Color::INFO);
+		DEBUG_STACK.push(std::format("{} Creating preset group \"{}\" ({}) from bundle \"{}\"...", CREATE_PRESET_GROUP_PANEL_LOG_TAG, presetGroup.name, presetGroup.uuid, selectedBundle), DebugStack::Color::COL_INFO);
 
         size_t conflictCount = 0;
 
@@ -206,7 +206,7 @@ namespace kbf {
 					bool presetAlreadyAssigned = piece != ArmourPiece::AP_SET && presetMap->find(preset->armour) != presetMap->end();
                     if (presetAlreadyAssigned) {
 						std::string existingPresetName = dataManager.getPresetByUUID(presetMap->at(preset->armour))->name;
-                        DEBUG_STACK.push(std::format("{} Preset \"{}\" was ignored while assigning {} due to a conflicting preset \"{}\" from the same bundle", CREATE_PRESET_GROUP_PANEL_LOG_TAG, preset->name, preset->armour.name, existingPresetName), DebugStack::Color::WARNING);
+                        DEBUG_STACK.push(std::format("{} Preset \"{}\" was ignored while assigning {} due to a conflicting preset \"{}\" from the same bundle", CREATE_PRESET_GROUP_PANEL_LOG_TAG, preset->name, preset->armour.name, existingPresetName), DebugStack::Color::COL_WARNING);
                         conflictCount++;
                     }
 					else {
@@ -215,13 +215,13 @@ namespace kbf {
                 }
             }
            
-            if (!preset->hasAnyModifiers() && !preset->hasAnyPartOverrides()) {
-                DEBUG_STACK.push(std::format("{} Preset \"{}\" ({}) was ignored while assigning to preset group as it contains no modifiers/removers.", CREATE_PRESET_GROUP_PANEL_LOG_TAG, preset->name, preset->armour.name), DebugStack::Color::WARNING);
+            if (!preset->hasAnyModifiers() && !preset->hasAnyPartOverrides() && !preset->hasAnyMaterialOverrides()) {
+                DEBUG_STACK.push(std::format("{} Preset \"{}\" ({}) was ignored while assigning to preset group as it contains no modifiers/removers.", CREATE_PRESET_GROUP_PANEL_LOG_TAG, preset->name, preset->armour.name), DebugStack::Color::COL_WARNING);
                 conflictCount++;
 			}
         }
 
-        DEBUG_STACK.push(std::format("{} Created preset group \"{}\" ({}) from bundle \"{}\" ({} Conflicts)", CREATE_PRESET_GROUP_PANEL_LOG_TAG, presetGroup.name, presetGroup.uuid, selectedBundle, conflictCount), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Created preset group \"{}\" ({}) from bundle \"{}\" ({} Conflicts)", CREATE_PRESET_GROUP_PANEL_LOG_TAG, presetGroup.name, presetGroup.uuid, selectedBundle, conflictCount), DebugStack::Color::COL_SUCCESS);
         return conflictCount;
     }
 

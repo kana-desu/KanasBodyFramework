@@ -249,7 +249,7 @@ namespace kbf {
                 initializeBuffers();
             }
             else {
-                DEBUG_STACK.push(std::format("{} Could not find preset with UUID {} while trying to make a copy.", EDIT_PRESET_PANEL_LOG_TAG, uuid), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Could not find preset with UUID {} while trying to make a copy.", EDIT_PRESET_PANEL_LOG_TAG, uuid), DebugStack::Color::COL_ERROR);
             }
             copyPresetPanel.close();
             });

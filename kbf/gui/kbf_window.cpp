@@ -34,7 +34,7 @@ namespace kbf {
         // Presets may be deleted, so avoid hanging ptr
         settingsTab.setOnReloadDataCallback([&]() { editorTab.editNone(); });
 
-		DEBUG_STACK.push(std::format("{} Hello from Kana! ^o^ - Framework initialized.", KBF_WINDOW_LOG_TAG), DebugStack::Color::INFO);
+		DEBUG_STACK.push(std::format("{} Hello from Kana! ^o^ - Framework initialized.", KBF_WINDOW_LOG_TAG), DebugStack::Color::COL_INFO);
     }
 
     void KBFWindow::initializeFonts() {
@@ -71,7 +71,7 @@ namespace kbf {
                 errMsg += " - " + unfoundFonts[i];
                 if (i < unfoundFonts.size() - 1) errMsg += "\n";
             }
-            DEBUG_STACK.push(std::format("{} {}", KBF_WINDOW_LOG_TAG, errMsg), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} {}", KBF_WINDOW_LOG_TAG, errMsg), DebugStack::Color::COL_ERROR);
             return;
         }
 

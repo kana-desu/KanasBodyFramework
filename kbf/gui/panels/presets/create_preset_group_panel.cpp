@@ -122,7 +122,7 @@ namespace kbf {
                 initializeBuffers();
             }
             else {
-                DEBUG_STACK.push(std::format("{} Could not find preset group with UUID {} while trying to make a copy.", CREATE_PRESET_GROUP_PANEL_LOG_TAG, uuid), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Could not find preset group with UUID {} while trying to make a copy.", CREATE_PRESET_GROUP_PANEL_LOG_TAG, uuid), DebugStack::Color::COL_ERROR);
             }
             copyPresetGroupPanel.close();
         });

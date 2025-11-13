@@ -32,18 +32,19 @@
 #include <codecvt>
 
 #undef GetObject
+
 #define KBF_DATA_MANAGER_LOG_TAG "[KBFDataManager]"
 
 namespace kbf {
     void KBFDataManager::loadData() {
-        DEBUG_STACK.push(std::format("{} Loading Data...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Loading Data...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
         verifyDirectoriesExist();
 
         loadSettings();
 
-        boneCacheManager.loadBoneCaches();
-        partCacheManager.loadPartCaches();
+        m_boneCacheManager.loadCaches();
+        m_partCacheManager.loadCaches();
 
         loadAlmaConfig(&presetDefaults.alma);
         loadErikConfig(&presetDefaults.erik);
@@ -60,7 +61,7 @@ namespace kbf {
 
         // Armour list stuff
         #if KBF_DEBUG_BUILD
-		DEBUG_STACK.push(std::format("{} Note: Debug Build - using & writing fallback armour list...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::WARNING);
+		DEBUG_STACK.push(std::format("{} Note: Debug Build - using & writing fallback armour list...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_WARNING);
             writeArmourList(armourListPath, ArmourList::FALLBACK_MAPPING);
         #endif
 
@@ -68,7 +69,7 @@ namespace kbf {
     }
 
     void KBFDataManager::clearData() {
-        DEBUG_STACK.push(std::format("{} Clearing Data...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Clearing Data...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
         presetDefaults = {};
         presetGroupDefaults = {};
@@ -439,7 +440,7 @@ namespace kbf {
 
     bool KBFDataManager::addPreset(const Preset& preset, bool write) {
         if (presets.find(preset.uuid) != presets.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to add new preset {} with UUID {}, but a preset with this UUID already exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to add new preset {} with UUID {}, but a preset with this UUID already exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::COL_WARNING);
             return false;
         }
         presets.emplace(preset.uuid, preset);
@@ -447,11 +448,11 @@ namespace kbf {
         if (write) {
             std::filesystem::path presetPath = this->presetPath / (preset.name + ".json");
             if (writePreset(presetPath, preset)) {
-                DEBUG_STACK.push(std::format("{} Added new preset: {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::SUCCESS);
+                DEBUG_STACK.push(std::format("{} Added new preset: {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::COL_SUCCESS);
             }
         }
         else {
-            DEBUG_STACK.push(std::format("{} Added new preset (NON-PERSISTENT): {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Added new preset (NON-PERSISTENT): {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::COL_SUCCESS);
         }
 
         return true;
@@ -462,7 +463,7 @@ namespace kbf {
         if (presetGroups.find(presetGroup.uuid) != presetGroups.end()) {
             DEBUG_STACK.push(std::format("{} Tried to add new preset group {} with UUID {}, but a preset with this UUID already exists. Skipping...", 
                 KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid
-            ), DebugStack::Color::WARNING);
+            ), DebugStack::Color::COL_WARNING);
             return false;
         }
         presetGroups.emplace(presetGroup.uuid, presetGroup);
@@ -470,11 +471,11 @@ namespace kbf {
         if (write) {
             std::filesystem::path presetGroupPath = this->presetGroupPath / (presetGroup.name + ".json");
             if (writePresetGroup(presetGroupPath, presetGroup)) {
-                DEBUG_STACK.push(std::format("{} Added new preset group: {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::SUCCESS);
+                DEBUG_STACK.push(std::format("{} Added new preset group: {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::COL_SUCCESS);
             }
         }
         else {
-            DEBUG_STACK.push(std::format("{} Added new preset group (NON-PERSISTENT): {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Added new preset group (NON-PERSISTENT): {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::COL_SUCCESS);
         }
 
         return true;
@@ -484,7 +485,7 @@ namespace kbf {
         const PlayerData& player = playerOverride.player;
 
         if (playerOverrides.find(playerOverride.player) != playerOverrides.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to add new player override for player {}, but an override for this player already exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to add new player override for player {}, but an override for this player already exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_WARNING);
             return false;
         }
         playerOverrides.emplace(player, playerOverride);
@@ -492,11 +493,11 @@ namespace kbf {
         if (write) {
             std::filesystem::path playerOverridePath = this->playerOverridePath / (getPlayerOverrideFilename(player) + ".json");
             if (writePlayerOverride(playerOverridePath, playerOverride)) {
-                DEBUG_STACK.push(std::format("{} Added new player override: {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::SUCCESS);
+                DEBUG_STACK.push(std::format("{} Added new player override: {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_SUCCESS);
             }
         }
         else {
-            DEBUG_STACK.push(std::format("{} Added new player override (NON-PERSISTENT): {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Added new player override (NON-PERSISTENT): {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_SUCCESS);
         }
 
         return true;
@@ -504,7 +505,7 @@ namespace kbf {
 
     void KBFDataManager::deletePreset(const std::string& uuid, bool validate) {
         if (presets.find(uuid) == presets.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to delete preset with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to delete preset with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::COL_WARNING);
             return;
         }
         std::string presetName = presets.at(uuid).name;
@@ -512,14 +513,14 @@ namespace kbf {
         // Delete corresponding preset file.
         std::filesystem::path currPresetPath = this->presetPath / (presetName + ".json");
         if (!std::filesystem::exists(currPresetPath)) {
-            DEBUG_STACK.push(std::format("{} Deleted preset {} ({}) locally, but no corresponding .json file exists.", KBF_DATA_MANAGER_LOG_TAG, presetName, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Deleted preset {} ({}) locally, but no corresponding .json file exists.", KBF_DATA_MANAGER_LOG_TAG, presetName, uuid), DebugStack::Color::COL_WARNING);
             presets.erase(uuid);
             if (validate) validateObjectsUsingPresets();
             return;
         }
 
         if (deleteJsonFile(currPresetPath.string())) {
-            DEBUG_STACK.push(std::format("{} Deleted preset {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetName, uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Deleted preset {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetName, uuid), DebugStack::Color::COL_SUCCESS);
             presets.erase(uuid);
             if (validate) validateObjectsUsingPresets();
         }
@@ -528,19 +529,19 @@ namespace kbf {
     void KBFDataManager::deletePresetBundle(const std::string& bundleName) {
         std::vector<std::string> presetUUIDs = getPresetsInBundle(bundleName);
         if (presetUUIDs.empty()) {
-            DEBUG_STACK.push(std::format("{} Tried to delete preset bundle {}, but no presets found in this bundle. Skipping...", KBF_DATA_MANAGER_LOG_TAG, bundleName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to delete preset bundle {}, but no presets found in this bundle. Skipping...", KBF_DATA_MANAGER_LOG_TAG, bundleName), DebugStack::Color::COL_WARNING);
             return;
         }
         for (size_t i = 0; i < presetUUIDs.size(); i++) {
             bool validate = (i == presetUUIDs.size() - 1); // Validate only on the last deletion.
             deletePreset(presetUUIDs[i], validate);
         }
-        DEBUG_STACK.push(std::format("{} Deleted preset bundle: {}", KBF_DATA_MANAGER_LOG_TAG, bundleName), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Deleted preset bundle: {}", KBF_DATA_MANAGER_LOG_TAG, bundleName), DebugStack::Color::COL_SUCCESS);
     }
 
     void KBFDataManager::deletePresetGroup(const std::string& uuid) {
         if (presetGroups.find(uuid) == presetGroups.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to delete preset group with UUID {}, but no such group exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to delete preset group with UUID {}, but no such group exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::COL_WARNING);
             return;
         }
         std::string presetGroupName = presetGroups.at(uuid).name;
@@ -548,14 +549,14 @@ namespace kbf {
         // Delete corresponding preset file.
         std::filesystem::path currPresetGroupPath = this->presetGroupPath / (presetGroupName + ".json");
         if (!std::filesystem::exists(currPresetGroupPath)) {
-            DEBUG_STACK.push(std::format("{} Deleted preset group {} ({}) locally, but no corresponding .json file exists.", KBF_DATA_MANAGER_LOG_TAG, presetGroupName, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Deleted preset group {} ({}) locally, but no corresponding .json file exists.", KBF_DATA_MANAGER_LOG_TAG, presetGroupName, uuid), DebugStack::Color::COL_WARNING);
             presetGroups.erase(uuid);
             validateObjectsUsingPresetGroups();
             return;
         }
 
         if (deleteJsonFile(currPresetGroupPath.string())) {
-            DEBUG_STACK.push(std::format("{} Deleted preset group {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroupName, uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Deleted preset group {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroupName, uuid), DebugStack::Color::COL_SUCCESS);
             presetGroups.erase(uuid);
             validateObjectsUsingPresetGroups();
         }
@@ -563,33 +564,33 @@ namespace kbf {
 
     void KBFDataManager::deletePlayerOverride(const PlayerData& player) {
         if (playerOverrides.find(player) == playerOverrides.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to delete player override for player {}, but no such group exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to delete player override for player {}, but no such group exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_WARNING);
             return;
         }
 
         // Delete corresponding preset file.
         std::filesystem::path currPlayerOverridePath = this->playerOverridePath / (getPlayerOverrideFilename(player) + ".json");
         if (!std::filesystem::exists(currPlayerOverridePath)) {
-            DEBUG_STACK.push(std::format("{} Deleted player override: {} locally, but no corresponding .json file exists ({}).", KBF_DATA_MANAGER_LOG_TAG, player.string(), currPlayerOverridePath.string()), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Deleted player override: {} locally, but no corresponding .json file exists ({}).", KBF_DATA_MANAGER_LOG_TAG, player.string(), currPlayerOverridePath.string()), DebugStack::Color::COL_WARNING);
             playerOverrides.erase(player);
             return;
         }
 
         if (deleteJsonFile(currPlayerOverridePath.string())) {
-            DEBUG_STACK.push(std::format("{} Deleted player override: {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Deleted player override: {}", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_SUCCESS);
             playerOverrides.erase(player);
         }
     }
 
     void KBFDataManager::updatePreset(const std::string& uuid, Preset newPreset) {
         if (presets.find(uuid) == presets.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to update preset with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to update preset with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::COL_WARNING);
             return;
         }
         Preset& currentPreset = presets.at(uuid);
 
         if (currentPreset.uuid != newPreset.uuid) {
-            DEBUG_STACK.push(std::format("{} Tried to update preset {} ({}) to a preset with a different uuid: {}. Skipping...", KBF_DATA_MANAGER_LOG_TAG, currentPreset.name, currentPreset.uuid, newPreset.uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to update preset {} ({}) to a preset with a different uuid: {}. Skipping...", KBF_DATA_MANAGER_LOG_TAG, currentPreset.name, currentPreset.uuid, newPreset.uuid), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -598,20 +599,20 @@ namespace kbf {
         
         if (presetPathBefore != presetPathAfter) deleteJsonFile(presetPathBefore.string());
         if (writePreset(presetPathAfter, newPreset)) {
-            DEBUG_STACK.push(std::format("{} Updated preset: {} -> {} ({})", KBF_DATA_MANAGER_LOG_TAG, currentPreset.name, newPreset.name, newPreset.uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Updated preset: {} -> {} ({})", KBF_DATA_MANAGER_LOG_TAG, currentPreset.name, newPreset.name, newPreset.uuid), DebugStack::Color::COL_SUCCESS);
             currentPreset = newPreset;
         }
     }
 
     void KBFDataManager::updatePresetGroup(const std::string& uuid, PresetGroup newPresetGroup) {
         if (presetGroups.find(uuid) == presetGroups.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to update preset group with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to update preset group with UUID {}, but no such preset exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, uuid), DebugStack::Color::COL_WARNING);
             return;
         }
         PresetGroup& currentPresetGroup = presetGroups.at(uuid);
 
         if (currentPresetGroup.uuid != newPresetGroup.uuid) {
-            DEBUG_STACK.push(std::format("{} Tried to update preset group {} ({}) to a preset group with a different uuid: {}. Skipping...", KBF_DATA_MANAGER_LOG_TAG, currentPresetGroup.name, currentPresetGroup.uuid, newPresetGroup.uuid), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to update preset group {} ({}) to a preset group with a different uuid: {}. Skipping...", KBF_DATA_MANAGER_LOG_TAG, currentPresetGroup.name, currentPresetGroup.uuid, newPresetGroup.uuid), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -620,14 +621,14 @@ namespace kbf {
 
         if (presetPathBefore != presetPathAfter) deleteJsonFile(presetPathBefore.string());
         if (writePresetGroup(presetPathAfter, newPresetGroup)) {
-            DEBUG_STACK.push(std::format("{} Updated preset group: {} -> {} ({})", KBF_DATA_MANAGER_LOG_TAG, currentPresetGroup.name, newPresetGroup.name, newPresetGroup.uuid), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Updated preset group: {} -> {} ({})", KBF_DATA_MANAGER_LOG_TAG, currentPresetGroup.name, newPresetGroup.name, newPresetGroup.uuid), DebugStack::Color::COL_SUCCESS);
             currentPresetGroup = newPresetGroup;
         }
     }
 
     void KBFDataManager::updatePlayerOverride(const PlayerData& player, PlayerOverride newOverride) {
         if (playerOverrides.find(player) == playerOverrides.end()) {
-            DEBUG_STACK.push(std::format("{} Tried to update player override for player {}, but no such override exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Tried to update player override for player {}, but no such override exists. Skipping...", KBF_DATA_MANAGER_LOG_TAG, player.string()), DebugStack::Color::COL_WARNING);
             return;
         }
         PlayerOverride& currentOverride = playerOverrides.at(player);
@@ -637,7 +638,7 @@ namespace kbf {
 
         if (overridePathBefore != overridePathAfter) deleteJsonFile(overridePathBefore.string());
         if (writePlayerOverride(overridePathAfter, newOverride)) {
-            DEBUG_STACK.push(std::format("{} Updated player override: {} -> {}", KBF_DATA_MANAGER_LOG_TAG, currentOverride.player.string(), newOverride.player.string()), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Updated player override: {} -> {}", KBF_DATA_MANAGER_LOG_TAG, currentOverride.player.string(), newOverride.player.string()), DebugStack::Color::COL_SUCCESS);
             // Have to update the entire entry here as data in the key is NOT constant
             playerOverrides.erase(player);
             playerOverrides.emplace(newOverride.player, newOverride);
@@ -656,12 +657,12 @@ namespace kbf {
         std::filesystem::path legPath = this->fbsPath / "Leg";
 
         if (!std::filesystem::exists(bodyPath)) {
-            DEBUG_STACK.push(std::format("{} FBS Body presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, bodyPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} FBS Body presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, bodyPath.string()), DebugStack::Color::COL_ERROR);
             return false;
         }
 
         if (!std::filesystem::exists(legPath)) {
-            DEBUG_STACK.push(std::format("{} FBS Leg presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, legPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} FBS Leg presets directory does not exist at {}", KBF_DATA_MANAGER_LOG_TAG, legPath.string()), DebugStack::Color::COL_ERROR);
             return false;
         }
 
@@ -774,7 +775,7 @@ namespace kbf {
     }
 
     bool KBFDataManager::importKBF(std::string filepath, size_t* conflictsCount) {
-        DEBUG_STACK.push(std::format("{} Importing KBF file: \"{}\"", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Importing KBF file: \"{}\"", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::COL_INFO);
 
         KBFFileData data;
         bool success = readKBF(filepath, &data);
@@ -818,7 +819,7 @@ namespace kbf {
                     out->presets.push_back(std::move(presetOut));
                 }
                 else {
-                    DEBUG_STACK.push(std::format("{} Failed to parse preset {} in KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, presetOut.name, filepath), DebugStack::Color::ERROR);
+                    DEBUG_STACK.push(std::format("{} Failed to parse preset {} in KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, presetOut.name, filepath), DebugStack::Color::COL_ERROR);
                 }
             }
         }
@@ -837,7 +838,7 @@ namespace kbf {
                     out->presetGroups.push_back(std::move(presetGroupOut));
                 }
                 else {
-                    DEBUG_STACK.push(std::format("{} Failed to parse preset group {} in .KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, presetGroupOut.name, filepath), DebugStack::Color::ERROR);
+                    DEBUG_STACK.push(std::format("{} Failed to parse preset group {} in .KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, presetGroupOut.name, filepath), DebugStack::Color::COL_ERROR);
                 }
             }
         }
@@ -855,13 +856,13 @@ namespace kbf {
                     out->playerOverrides.push_back(std::move(overrideOut));
                 }
                 else {
-                    DEBUG_STACK.push(std::format("{} Failed to parse player override {} in .KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, override.name.GetString(), filepath), DebugStack::Color::ERROR);
+                    DEBUG_STACK.push(std::format("{} Failed to parse player override {} in .KBF \"{}\". Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, override.name.GetString(), filepath), DebugStack::Color::COL_ERROR);
                 }
             }
         }
 
         if (!parsed) {
-            DEBUG_STACK.push(std::format("{} Failed to parse KBF {}. One or more required values were invalid / missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse KBF {}. One or more required values were invalid / missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::COL_ERROR);
         }
 
         return parsed;
@@ -902,7 +903,7 @@ namespace kbf {
         bool success = writeJsonFile(filepath, s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write kbf file: \"{}\"", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write kbf file: \"{}\"", KBF_DATA_MANAGER_LOG_TAG, filepath), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -953,13 +954,13 @@ namespace kbf {
             return true;
         }
         catch (const std::exception& e) {
-            DEBUG_STACK.push(std::format("{} Error writing zip file @ \"{}\": {}", KBF_DATA_MANAGER_LOG_TAG, filepath, e.what()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Error writing zip file @ \"{}\": {}", KBF_DATA_MANAGER_LOG_TAG, filepath, e.what()), DebugStack::Color::COL_ERROR);
             return false;
         }
     }
 
     void KBFDataManager::deleteLocalModArchive(std::string name) {
-        DEBUG_STACK.push(std::format("{} Deleting local mod archive: {}", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Deleting local mod archive: {}", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::COL_INFO);
 
         std::vector<std::string> presetsToDelete;
         for (const auto& [uuid, preset] : presets) {
@@ -991,7 +992,7 @@ namespace kbf {
         }
 
         DEBUG_STACK.push(std::format("{} Deleted {} presets, {} preset groups, and {} player overrides from mod archive: {}", 
-            KBF_DATA_MANAGER_LOG_TAG, presetsToDelete.size(), presetGroupsToDelete.size(), overridesToDelete.size(), name), DebugStack::Color::SUCCESS);
+            KBF_DATA_MANAGER_LOG_TAG, presetsToDelete.size(), presetGroupsToDelete.size(), overridesToDelete.size(), name), DebugStack::Color::COL_SUCCESS);
     }
 
     std::unordered_map<std::string, KBFDataManager::ModArchiveCounts> KBFDataManager::getModArchiveInfo() const {
@@ -1032,12 +1033,12 @@ namespace kbf {
     rapidjson::Document KBFDataManager::loadConfigJson(KbfFileType fileType, const std::string& path, std::function<bool()> onRequestCreateDefault) const {
         bool exists = std::filesystem::exists(path);
         if (!exists && onRequestCreateDefault) {
-            DEBUG_STACK.push(std::format("{} Json file does not exist at {}. Creating...", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Json file does not exist at {}. Creating...", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_WARNING);
 
             bool createdDefault = INVOKE_OPTIONAL_CALLBACK_TYPED(bool, false, onRequestCreateDefault);
 
             if (createdDefault) {
-                DEBUG_STACK.push(std::format("{} Created default json at {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::SUCCESS);
+                DEBUG_STACK.push(std::format("{} Created default json at {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_SUCCESS);
             }
         }
 
@@ -1047,12 +1048,12 @@ namespace kbf {
         config.Parse(json.c_str());
 
         if (!config.IsObject() || config.HasParseError()) {
-            DEBUG_STACK.push(std::format("{} Failed to parse json at {}. Please rectify or delete the file.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse json at {}. Please rectify or delete the file.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_ERROR);
 
             bool createdDefault = INVOKE_OPTIONAL_CALLBACK_TYPED(bool, false, onRequestCreateDefault);
 
             if (createdDefault) {
-                DEBUG_STACK.push(std::format("{} Created default json at {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::SUCCESS);
+                DEBUG_STACK.push(std::format("{} Created default json at {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_SUCCESS);
             }
         }
 
@@ -1061,16 +1062,16 @@ namespace kbf {
         KbfFileUpgrader::UpgradeResult res = upgrader.upgradeFile(config, fileType);
 
         if (res == KbfFileUpgrader::UpgradeResult::FAILED) {
-			DEBUG_STACK.push(std::format("{} Failed to upgrade json file at {}. Please rectify or delete the file.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::ERROR);
+			DEBUG_STACK.push(std::format("{} Failed to upgrade json file at {}. Please rectify or delete the file.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_ERROR);
         }
 
         if (res == KbfFileUpgrader::UpgradeResult::SUCCESS) {
-            DEBUG_STACK.push(std::format("{} Upgraded json file at \"{}\" to the latest format.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Upgraded json file at \"{}\" to the latest format.", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_SUCCESS);
 
 		    // Before rewriting the file, make a backup of the existing one
 			std::string backupPath = path + ".backup";
 			writeJsonFile(backupPath, json);
-			DEBUG_STACK.push(std::format("{} Created backup of the previous version at {}", KBF_DATA_MANAGER_LOG_TAG, backupPath), DebugStack::Color::INFO);
+			DEBUG_STACK.push(std::format("{} Created backup of the previous version at {}", KBF_DATA_MANAGER_LOG_TAG, backupPath), DebugStack::Color::COL_INFO);
 
             // Write the upgraded file back to disk
             rapidjson::StringBuffer s;
@@ -1088,7 +1089,7 @@ namespace kbf {
 
         if (!file.is_open()) {
             const std::string error_pth_out{ path };
-            DEBUG_STACK.push(std::format("{} Could not open json file for read at {}", KBF_DATA_MANAGER_LOG_TAG, error_pth_out), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Could not open json file for read at {}", KBF_DATA_MANAGER_LOG_TAG, error_pth_out), DebugStack::Color::COL_ERROR);
             return "";
         }
 
@@ -1122,12 +1123,12 @@ namespace kbf {
                 return true;
             }
             else {
-                DEBUG_STACK.push(std::format("{} Failed to delete json file: {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Failed to delete json file: {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_ERROR);
                 return false;
             }
         }
         catch (const std::filesystem::filesystem_error& e) {
-            DEBUG_STACK.push(std::format("{} Failed to delete json file: {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to delete json file: {}", KBF_DATA_MANAGER_LOG_TAG, path), DebugStack::Color::COL_ERROR);
             return false;
         }
 
@@ -1160,7 +1161,7 @@ namespace kbf {
         parseBool(config, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, &out->hideSlingerOutsideOfCombatOnly);
         parseBool(config, SETTINGS_ENABLE_PROFILING_ID, SETTINGS_ENABLE_PROFILING_ID, &out->enableProfiling);
 
-        DEBUG_STACK.push(std::format("{} Loaded Settings from {}", KBF_DATA_MANAGER_LOG_TAG, settingsPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded Settings from {}", KBF_DATA_MANAGER_LOG_TAG, settingsPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1206,7 +1207,7 @@ namespace kbf {
         bool success = writeJsonFile(settingsPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write settings to {}", KBF_DATA_MANAGER_LOG_TAG, settingsPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write settings to {}", KBF_DATA_MANAGER_LOG_TAG, settingsPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1215,7 +1216,7 @@ namespace kbf {
     bool KBFDataManager::loadAlmaConfig(AlmaDefaults* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading Alma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading Alma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
 
         rapidjson::Document config = loadConfigJson(KbfFileType::ALMA_CONFIG, almaConfigPath.string(), [&]() {
             AlmaDefaults temp{};
@@ -1236,7 +1237,7 @@ namespace kbf {
         parseString(config, ALMA_SUMMER_PONCHO_ID, ALMA_SUMMER_PONCHO_ID, &out->summerPoncho);
         parseString(config, ALMA_AUTUMN_WITCH_ID, ALMA_AUTUMN_WITCH_ID, &out->autumnWitch);
 
-        DEBUG_STACK.push(std::format("{} Loaded Alma config from {}", KBF_DATA_MANAGER_LOG_TAG, almaConfigPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded Alma config from {}", KBF_DATA_MANAGER_LOG_TAG, almaConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1270,7 +1271,7 @@ namespace kbf {
         bool success = writeJsonFile(almaConfigPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write Alma config to {}", KBF_DATA_MANAGER_LOG_TAG, almaConfigPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write Alma config to {}", KBF_DATA_MANAGER_LOG_TAG, almaConfigPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1279,7 +1280,7 @@ namespace kbf {
     bool KBFDataManager::loadErikConfig(ErikDefaults* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading Erik Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading Erik Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
 
         rapidjson::Document config = loadConfigJson(KbfFileType::ERIK_CONFIG, erikConfigPath.string(), [&]() {
             ErikDefaults temp{};
@@ -1295,7 +1296,7 @@ namespace kbf {
         parseString(config, ERIK_SUMMER_HAT_ID, ERIK_SUMMER_HAT_ID, &out->summerHat);
         parseString(config, ERIK_AUTUMN_THERIAN_ID, ERIK_AUTUMN_THERIAN_ID, &out->autumnTherian);
 
-        DEBUG_STACK.push(std::format("{} Loaded Erik config from {}", KBF_DATA_MANAGER_LOG_TAG, erikConfigPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded Erik config from {}", KBF_DATA_MANAGER_LOG_TAG, erikConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1319,7 +1320,7 @@ namespace kbf {
         bool success = writeJsonFile(erikConfigPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write Erik config to ", KBF_DATA_MANAGER_LOG_TAG, erikConfigPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write Erik config to ", KBF_DATA_MANAGER_LOG_TAG, erikConfigPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1328,7 +1329,7 @@ namespace kbf {
     bool KBFDataManager::loadGemmaConfig(GemmaDefaults* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading Gemma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading Gemma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
 
         rapidjson::Document config = loadConfigJson(KbfFileType::GEMMA_CONFIG, gemmaConfigPath.string(), [&]() {
             GemmaDefaults temp{};
@@ -1343,7 +1344,7 @@ namespace kbf {
         parseString(config, GEMMA_SMITHYS_OUTFIT_ID, GEMMA_SMITHYS_OUTFIT_ID, &out->smithysOutfit);
         parseString(config, GEMMA_SUMMER_COVERALLS_ID, GEMMA_SUMMER_COVERALLS_ID, &out->summerCoveralls);
 
-        DEBUG_STACK.push(std::format("{} Loaded Gemma config from {}", KBF_DATA_MANAGER_LOG_TAG, gemmaConfigPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded Gemma config from {}", KBF_DATA_MANAGER_LOG_TAG, gemmaConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1365,7 +1366,7 @@ namespace kbf {
         bool success = writeJsonFile(gemmaConfigPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write Gemma config to {}", KBF_DATA_MANAGER_LOG_TAG, gemmaConfigPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write Gemma config to {}", KBF_DATA_MANAGER_LOG_TAG, gemmaConfigPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1374,7 +1375,7 @@ namespace kbf {
     bool KBFDataManager::loadNpcConfig(NpcDefaults* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading NPC Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading NPC Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
 
         rapidjson::Document config = loadConfigJson(KbfFileType::NPC_CONFIG, npcConfigPath.string(), [&]() {
             NpcDefaults temp{};
@@ -1388,7 +1389,7 @@ namespace kbf {
         parseString(config, NPC_MALE_ID, NPC_MALE_ID, &out->male);
         parseString(config, NPC_FEMALE_ID, NPC_FEMALE_ID, &out->female);
 
-        DEBUG_STACK.push(std::format("{} Loaded NPC config from {}", KBF_DATA_MANAGER_LOG_TAG, npcConfigPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded NPC config from {}", KBF_DATA_MANAGER_LOG_TAG, npcConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1410,7 +1411,7 @@ namespace kbf {
         bool success = writeJsonFile(npcConfigPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write NPC config to {}", KBF_DATA_MANAGER_LOG_TAG, npcConfigPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write NPC config to {}", KBF_DATA_MANAGER_LOG_TAG, npcConfigPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1419,7 +1420,7 @@ namespace kbf {
     bool KBFDataManager::loadPlayerConfig(PlayerDefaults* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading Player Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading Player Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
 
         rapidjson::Document config = loadConfigJson(KbfFileType::PLAYER_CONFIG, playerConfigPath.string(), [&]() {
             PlayerDefaults temp{};
@@ -1433,7 +1434,7 @@ namespace kbf {
         parseString(config, PLAYER_MALE_ID, PLAYER_MALE_ID, &out->male);
         parseString(config, PLAYER_FEMALE_ID, PLAYER_FEMALE_ID, &out->female);
 
-        DEBUG_STACK.push(std::format("{} Loaded Player config from {}", KBF_DATA_MANAGER_LOG_TAG, playerConfigPath.string()), DebugStack::Color::SUCCESS);
+        DEBUG_STACK.push(std::format("{} Loaded Player config from {}", KBF_DATA_MANAGER_LOG_TAG, playerConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
     }
 
@@ -1455,7 +1456,7 @@ namespace kbf {
         bool success = writeJsonFile(playerConfigPath.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write Player config to {}", KBF_DATA_MANAGER_LOG_TAG, playerConfigPath.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write Player config to {}", KBF_DATA_MANAGER_LOG_TAG, playerConfigPath.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1472,7 +1473,7 @@ namespace kbf {
         bool parsed = loadPresetData(presetDoc, out);
 
         if (!parsed) {
-            DEBUG_STACK.push(std::format("{} Failed to parse preset {}. One or more required values were invalid / missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse preset {}. One or more required values were invalid / missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_ERROR);
         }
 
         return parsed;
@@ -1571,7 +1572,7 @@ namespace kbf {
                     meshPart.part.type = MeshPartType::MATERIAL;
                 }
                 else {
-                    DEBUG_STACK.push(std::format("{} Part cache has an invalid part type \"{}\" for part \"{}\". Skipping...", KBF_DATA_MANAGER_LOG_TAG, typeStr, meshPart.part.name), DebugStack::Color::WARNING);
+                    DEBUG_STACK.push(std::format("{} Part cache has an invalid part type \"{}\" for part \"{}\". Skipping...", KBF_DATA_MANAGER_LOG_TAG, typeStr, meshPart.part.name), DebugStack::Color::COL_WARNING);
                     parsed = false;
                 }
 
@@ -1604,7 +1605,7 @@ namespace kbf {
                 out->emplace(boneName, modifier);
             }
             else {
-                DEBUG_STACK.push(std::format("{} Failed to parse bone modifier for bone {}. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, boneName), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Failed to parse bone modifier for bone {}. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, boneName), DebugStack::Color::COL_ERROR);
             }
         }
 
@@ -1620,7 +1621,7 @@ namespace kbf {
         bool success = writeJsonFile(path.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write preset {} ({}) to {}", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write preset {} ({}) to {}", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid, path.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -1762,12 +1763,12 @@ namespace kbf {
         for (const auto& entry : std::filesystem::directory_iterator(presetPath)) {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
 
-                DEBUG_STACK.push(std::format("{} Loading preset from {}", KBF_DATA_MANAGER_LOG_TAG, entry.path().string()), DebugStack::Color::INFO);
+                DEBUG_STACK.push(std::format("{} Loading preset from {}", KBF_DATA_MANAGER_LOG_TAG, entry.path().string()), DebugStack::Color::COL_INFO);
 
                 Preset preset;
                 if (loadPreset(entry.path(), &preset)) {
                     presets.emplace(preset.uuid, preset);
-                    DEBUG_STACK.push(std::format("{} Loaded preset: {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::SUCCESS);
+                    DEBUG_STACK.push(std::format("{} Loaded preset: {} ({})", KBF_DATA_MANAGER_LOG_TAG, preset.name, preset.uuid), DebugStack::Color::COL_SUCCESS);
                 }
                 else {
                     hasFailure = true;
@@ -1780,7 +1781,7 @@ namespace kbf {
     bool KBFDataManager::loadFBSPreset(const std::filesystem::path& path, bool body, bool female, std::string bundle, FBSPreset* out) const {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading FBS preset from {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading FBS preset from {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_INFO);
 
         rapidjson::Document presetDoc = loadConfigJson(KbfFileType::FBS_PRESET, path.string(), nullptr);
         if (!presetDoc.IsObject() || presetDoc.HasParseError()) return false;
@@ -1907,7 +1908,7 @@ namespace kbf {
         bool parsed = loadPresetGroupData(presetGroupDoc, out);
 
         if (!parsed) {
-            DEBUG_STACK.push(std::format("{} Failed to parse preset group {}. One or more required values were missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse preset group {}. One or more required values were missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_ERROR);
         }
 
         return parsed;
@@ -1963,7 +1964,7 @@ namespace kbf {
                 out->emplace(armourSet, presetUUID);
             }
             else {
-                DEBUG_STACK.push(std::format("{} Failed to parse assigned preset. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Failed to parse assigned preset. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_ERROR);
             }
         }
 
@@ -1979,7 +1980,7 @@ namespace kbf {
         bool success = writeJsonFile(path.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write preset {} ({}) to {}", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write preset {} ({}) to {}", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid, path.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -2050,12 +2051,12 @@ namespace kbf {
         for (const auto& entry : std::filesystem::directory_iterator(presetGroupPath)) {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
 
-                DEBUG_STACK.push(std::format("{} Loading preset group from {}", KBF_DATA_MANAGER_LOG_TAG, entry.path().string()), DebugStack::Color::INFO);
+                DEBUG_STACK.push(std::format("{} Loading preset group from {}", KBF_DATA_MANAGER_LOG_TAG, entry.path().string()), DebugStack::Color::COL_INFO);
 
                 PresetGroup presetGroup;
                 if (loadPresetGroup(entry.path(), &presetGroup)) {
                     presetGroups.emplace(presetGroup.uuid, presetGroup);
-                    DEBUG_STACK.push(std::format("{} Loaded preset group: {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::SUCCESS);
+                    DEBUG_STACK.push(std::format("{} Loaded preset group: {} ({})", KBF_DATA_MANAGER_LOG_TAG, presetGroup.name, presetGroup.uuid), DebugStack::Color::COL_SUCCESS);
                 }
                 else {
                     hasFailure = true;
@@ -2076,7 +2077,7 @@ namespace kbf {
         bool parsed = loadPlayerOverrideData(overrideDoc, out);
 
         if (!parsed) {
-            DEBUG_STACK.push(std::format("{} Failed to parse player override {}. One or more required values were missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, utf8_path), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse player override {}. One or more required values were missing. Please rectify or remove the file.", KBF_DATA_MANAGER_LOG_TAG, utf8_path), DebugStack::Color::COL_ERROR);
         }
 
         return parsed;
@@ -2107,7 +2108,7 @@ namespace kbf {
 
         if (!success) {
             std::string utf8_path = cvt_utf16_to_utf8(path.wstring());
-            DEBUG_STACK.push(std::format("{} Failed to write player override for player {} to {}", KBF_DATA_MANAGER_LOG_TAG, playerOverride.player.string(), utf8_path), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write player override for player {} to {}", KBF_DATA_MANAGER_LOG_TAG, playerOverride.player.string(), utf8_path), DebugStack::Color::COL_ERROR);
         }
 
         return success;
@@ -2141,12 +2142,12 @@ namespace kbf {
             if (entry.is_regular_file() && entry.path().extension() == ".json") {
 
                 std::string utf8_path = cvt_utf16_to_utf8(entry.path().wstring());
-                DEBUG_STACK.push(std::format("{} Loading player override from {}", KBF_DATA_MANAGER_LOG_TAG, utf8_path), DebugStack::Color::INFO);
+                DEBUG_STACK.push(std::format("{} Loading player override from {}", KBF_DATA_MANAGER_LOG_TAG, utf8_path), DebugStack::Color::COL_INFO);
 
                 PlayerOverride playerOverride;
                 if (loadPlayerOverride(entry.path(), &playerOverride)) {
                     playerOverrides.emplace(playerOverride.player, playerOverride);
-                    DEBUG_STACK.push(std::format("{} Loaded player override: {}", KBF_DATA_MANAGER_LOG_TAG, playerOverride.player.string()), DebugStack::Color::SUCCESS);
+                    DEBUG_STACK.push(std::format("{} Loaded player override: {}", KBF_DATA_MANAGER_LOG_TAG, playerOverride.player.string()), DebugStack::Color::COL_SUCCESS);
                 }
                 else {
                     hasFailure = true;
@@ -2166,7 +2167,7 @@ namespace kbf {
     }
 
     void KBFDataManager::validatePlayerOverrides() {
-        DEBUG_STACK.push(std::format("{} Validating Player Overrides...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Validating Player Overrides...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
         std::vector<PlayerData> overridesToUpdate{};
 
@@ -2183,7 +2184,7 @@ namespace kbf {
                 KBF_DATA_MANAGER_LOG_TAG,
                 player.string(),
                 playerOverride.presetGroup
-            ), DebugStack::Color::WARNING);
+            ), DebugStack::Color::COL_WARNING);
 
             PlayerOverride newPlayerOverride = playerOverride;
             newPlayerOverride.presetGroup = "";
@@ -2194,7 +2195,7 @@ namespace kbf {
 
     void KBFDataManager::validateDefaultConfigs_PresetGroups() {
         // Players
-        DEBUG_STACK.push(std::format("{} Validating Player Defaults...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Validating Player Defaults...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
         std::unordered_set<std::string> badUUIDs;
 
         PlayerDefaults& player = presetGroupDefaults.player;
@@ -2209,13 +2210,13 @@ namespace kbf {
                 errStr += "   - " + id + "\n";
             }
             errStr += "   Which may have been deleted. Reverting to default...";
-            DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::COL_WARNING);
             writePlayerConfig(player);
         }
 
         // NPCs
         badUUIDs.clear();
-        DEBUG_STACK.push(std::format("{} Validating NPC Defaults...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Validating NPC Defaults...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
         NpcDefaults& npc = presetGroupDefaults.npc;
         const std::string npcMaleBefore   = npc.male;
@@ -2229,7 +2230,7 @@ namespace kbf {
                 errStr += "   - " + id + "\n";
             }
             errStr += "   Which may have been deleted. Reverting to default...";
-            DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::COL_WARNING);
             writeNpcConfig(npc);
         }
     }
@@ -2249,7 +2250,7 @@ namespace kbf {
     }
 
     void KBFDataManager::validatePresetGroups() {
-        DEBUG_STACK.push(std::format("{} Validating Preset Groups...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Validating Preset Groups...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
         for (auto& [uuid, presetGroup] : presetGroups) {
             PresetGroup* newPresetGroup = nullptr;
             size_t defaultCount = 0;
@@ -2298,7 +2299,7 @@ namespace kbf {
                     presetGroup.uuid,
                     defaultCount,
                     invalidCount
-                ), DebugStack::Color::WARNING);
+                ), DebugStack::Color::COL_WARNING);
 
                 updatePresetGroup(presetGroup.uuid, *newPresetGroup);
                 delete newPresetGroup;
@@ -2308,7 +2309,7 @@ namespace kbf {
 
     void KBFDataManager::validateDefaultConfigs_Presets() {
         // Alma
-        DEBUG_STACK.push(std::format("{} Validating Alma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+        DEBUG_STACK.push(std::format("{} Validating Alma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
         std::unordered_set<std::string> badUUIDs;
 
         {
@@ -2334,7 +2335,7 @@ namespace kbf {
                     errStr += "   - " + id + "\n";
                 }
                 errStr += "   Which may have been deleted. Reverting to default...";
-                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::COL_WARNING);
                 writeAlmaConfig(alma);
             }
         }
@@ -2342,7 +2343,7 @@ namespace kbf {
         // Gemma
         {
             badUUIDs.clear();
-            DEBUG_STACK.push(std::format("{} Validating Gemma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+            DEBUG_STACK.push(std::format("{} Validating Gemma Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
             GemmaDefaults& gemma = presetDefaults.gemma;
             const std::string smithysOutfitBefore   = gemma.smithysOutfit;
@@ -2356,7 +2357,7 @@ namespace kbf {
                     errStr += "   - " + id + "\n";
                 }
                 errStr += "   Which may have been deleted. Reverting to default...";
-                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::COL_WARNING);
                 writeGemmaConfig(gemma);
             }
         }
@@ -2364,7 +2365,7 @@ namespace kbf {
         // Erik
         {
             badUUIDs.clear();
-            DEBUG_STACK.push(std::format("{} Validating Erik Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::DEBUG);
+            DEBUG_STACK.push(std::format("{} Validating Erik Config...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_DEBUG);
 
             ErikDefaults& erik = presetDefaults.erik;
             const std::string handlersOutfitBefore = erik.handlersOutfit;
@@ -2378,7 +2379,7 @@ namespace kbf {
                     errStr += "   - " + id + "\n";
                 }
                 errStr += "   Which may have been deleted. Reverting to default...";
-                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} {}", KBF_DATA_MANAGER_LOG_TAG, errStr), DebugStack::Color::COL_WARNING);
                 writeErikConfig(erik);
             }
         }
@@ -2395,22 +2396,22 @@ namespace kbf {
     bool KBFDataManager::loadArmourList(const std::filesystem::path& path, ArmourMapping* out) {
         assert(out != nullptr);
 
-        DEBUG_STACK.push(std::format("{} Loading armour list from \"{}\"", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Loading armour list from \"{}\"", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_INFO);
 
         rapidjson::Document armourListDoc = loadConfigJson(KbfFileType::ARMOUR_LIST, path.string(), nullptr);
         if (!armourListDoc.IsObject() || armourListDoc.HasParseError()) {
-            DEBUG_STACK.push(std::format("{} Failed to parse Armour List at \"{}\". Using internal fallback...", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse Armour List at \"{}\". Using internal fallback...", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_ERROR);
             return false;
         }
 
         bool parsed = loadArmourListData(armourListDoc, out);
 
         if (!parsed) {
-            DEBUG_STACK.push(std::format("{} Failed to parse Armour List at \"{}\". Using internal fallback...", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to parse Armour List at \"{}\". Using internal fallback...", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_ERROR);
             *out = ArmourList::FALLBACK_MAPPING;
         }
         else {
-            DEBUG_STACK.push(std::format("{} Successfully loaded Armour List from \"{}\"", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::SUCCESS);
+            DEBUG_STACK.push(std::format("{} Successfully loaded Armour List from \"{}\"", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_SUCCESS);
         }
 
         return parsed;
@@ -2454,7 +2455,7 @@ namespace kbf {
                     }
 
                     if (!hasAny) {
-                        DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\" (Female). No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::ERROR);
+                        DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\" (Female). No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::COL_ERROR);
                     }
 
                     out->emplace(set, id);
@@ -2490,7 +2491,7 @@ namespace kbf {
                     }
 
                     if (!hasAny) {
-                        DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\" (Male). No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::ERROR);
+                        DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\" (Male). No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::COL_ERROR);
                     }
 
                     out->emplace(set, id);
@@ -2500,11 +2501,11 @@ namespace kbf {
 
                 if (!hasEntry) {
                     parsed = false;
-                    DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\". No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::ERROR);
+                    DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: \"{}\". No piece entries found.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::COL_ERROR);
                 }
             }
             else {
-                DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: {}. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::ERROR);
+                DEBUG_STACK.push(std::format("{} Failed to parse armour list entry: {}. Expected an object, but got a different type.", KBF_DATA_MANAGER_LOG_TAG, name), DebugStack::Color::COL_ERROR);
             }
         }
 
@@ -2512,7 +2513,7 @@ namespace kbf {
     }
 
     bool KBFDataManager::writeArmourList(const std::filesystem::path& path, const ArmourMapping& mapping) const {
-        DEBUG_STACK.push(std::format("{} Writing armour list to {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::INFO);
+        DEBUG_STACK.push(std::format("{} Writing armour list to {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_INFO);
 
         rapidjson::StringBuffer s;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
@@ -2522,7 +2523,7 @@ namespace kbf {
         bool success = writeJsonFile(path.string(), s.GetString());
 
         if (!success) {
-            DEBUG_STACK.push(std::format("{} Failed to write armour list to {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::ERROR);
+            DEBUG_STACK.push(std::format("{} Failed to write armour list to {}", KBF_DATA_MANAGER_LOG_TAG, path.string()), DebugStack::Color::COL_ERROR);
         }
 
         return success;

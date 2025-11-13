@@ -176,7 +176,7 @@ namespace kbf {
 
 		auto durationSec = std::chrono::duration_cast<std::chrono::duration<float>>(std::chrono::steady_clock::now() - lastWriteTime);
 		if (needsWrite && durationSec.count() >= writeRateLimit) {
-			DEBUG_STACK.push(std::format("{} Settings Changed, writing to disk...", SETTINGS_TAB_LOG_TAG), DebugStack::Color::DEBUG);
+			DEBUG_STACK.push(std::format("{} Settings Changed, writing to disk...", SETTINGS_TAB_LOG_TAG), DebugStack::Color::COL_DEBUG);
 			needsWrite = !dataManager.writeSettings();
 			lastWriteTime = std::chrono::steady_clock::now();
 		}

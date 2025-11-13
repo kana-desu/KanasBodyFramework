@@ -34,7 +34,7 @@ namespace kbf {
             return true;
         }
         else {
-			DEBUG_STACK.push(KBF_OBJECT_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+			DEBUG_STACK.push(KBF_OBJECT_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -51,7 +51,7 @@ namespace kbf {
             return true;
         }
         else {
-			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -68,7 +68,7 @@ namespace kbf {
             return true;
         }
         else {
-			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -90,7 +90,7 @@ namespace kbf {
             for (rapidjson::Value::ConstValueIterator itr = arr.Begin(); itr != arr.End(); ++itr) {
                 const rapidjson::Value& val = *itr;
                 if (!val.IsString()) {
-                    DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+                    DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
                     return false;
                 }
                 out->emplace_back(val.GetString());
@@ -99,7 +99,7 @@ namespace kbf {
             return true;
         }
         else {
-            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -116,7 +116,7 @@ namespace kbf {
             return true;
         }
         else {
-			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -133,7 +133,7 @@ namespace kbf {
             return true;
         }
         else {
-            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -150,7 +150,7 @@ namespace kbf {
             return true;
         }
         else {
-			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+			DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -168,7 +168,7 @@ namespace kbf {
             return true;
         }
         else {
-            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }
@@ -189,7 +189,7 @@ namespace kbf {
             return true;
         }
         else {
-            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(KBF_FIELD_PARSE_WARNING_STR(errorName), DebugStack::Color::COL_WARNING);
             return false;
         }
     }

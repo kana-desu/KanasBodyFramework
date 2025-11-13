@@ -15,21 +15,45 @@ namespace kbf {
     public:
         DebugStack(size_t limit) : limit{ limit } {}
 
-        struct Color {
-            static constexpr glm::vec3 ERROR   = glm::vec3(0.839f, 0.365f, 0.365f);  // #D65D5D
-            static constexpr glm::vec3 WARNING = glm::vec3(0.902f, 0.635f, 0.235f);  // #E6A23C
-            static constexpr glm::vec3 INFO    = glm::vec3(0.753f, 0.753f, 0.753f);  // #C0C0C0
-            static constexpr glm::vec3 DEBUG   = glm::vec3(0.365f, 0.678f, 0.886f);  // #5DADE2
-            static constexpr glm::vec3 SUCCESS = glm::vec3(0.451f, 0.776f, 0.424f);  // #73C66C
-
-            static std::string type(glm::vec3 col) {
-				if (col == ERROR)   return "ERROR";
-				if (col == WARNING) return "WARNING";
-				if (col == INFO)    return "INFO";
-				if (col == DEBUG)   return "DEBUG";
-				if (col == SUCCESS) return "SUCCESS";
-            }
+        enum class Color {
+            COL_ERROR,
+            COL_WARNING,
+            COL_INFO,
+            COL_DEBUG,
+			COL_SUCCESS
         };
+
+        static glm::vec3 getColor(DebugStack::Color col) {
+            switch (col) {
+			case DebugStack::Color::COL_ERROR:   return glm::vec3(0.839f, 0.365f, 0.365f);  // #D65D5D
+			case DebugStack::Color::COL_WARNING: return glm::vec3(0.902f, 0.635f, 0.235f);  // #E6A23C
+			case DebugStack::Color::COL_INFO:    return glm::vec3(0.753f, 0.753f, 0.753f);  // #C0C0C0
+			case DebugStack::Color::COL_DEBUG:   return glm::vec3(0.365f, 0.678f, 0.886f);  // #5DADE2
+			case DebugStack::Color::COL_SUCCESS: return glm::vec3(0.451f, 0.776f, 0.424f);  // #73C66C
+            }
+			return glm::vec3(1.0f, 1.0f, 1.0f);
+        }
+
+        static std::string getColorTypeAsString(DebugStack::Color col) {
+            switch (col) {
+            case DebugStack::Color::COL_ERROR:   return "ERROR";
+            case DebugStack::Color::COL_WARNING: return "WARNING";
+            case DebugStack::Color::COL_INFO:    return "INFO";
+            case DebugStack::Color::COL_DEBUG:   return "DEBUG";
+            case DebugStack::Color::COL_SUCCESS: return "SUCCESS";
+            }
+            return "UNKNOWN";
+		}
+
+
+        static DebugStack::Color getColorType(glm::vec3 col) {
+            if (col == getColor(DebugStack::Color::COL_ERROR))   return DebugStack::Color::COL_ERROR;
+            if (col == getColor(DebugStack::Color::COL_WARNING)) return DebugStack::Color::COL_WARNING;
+            if (col == getColor(DebugStack::Color::COL_INFO))    return DebugStack::Color::COL_INFO;
+            if (col == getColor(DebugStack::Color::COL_DEBUG))   return DebugStack::Color::COL_DEBUG;
+            if (col == getColor(DebugStack::Color::COL_SUCCESS)) return DebugStack::Color::COL_SUCCESS;
+            return DebugStack::Color::COL_INFO;
+        }
 
         void push(LogData logData) {
             std::lock_guard<std::mutex> lock(mux);
@@ -41,8 +65,8 @@ namespace kbf {
             }
         }
 
-        void push(std::string message, glm::vec3 colour = DebugStack::Color::DEBUG) {
-            push(LogData{ message, colour, DebugStack::now() });
+        void push(std::string message, DebugStack::Color colour = DebugStack::Color::COL_DEBUG) {
+            push(LogData{ message, getColor(colour), DebugStack::now() });
         }
 
         void pop() {
@@ -96,7 +120,7 @@ namespace kbf {
                     << std::setw(2) << local_tm.tm_sec << ":"
                     << std::setw(4) << milliseconds;
 
-				result += std::format("[{}] [{}] {}\n", oss.str(), DebugStack::Color::type(log.colour), log.data);
+				result += std::format("[{}] [{}] {}\n", oss.str(), getColorTypeAsString(getColorType(log.colour)), log.data);
             }
 
 			return result;

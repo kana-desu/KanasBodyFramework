@@ -122,7 +122,7 @@ namespace kbf {
         if (CImGui::Button(kUpdateLabel)) {
             // Validate preset group can be found
             if (!playerOverride.presetGroup.empty() && dataManager.getPresetGroupByUUID(playerOverride.presetGroup) == nullptr) {
-                DEBUG_STACK.push(std::format("{} Updated player override: {} uses an invalid preset group: {}. Reverting to default...", EDIT_PLAYER_OVERRIDE_PANEL_LOG_TAG, playerOverride.player.string(), playerOverride.presetGroup), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Updated player override: {} uses an invalid preset group: {}. Reverting to default...", EDIT_PLAYER_OVERRIDE_PANEL_LOG_TAG, playerOverride.player.string(), playerOverride.presetGroup), DebugStack::Color::COL_WARNING);
             }
             INVOKE_REQUIRED_CALLBACK(updateCallback, playerOverrideBefore.player, playerOverride);
         }

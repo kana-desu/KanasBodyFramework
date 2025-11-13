@@ -24,7 +24,7 @@ namespace kbf {
 		if (gameObject == nullptr) return nullptr;
 
 		std::string name = REInvokeStr(gameObject, "get_Name", {});
-		DEBUG_STACK.push(std::format("Searching Transforms: {} | [{}]-[{}] | {}", targetName, depth, breadth, name), DebugStack::Color::DEBUG);
+		DEBUG_STACK.push(std::format("Searching Transforms: {} | [{}]-[{}] | {}", targetName, depth, breadth, name), DebugStack::Color::COL_DEBUG);
 		if (name == targetName) return node;
 
 		// Recurse into siblings (More likely to find it breadth-wise first)

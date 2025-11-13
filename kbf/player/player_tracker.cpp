@@ -290,7 +290,7 @@ namespace kbf {
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Equipped Armours");
 
         if (!fetchedArmours) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch equipped armours for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch equipped armours for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
             return; // We terminate this whole fetch in this case, but can probably just try this portion again instead - ...Too bad!
         }
 
@@ -302,7 +302,7 @@ namespace kbf {
 
         bool fetchedTransforms = fetchPlayer_ArmourTransforms(info, persistentInfo);
         if (!fetchedTransforms) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch armour transforms for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch armour transforms for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -320,7 +320,7 @@ namespace kbf {
             else if (persistentInfo.Transform_legs == nullptr)     reason = "Legs Transform ptr was null";
             else if (!persistentInfo.armourInfo.body.has_value())  reason = "No body armour found";
             else if (!persistentInfo.armourInfo.legs.has_value())  reason = "No legs armour found";
-            DEBUG_STACK.push(std::format("{} Failed to fetch bones for Main Menu Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch bones for Main Menu Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -332,7 +332,7 @@ namespace kbf {
 
         bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
         if (!fetchedParts) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch parts for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch parts for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -344,7 +344,7 @@ namespace kbf {
 
         bool fetchedWeapons = fetchPlayers_MainMenu_WeaponObjects(info, persistentInfo);
         if (!fetchedWeapons) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch weapon objects for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch weapon objects for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -491,7 +491,7 @@ namespace kbf {
                 else if (persistentInfo.Transform_legs == nullptr)     reason = "Legs Transform ptr was null";
                 else if (!persistentInfo.armourInfo.body.has_value())  reason = "No body armour found";
                 else if (!persistentInfo.armourInfo.legs.has_value())  reason = "No legs armour found";
-                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Save Select Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Save Select Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -503,7 +503,7 @@ namespace kbf {
 
             bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
             if (!fetchedParts) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Save Select Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Save Select Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -515,7 +515,7 @@ namespace kbf {
 
             bool fetchedWeapons = fetchPlayers_SaveSelect_WeaponObjects(info, persistentInfo);
             if (!fetchedWeapons) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch weapon objects for Save Select Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch weapon objects for Save Select Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -711,7 +711,7 @@ namespace kbf {
                 else if (persistentInfo.Transform_legs == nullptr)     reason = "Legs Transform ptr was null";
                 else if (!persistentInfo.armourInfo.body.has_value())  reason = "No body armour found";
                 else if (!persistentInfo.armourInfo.legs.has_value())  reason = "No legs armour found";
-                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Character Creator Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Character Creator Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -723,7 +723,7 @@ namespace kbf {
 
             bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
             if (!fetchedParts) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Character Creator Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Character Creator Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -865,7 +865,7 @@ namespace kbf {
                 else if (persistentInfo.Transform_legs == nullptr)     reason = "Legs Transform ptr was null";
                 else if (!persistentInfo.armourInfo.body.has_value())  reason = "No body armour found";
                 else if (!persistentInfo.armourInfo.legs.has_value())  reason = "No legs armour found";
-                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Guild Card Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch bones for Guild Card Hunter: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId, reason), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -877,7 +877,7 @@ namespace kbf {
 
             bool fetchedParts = fetchPlayer_Parts(info, persistentInfo);
             if (!fetchedParts) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Guild Card Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch parts for Guild Card Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
                 return;
             }
 
@@ -1092,7 +1092,7 @@ namespace kbf {
 
         std::string playerName = REInvokeStr(cPlayerContext, "get_PlayerName", {});
         if (playerName.empty()) {
-            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but name returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but name returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::COL_WARNING);
             return PlayerFetchFlags::FETCH_ERROR_NULL;
         }
 
@@ -1100,7 +1100,7 @@ namespace kbf {
 
         REApi::ManagedObject* playerNetInfo = REInvokePtr<REApi::ManagedObject>(Net_UserInfoList, "getInfoSystem", { (void*)networkIndex }); // How tf does this determine the correct signature between System.Int32 & System.Guid??
         if (playerNetInfo == nullptr) {
-            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but playerNetInfo returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Fetched player at index {}, but playerNetInfo returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::COL_WARNING);
             return PlayerFetchFlags::FETCH_ERROR_NULL;
         }
         //DEBUG_STACK.push(std::format("playerNetInfo PTR: {} - Properties:\n{}",       ptrToHexString(playerNetInfo),       reObjectPropertiesToString(playerNetInfo)),       DebugStack::Color::DEBUG);
@@ -1109,7 +1109,7 @@ namespace kbf {
         if (online) {
             hunterId = REInvokeStr(playerNetInfo, "get_ShortHunterId", {});
             if (hunterId.empty()) {
-                DEBUG_STACK.push(std::format("{} Fetched player at index {}, but hunterId returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Fetched player at index {}, but hunterId returned nullptr, skipping.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::COL_WARNING);
                 return PlayerFetchFlags::FETCH_ERROR_NULL;
             }
         }
@@ -1117,7 +1117,7 @@ namespace kbf {
             // In offline mode, grab the main player's hunter ID from the context manager instead.
             hunterId = REInvokeStr(netContextManager, "get_HunterShortId", {});
             if (hunterId.empty()) {
-                DEBUG_STACK.push(std::format("{} Failed to fetch Hunter ID in singleplayer.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to fetch Hunter ID in singleplayer.", PLAYER_TRACKER_LOG_TAG, i), DebugStack::Color::COL_WARNING);
                 return PlayerFetchFlags::FETCH_ERROR_NULL;
             }
         }
@@ -1192,7 +1192,7 @@ namespace kbf {
         bool fetchedArmours = fetchPlayer_EquippedArmours(info, pInfo);
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Equipped Armours");
         if (!fetchedArmours) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch equipped armours for Player: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch equipped armours for Player: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i), DebugStack::Color::COL_WARNING);
             return false;
         }
 
@@ -1219,7 +1219,7 @@ namespace kbf {
                 ArmourList::getArmourId(expectedLegs, ArmourPiece::AP_LEGS, expectedLegs.female),          expectedLegs.name,
                 ArmourList::getArmourId(expectedSlinger, ArmourPiece::AP_SLINGER, expectedSlinger.female), expectedSlinger.name,
                 dumpTransformTreeString(info.pointers.Transform)
-            ), DebugStack::Color::DEBUG);
+            ), DebugStack::Color::COL_DEBUG);
             return false;
         }
 
@@ -1233,7 +1233,7 @@ namespace kbf {
             else if (pInfo.Transform_legs == nullptr)     reason = "Legs Transform ptr was null";
             else if (!pInfo.armourInfo.body.has_value())  reason = "No body armour found";
             else if (!pInfo.armourInfo.legs.has_value())  reason = "No legs armour found";
-            DEBUG_STACK.push(std::format("{} Failed to fetch bones for Player: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i, reason), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch bones for Player: {} [{}]. Reason: {}.", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i, reason), DebugStack::Color::COL_WARNING);
             return false;
         }
 
@@ -1241,7 +1241,7 @@ namespace kbf {
         bool fetchedParts = fetchPlayer_Parts(info, pInfo);
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Parts");
         if (!fetchedParts) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch parts for Player: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} Failed to fetch parts for Player: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i), DebugStack::Color::COL_WARNING);
             return false;
         }
 

@@ -2,7 +2,8 @@
 
 #include <kbf/data/file/kbf_file_type.hpp>
 #include <kbf/data/bones/bone_cache_manager.hpp>
-#include <kbf/data/mesh/part_cache_manager.hpp>
+#include <kbf/data/mesh/parts/part_cache_manager.hpp>
+#include <kbf/data/mesh/materials/material_cache_manager.hpp>
 #include <kbf/data/preset/preset_group.hpp>
 #include <kbf/data/preset/preset.hpp>
 #include <kbf/data/fbs_compat/fbs_preset.hpp>
@@ -37,8 +38,9 @@ namespace kbf {
 		// TODO: If can ever be bothered, most of this can be abstracted to 3 
 		//        JSON handler classes that derive from some base.
 
-		BoneCacheManager& boneCache() { return boneCacheManager; }
-		PartCacheManager& partCache() { return partCacheManager; }
+		BoneCacheManager& boneCacheManager() { return m_boneCacheManager; }
+		PartCacheManager& partCacheManager() { return m_partCacheManager; }
+		//MaterialCacheManager& matCache() { return matCacheManager;  }
 
 		PlayerDefaults& playerDefaults() { return presetGroupDefaults.player; }
 		NpcDefaults& npcDefaults() { return presetGroupDefaults.npc; }
@@ -236,8 +238,9 @@ namespace kbf {
 		void writeArmourListJsonContent(const ArmourMapping& mapping, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
 
 		KBFSettings m_settings;
-		BoneCacheManager boneCacheManager{ dataBasePath };
-		PartCacheManager partCacheManager{ dataBasePath };
+		BoneCacheManager m_boneCacheManager{ CacheManagerType::BONES, dataBasePath / "BoneCaches" };
+		PartCacheManager m_partCacheManager{ CacheManagerType::PARTS, dataBasePath / "PartCaches" };
+		//MaterialCacheManager matCacheManager{ dataBasePath };
 		const Preset* previewedPreset = nullptr;
 
 		ImFont* regularFontOverride = nullptr;

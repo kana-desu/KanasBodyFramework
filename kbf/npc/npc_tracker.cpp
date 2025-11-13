@@ -520,7 +520,7 @@ namespace kbf {
         if (!fetchedArmour) {
             tryFetchCountTable[i]++;
             if (tryFetchCountTable[i] >= TRY_FETCH_LIMIT) {
-                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Armour info {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Armour info {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::COL_WARNING);
             }
             return false;
         }
@@ -531,7 +531,7 @@ namespace kbf {
         if (!fetchedArmourTransforms) {
             tryFetchCountTable[i]++;
             if (tryFetchCountTable[i] >= TRY_FETCH_LIMIT) {
-                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Armour Transforms {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Armour Transforms {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::COL_WARNING);
             }
             return false;
         }
@@ -542,7 +542,7 @@ namespace kbf {
         if (!fetchedBones) {
             tryFetchCountTable[i]++;
             if (tryFetchCountTable[i] >= TRY_FETCH_LIMIT) {
-                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Bones {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Bones {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::COL_WARNING);
             }
             return false;
         }
@@ -553,7 +553,7 @@ namespace kbf {
         if (!fetchedParts) {
             tryFetchCountTable[i]++;
             if (tryFetchCountTable[i] >= TRY_FETCH_LIMIT) {
-                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Parts {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::WARNING);
+                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Parts {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::COL_WARNING);
             }
             return false;
         }
