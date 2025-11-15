@@ -3,7 +3,7 @@
 #include <kbf/data/kbf_data_manager.hpp>
 #include <kbf/data/armour/armour_info.hpp>
 #include <kbf/data/preset/preset.hpp>
-#include <kbf/data/mesh/parts/mesh_part.hpp>
+#include <kbf/data/mesh/materials/mesh_material.hpp>
 
 #include <reframework/API.hpp>
 
@@ -11,9 +11,9 @@ using REApi = reframework::API;
 
 namespace kbf {
 
-	class PartManager {
+	class MaterialManager {
 	public:
-		PartManager(
+		MaterialManager(
 			KBFDataManager& datamanager,
 			ArmourInfo armour,
 			REApi::ManagedObject* baseTransform,
@@ -25,27 +25,24 @@ namespace kbf {
 			bool female);
 
 		bool applyPreset(const Preset* preset, ArmourPiece piece);
-		bool loadParts();
+		bool loadMaterials();
 
 		bool isInitialized() const { return initialized; }
 
 	private:
-		//std::set<std::string> getPartNames(REApi::ManagedObject* jointArr) const;
-		//void DEBUG_printPartNames(REApi::ManagedObject* jointArr, std::string message) const;
 		bool getMesh(REApi::ManagedObject* transform, REApi::ManagedObject** out) const;
-		void getParts(REApi::ManagedObject* mesh, std::vector<MeshPart>& out) const;
+		void getMaterials(REApi::ManagedObject* mesh, std::vector<MeshMaterial>& out) const;
 
 		KBFDataManager& dataManager;
 		ArmourInfo armourInfo;
 		bool female;
 		bool initialized = false;
 
-		std::vector<MeshPart> baseParts{};
-		std::vector<MeshPart> helmParts{};
-		std::vector<MeshPart> bodyParts{};
-		std::vector<MeshPart> armsParts{};
-		std::vector<MeshPart> coilParts{};
-		std::vector<MeshPart> legsParts{};
+		std::vector<MeshMaterial> helmMaterials{};
+		std::vector<MeshMaterial> bodyMaterials{};
+		std::vector<MeshMaterial> armsMaterials{};
+		std::vector<MeshMaterial> coilMaterials{};
+		std::vector<MeshMaterial> legsMaterials{};
 
 		REApi::ManagedObject* baseTransform = nullptr;
 		REApi::ManagedObject* helmTransform = nullptr;

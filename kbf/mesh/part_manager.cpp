@@ -8,7 +8,7 @@
 #include <kbf/util/string/byte_to_binary_string.hpp>
 #include <kbf/util/re_engine/find_transform.hpp>
 
-#include <kbf/data/mesh/part_cache_manager.hpp>
+#include <kbf/data/mesh/parts/part_cache_manager.hpp>
 
 #define KBF_BONE_MANAGER_LOG_TAG "[PartManager]"
 
@@ -70,17 +70,7 @@ namespace kbf {
 			if (partOverrides.find(part) == partOverrides.end()) continue;
 
 			bool vis = partOverrides.find(part)->shown;
-
-			if (part.type == MeshPartType::PART_GROUP) {
-				//bool vis = REInvoke<bool>(mesh, "getPartsEnable(System.UInt64)", { (void*)part.index }, InvokeReturnType::BOOL);
-				//vis &= enable;
-				REInvokeVoid(mesh, "setPartsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)vis });
-			}
-			else if (part.type == MeshPartType::MATERIAL) {
-				//bool vis = REInvoke<bool>(mesh, "getMaterialsEnable(System.UInt64)", { (void*)part.index }, InvokeReturnType::BOOL);
-				//vis &= enable;
-				REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)vis });
-			}
+			REInvokeVoid(mesh, "setPartsEnable(System.UInt64, System.Boolean)", { (void*)part.index, (void*)vis });
 		}
 
 		return true;
@@ -97,32 +87,32 @@ namespace kbf {
 		if (hasBaseMesh) {
 			getParts(baseMesh, baseParts);
 			ArmourSetWithCharacterSex armourWithSex{ ArmourList::DefaultArmourSet(), female};
-			dataManager.partCache().cacheParts(armourWithSex, baseParts, ArmourPiece::AP_SET);
+			dataManager.partCacheManager().cache(armourWithSex, baseParts, ArmourPiece::AP_SET);
 		}
 		if (hasHelmMesh) {
 			getParts(helmMesh, helmParts);
 			ArmourSetWithCharacterSex armourWithSex{ armourInfo.helm.value(), female };
-			dataManager.partCache().cacheParts(armourWithSex, helmParts, ArmourPiece::AP_HELM);
+			dataManager.partCacheManager().cache(armourWithSex, helmParts, ArmourPiece::AP_HELM);
 		}
 		if (hasBodyMesh) {
 			getParts(bodyMesh, bodyParts);
 			ArmourSetWithCharacterSex armourWithSex{ armourInfo.body.value(), female };
-			dataManager.partCache().cacheParts(armourWithSex, bodyParts, ArmourPiece::AP_BODY);
+			dataManager.partCacheManager().cache(armourWithSex, bodyParts, ArmourPiece::AP_BODY);
 		}
 		if (hasArmsMesh) {
 			getParts(armsMesh, armsParts);
 			ArmourSetWithCharacterSex armourWithSex{ armourInfo.arms.value(), female };
-			dataManager.partCache().cacheParts(armourWithSex, armsParts, ArmourPiece::AP_ARMS);
+			dataManager.partCacheManager().cache(armourWithSex, armsParts, ArmourPiece::AP_ARMS);
 		}
 		if (hasCoilMesh) {
 			getParts(coilMesh, coilParts);
 			ArmourSetWithCharacterSex armourWithSex{ armourInfo.coil.value(), female };
-			dataManager.partCache().cacheParts(armourWithSex, coilParts, ArmourPiece::AP_COIL);
+			dataManager.partCacheManager().cache(armourWithSex, coilParts, ArmourPiece::AP_COIL);
 		}
 		if (hasLegsMesh) {
 			getParts(legsMesh, legsParts);
 			ArmourSetWithCharacterSex armourWithSex{ armourInfo.legs.value(), female };
-			dataManager.partCache().cacheParts(armourWithSex, legsParts, ArmourPiece::AP_LEGS);
+			dataManager.partCacheManager().cache(armourWithSex, legsParts, ArmourPiece::AP_LEGS);
 		}
 
 		return bodyParts.size() > 0;
@@ -157,25 +147,38 @@ namespace kbf {
 			out.emplace_back(MeshPart{
 				.name = std::format("Part Group {}", i),
 				.index = indices_u64,
-				.type = MeshPartType::PART_GROUP
 			});
-
-			//REInvokeVoid(mesh, "setPartsEnable(System.UInt64, System.Boolean)", { (void*)indices_u64, (void*)true });
 		}
 
-		uint32_t materialCount = REInvoke<uint32_t>(mesh, "get_MaterialNum", {}, InvokeReturnType::DWORD);
+		//uint32_t materialCount = REInvoke<uint32_t>(mesh, "get_MaterialNum", {}, InvokeReturnType::DWORD);
 
-		for (uint32_t i = 0 ; i < materialCount; i++) {
-			std::string materialName = REInvokeStr(mesh, "getMaterialName(System.UInt32)", { (void*)i });
+		//for (uint32_t i = 0 ; i < materialCount; i++) {
+		//	std::string materialName = REInvokeStr(mesh, "getMaterialName(System.UInt32)", { (void*)i });
+		//	std::uint32_t matVariableCount = REInvoke<std::uint32_t>(mesh, "getMaterialVariableNum(System.UInt32)", { (void*)i }, InvokeReturnType::DWORD);
 
-			out.emplace_back(MeshPart{
-				.name = std::format("Material \"{}\"", materialName),
-				.index = static_cast<uint64_t>(i),
-				.type = MeshPartType::MATERIAL
-			});
+		//	std::unordered_map<uint32_t, MeshMaterialParam> params = {};
+		//	for (uint32_t paramIdx = 0; paramIdx < matVariableCount; paramIdx++) {
+		//		MeshMaterialParam param{};
+		//		uint32_t rawType = REInvoke<uint32_t>(mesh, "getMaterialVariableType(System.UInt32, System.UInt32)", { (void*)i, (void*)paramIdx }, InvokeReturnType::DWORD);
+		//		param.name = REInvokeStr(mesh, "getMaterialVariableName(System.UInt32, System.UInt32)", { (void*)i, (void*)paramIdx });
+		//		param.type = static_cast<MeshMaterialParamType>(rawType);
 
-			//REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)(static_cast<uint64_t>(i)), (void*)false });
-		}
+		//		DEBUG_STACK.push(std::format("Material {}: Param [{}]: Name={}, Type={}", materialName, paramIdx, param.name, static_cast<uint32_t>(param.type)));
+		//		
+		//		params.emplace(paramIdx, param);
+		//	}
+
+		//	MeshMaterial mat{};
+		//	mat.index  = i;
+		//	mat.name   = materialName;
+		//	mat.params = std::move(params);
+
+		//	out.emplace_back(MeshPart{
+		//		.name = materialName,
+		//		.index = static_cast<uint64_t>(i),
+		//		.type = MeshPartType::MATERIAL
+		//	});
+		//}
 	}
 
 }
