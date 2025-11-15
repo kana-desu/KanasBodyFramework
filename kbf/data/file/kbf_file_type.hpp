@@ -5,6 +5,7 @@
 namespace kbf {
 
 	enum class KbfFileType {
+		UNKNOWN,
 		SETTINGS,
 		ALMA_CONFIG,
 		ERIK_CONFIG,
@@ -19,6 +20,7 @@ namespace kbf {
 		ARMOUR_LIST,
 		BONE_CACHE,
 		PART_CACHE,
+		MATERIAL_CACHE
 	};
 
 	inline std::string kbfFileTypeToString(KbfFileType fileType) {
@@ -37,6 +39,7 @@ namespace kbf {
 		case KbfFileType::ARMOUR_LIST:      return "Armour List";
 		case KbfFileType::BONE_CACHE:       return "Bone Cache";
 		case KbfFileType::PART_CACHE:       return "Part Cache";
+		case KbfFileType::MATERIAL_CACHE:   return "Material Cache";
 		default:                            return "Unknown";
 		}
 	}

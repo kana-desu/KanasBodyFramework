@@ -48,7 +48,8 @@ namespace kbf {
         bool fetchNpc_EquippedArmourSet(const NpcInfo& info, PersistentNpcInfo& pInfo);
 		bool fetchNpc_ArmourTransforms(const NpcInfo& info, PersistentNpcInfo& pInfo);
 		bool fetchNpc_Bones(const NpcInfo& info, PersistentNpcInfo& pInfo);
-		bool fetchNpc_Parts(const NpcInfo& info, PersistentNpcInfo& pInfo);
+        bool fetchNpc_Parts(const NpcInfo& info, PersistentNpcInfo& pInfo);
+        bool fetchNpc_Materials(const NpcInfo& info, PersistentNpcInfo& pInfo);
 
 		static std::string armourIdFromPrefabPath(const std::string& prefabPath);
         void clearNpcSlot(size_t index);

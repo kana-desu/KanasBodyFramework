@@ -56,7 +56,8 @@ namespace kbf {
 		bool fetchPlayer_ArmourTransforms(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
 		bool fetchPlayer_WeaponObjects(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
         bool fetchPlayer_Bones(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
-		bool fetchPlayer_Parts(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
+        bool fetchPlayer_Parts(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
+        bool fetchPlayer_Materials(const PlayerInfo& info, PersistentPlayerInfo& pInfo);
         void clearPlayerSlot(size_t index);
 
         static int onIsEquipBuildEndHook(int argc, void** argv, REFrameworkTypeDefinitionHandle* arg_tys, unsigned long long ret_addr);

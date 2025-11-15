@@ -161,6 +161,7 @@ namespace kbf {
                         }
 
                         pInfo->partManager->applyPreset(activePreset, piece);
+						pInfo->materialManager->applyPreset(activePreset, piece);
 
                         if (!invalidBones && activePreset->set.hasModifiers() && !presetBasesApplied.contains(activePreset->uuid)) {
                             presetBasesApplied.insert(activePreset->uuid);
@@ -339,6 +340,18 @@ namespace kbf {
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Parts");
         //--------------------------------------------------
 
+        // - Materials -------------------------------------
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+
+        bool fetchedMaterials = fetchPlayer_Materials(info, persistentInfo);
+        if (!fetchedMaterials) {
+            DEBUG_STACK.push(std::format("{} Failed to fetch materials for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
+            return;
+        }
+
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+        //--------------------------------------------------
+
         //- Weapon Objects ---------------------------------
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Main Menu - Weapon Objects");
 
@@ -508,6 +521,18 @@ namespace kbf {
             }
 
             END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Save Select - Parts");
+            //--------------------------------------------------
+
+            // - Materials -------------------------------------
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+
+            bool fetchedMaterials = fetchPlayer_Materials(info, persistentInfo);
+            if (!fetchedMaterials) {
+                DEBUG_STACK.push(std::format("{} Failed to fetch materials for Save Select Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
+                return;
+            }
+
+            END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
             //--------------------------------------------------
 
             //- Weapon Objects ------------------------------e---
@@ -730,6 +755,18 @@ namespace kbf {
             END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Character Creator - Parts");
             //--------------------------------------------------
 
+            // - Materials -------------------------------------
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+
+            bool fetchedMaterials = fetchPlayer_Materials(info, persistentInfo);
+            if (!fetchedMaterials) {
+                DEBUG_STACK.push(std::format("{} Failed to fetch materials for Character Creator Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
+                return;
+            }
+
+            END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+            //--------------------------------------------------
+
             playerApplyDelays[persistentInfo.playerData] = std::chrono::high_resolution_clock::now();
             persistentPlayerInfos[0] = std::make_unique<PersistentPlayerInfo>(std::move(persistentInfo));
         }
@@ -883,6 +920,18 @@ namespace kbf {
 
             END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Parts");
             //--------------------------------------------------
+
+            // - Materials -------------------------------------
+            BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+
+			bool fetchedMaterials = fetchPlayer_Materials(info, persistentInfo);
+            if (!fetchedMaterials) {
+                DEBUG_STACK.push(std::format("{} Failed to fetch materials for Guild Card Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
+                return;
+			}
+
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Guild Card - Materials");
+			//--------------------------------------------------
 
             playerApplyDelays[persistentInfo.playerData] = std::chrono::high_resolution_clock::now();
             persistentPlayerInfos[0] = std::make_unique<PersistentPlayerInfo>(std::move(persistentInfo));
@@ -1245,6 +1294,14 @@ namespace kbf {
             return false;
         }
 
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Materials");
+        bool fetchedMats = fetchPlayer_Materials(info, pInfo);
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Materials");
+        if (!fetchedMats) {
+            DEBUG_STACK.push(std::format("{} Failed to fetch materials for Player: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, i), DebugStack::Color::COL_WARNING);
+            return false;
+        }
+
         BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Weapons");
         bool fetechedWeapons = fetchPlayer_WeaponObjects(info, pInfo);
         END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Player Fetch - Normal Gameplay - Weapons");
@@ -1390,6 +1447,24 @@ namespace kbf {
             info.playerData.female);
 
         return pInfo.partManager->isInitialized();
+    }
+
+    bool PlayerTracker::fetchPlayer_Materials(const PlayerInfo& info, PersistentPlayerInfo& pInfo) {
+        if (info.pointers.Transform == nullptr) return false;
+        if (!pInfo.Transform_body) return false;
+
+        pInfo.materialManager = std::make_unique<MaterialManager>(
+            dataManager,
+            pInfo.armourInfo,
+            pInfo.Transform_base,
+            pInfo.Transform_helm,
+            pInfo.Transform_body,
+            pInfo.Transform_arms,
+            pInfo.Transform_coil,
+            pInfo.Transform_legs,
+            info.playerData.female);
+
+        return pInfo.materialManager->isInitialized();
     }
 
     bool PlayerTracker::getSavePlayerData(int saveIdx, PlayerData& out) const {

@@ -4,6 +4,7 @@
 #include <kbf/data/player/player_data.hpp>
 #include <kbf/mesh/bone_manager.hpp>
 #include <kbf/mesh/part_manager.hpp>
+#include <kbf/mesh/material_manager.hpp>
 #include <kbf/util/re_engine/check_re_ptr_validity.hpp>
 
 #include <reframework/API.hpp>
@@ -38,8 +39,9 @@ namespace kbf {
 
 		reframework::API::ManagedObject* Slinger_GameObject = nullptr;
 
-		std::unique_ptr<BoneManager> boneManager = nullptr;
-		std::unique_ptr<PartManager> partManager = nullptr;
+		std::unique_ptr<BoneManager> boneManager         = nullptr;
+		std::unique_ptr<PartManager> partManager         = nullptr;
+		std::unique_ptr<MaterialManager> materialManager = nullptr;
 
 		bool areSetPointersValid() const {
 			static reframework::API::TypeDefinition* def_ViaTransform  = reframework::API::get()->tdb()->find_type("via.Transform");

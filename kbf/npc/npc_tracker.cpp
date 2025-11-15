@@ -129,6 +129,7 @@ namespace kbf {
                         if (invalidBones) { clearNpcSlot(idx); npcsToFetch[idx] = true; break; }
 
                         pInfo->partManager->applyPreset(activePreset, piece);
+						pInfo->materialManager->applyPreset(activePreset, piece);
 
                         if (!invalidBones && activePreset->set.hasModifiers() && !presetBasesApplied.contains(activePreset->uuid)) {
                             presetBasesApplied.insert(activePreset->uuid);
@@ -339,6 +340,9 @@ namespace kbf {
 
         bool fetchedParts = fetchNpc_Parts(info, pInfo);
         if (!fetchedParts) return false;
+
+        bool fetchedMats = fetchNpc_Materials(info, pInfo);
+        if (!fetchedMats) return false;
 
         return true;
     }
@@ -558,6 +562,17 @@ namespace kbf {
             return false;
         }
 
+        BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "NPC Fetch - Normal Gameplay - Materials");
+        bool fetchedMats = fetchNpc_Materials(info, pInfo);
+        END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "NPC Fetch - Normal Gameplay - Materials");
+        if (!fetchedMats) {
+            tryFetchCountTable[i]++;
+            if (tryFetchCountTable[i] >= TRY_FETCH_LIMIT) {
+                DEBUG_STACK.push(std::format("{} Failed to find NPC [{}] Materials {} times. The NPC is probably invalid, skipping for now...", NPC_TRACKER_LOG_TAG, i, TRY_FETCH_LIMIT), DebugStack::Color::COL_WARNING);
+            }
+            return false;
+        }
+
         frameBoneFetchCount++; // Consider moving this to top to limit effect of failed fetches - may make fetches inaccessible if there are enough errors though.
         return true;
     }
@@ -686,6 +701,25 @@ namespace kbf {
             info.female);
 
 		return pInfo.partManager->isInitialized();
+    }
+
+    bool NpcTracker::fetchNpc_Materials(const NpcInfo& info, PersistentNpcInfo& pInfo) {
+        if (info.pointers.Transform == nullptr) return false;
+        if (!pInfo.Transform_body) return false;
+        // Legs are optional for NPCs
+
+        pInfo.materialManager = std::make_unique<MaterialManager>(
+            dataManager,
+            pInfo.armourInfo,
+            pInfo.Transform_base,
+            pInfo.Transform_helm,
+            pInfo.Transform_body,
+            pInfo.Transform_arms,
+            pInfo.Transform_coil,
+            pInfo.Transform_legs,
+            info.female);
+
+        return pInfo.materialManager->isInitialized();
     }
 
     std::string NpcTracker::armourIdFromPrefabPath(const std::string& prefabPath) {
