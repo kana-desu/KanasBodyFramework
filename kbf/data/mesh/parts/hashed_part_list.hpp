@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kbf/data/mesh/mesh_part.hpp>
+#include <kbf/data/mesh/parts/mesh_part.hpp>
 #include <kbf/util/hash/hash_combine.hpp>
 
 #include <vector>

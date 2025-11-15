@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kbf/data/armour/armour_set.hpp>
-#include <kbf/data/mesh/hashed_part_list.hpp>
+#include <kbf/data/mesh/parts/hashed_part_list.hpp>
 
 #include <set>
 

@@ -15,16 +15,14 @@ namespace kbf {
 	struct MeshPart {
 		std::string name;
 		uint64_t index;
-		MeshPartType type;
 
 		bool operator==(const MeshPart& other) const {
-			return name == other.name && index == other.index && type == other.type;
+			return name == other.name && index == other.index;
 		}
 
 		bool operator<(const MeshPart& other) const {
 			if (name != other.name) return name < other.name;
-			if (index != other.index) return index < other.index;
-			return type < other.type;
+			return index < other.index;
 		}
 	};
 
@@ -39,7 +37,6 @@ namespace kbf {
 
 			hashCombine(h, hashString(part.name));
 			hashCombine(h, hashUInt64(part.index));
-			hashCombine(h, hashInt(static_cast<int>(part.type)));
 
 			return h;
 		}

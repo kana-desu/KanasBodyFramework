@@ -15,4 +15,3 @@
 #define PART_CACHE_LEGS_HASH_ID "legsHash"
 
 #define PART_CACHE_PART_INDEX_ID "index"
-#define PART_CACHE_PART_TYPE_ID  "type"

@@ -28,7 +28,6 @@
 #define PRESET_BONE_MODIFIERS_ROTATION_ID "rotation"
 
 #define PRESET_OVERRIDE_PARTS_INDEX_ID "index"
-#define PRESET_OVERRIDE_PARTS_TYPE_ID  "type"
 #define PRESET_OVERRIDE_PARTS_HIDE_ID  "hide"
 
 #define PRESET_DEFAULT_BUNDLE "Uncategorized"
