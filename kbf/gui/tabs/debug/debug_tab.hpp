@@ -3,6 +3,7 @@
 #include <kbf/gui/tabs/i_tab.hpp>
 #include <kbf/player/player_tracker.hpp>
 #include <kbf/npc/npc_tracker.hpp>
+#include <kbf/data/mesh/materials/mesh_material.hpp>
 
 #include <kbf/cimgui/cimgui_funcs.hpp>
 
@@ -42,10 +43,13 @@ namespace kbf {
 		void drawPlayerListRow(PlayerInfo info, const PersistentPlayerInfo* pInfo);
 		void drawNpcList();
 		void drawNpcListRow(NpcInfo info, const PersistentNpcInfo* pInfo);
+		void drawCacheTab();
 		void drawBoneCacheTab();
 		void drawBoneCacheTab_BoneList(const std::string& label, const std::vector<std::string>& bones);
 		void drawPartCacheTab();
 		void drawPartCacheTab_PartList(const std::string& label, const std::vector<MeshPart>& parts);
+		void drawMatCacheTab();
+		void drawMatCacheTab_MaterialList(const std::string& label, const std::vector<MeshMaterial>& mats);
 
 		static ImVec4 getTimingColour(double ms);
 

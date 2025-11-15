@@ -9,7 +9,9 @@
 #include <kbf/gui/panels/lists/preset_panel.hpp>
 #include <kbf/gui/panels/lists/preset_group_panel.hpp>
 #include <kbf/gui/panels/lists/bone_panel.hpp>
-#include <kbf/gui/panels/lists/part_remover_panel.hpp>
+#include <kbf/gui/panels/lists/part_panel.hpp>
+#include <kbf/gui/panels/lists/material_panel.hpp>
+#include <kbf/gui/panels/presets/edit_material_param_panel.hpp>
 #include <kbf/gui/panels/presets/create_preset_panel.hpp>
 #include <kbf/gui/panels/info/info_popup_panel.hpp>
 #include <kbf/data/bones/sortable_bone_modifier.hpp>
@@ -53,13 +55,17 @@ namespace kbf {
 		void openCopyPresetGroupPanel();
 		void openSelectBonePanel(ArmourPiece piece);
 		void openPartOverridePanel();
+		void openMaterialOverridePanel();
+		void openEditMaterialParamPanel(OverrideMaterial& mat);
 		void openAssignPresetPanel(ArmourSet armourSet, ArmourPiece piece);
-		UniquePanel<PresetPanel>       presetPanel;
-		UniquePanel<PresetGroupPanel>  presetGroupPanel;
-		UniquePanel<BonePanel>         selectBonePanel;
-		UniquePanel<PartRemoverPanel>  partRemoverPanel;
-		UniquePanel<PresetPanel>       assignPresetPanel;
-		UniquePanel<CreatePresetPanel> createPresetPanel;
+		UniquePanel<PresetPanel>            presetPanel;
+		UniquePanel<PresetGroupPanel>       presetGroupPanel;
+		UniquePanel<BonePanel>              selectBonePanel;
+		UniquePanel<PartPanel>              partOverridePanel;
+		UniquePanel<MaterialPanel>          materialOverridePanel;
+		UniquePanel<EditMaterialParamPanel> editMaterialParamPanel;
+		UniquePanel<PresetPanel>            assignPresetPanel;
+		UniquePanel<CreatePresetPanel>      createPresetPanel;
 
 		// Preset Group Editor
 		void drawPresetGroupEditor();
@@ -101,6 +107,8 @@ namespace kbf {
 		void drawBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, float width, float speed);
 		void drawPresetEditor_PartVisibilities(Preset** preset);
 		void drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<OverrideMeshPart>& parts);
+		void drawPresetEditor_MaterialParams(Preset** preset);
+		void drawPresetEditor_MaterialParamsTable(std::string tableName, std::set<OverrideMaterial>& mats);
 
 		bool canSavePreset(std::string& errMsg) const;
 

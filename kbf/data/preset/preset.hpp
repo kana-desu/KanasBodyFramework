@@ -4,8 +4,11 @@
 #include <kbf/data/armour/armour_set.hpp>
 #include <kbf/data/preset/preset_piece_settings.hpp>
 #include <kbf/data/armour/armour_piece.hpp>
+#include <kbf/data/preset/quick_material_override.hpp>
 
 #include <glm/glm.hpp>
+
+#include <algorithm>
 
 namespace kbf {
 
@@ -26,6 +29,12 @@ namespace kbf {
 		bool hideSlinger = false;
 		bool hideWeapon = false;
 
+		std::unordered_map<std::string, QuickMaterialOverride<float>> quickMaterialOverridesFloat{
+			{ "wetness",       QuickMaterialOverride<float>{ false, "skin", "...", 0.0f } },
+			{ "wet_roughness", QuickMaterialOverride<float>{ false, "skin", "...", 0.0f } },
+		};
+		std::unordered_map<std::string, QuickMaterialOverride<glm::vec4>> quickMaterialOverridesVec4{};
+		
 		FormatMetadata metadata;
 
 		bool operator==(const Preset& other) const {
@@ -43,6 +52,8 @@ namespace kbf {
 			match &= legs == other.legs;
 			match &= hideSlinger == other.hideSlinger;
 			match &= hideWeapon == other.hideWeapon;
+			match &= quickMaterialOverridesFloat == other.quickMaterialOverridesFloat;
+			match &= quickMaterialOverridesVec4 == other.quickMaterialOverridesVec4;
 			return match;
 		}
 
@@ -85,6 +96,19 @@ namespace kbf {
 			}
 		}
 
+		bool hasMaterialOverrides(ArmourPiece piece) const {
+			switch (piece)
+			{
+			case ArmourPiece::AP_SET:  return set.hasMaterialOverrides();
+			case ArmourPiece::AP_HELM: return helm.hasMaterialOverrides();
+			case ArmourPiece::AP_BODY: return body.hasMaterialOverrides();
+			case ArmourPiece::AP_ARMS: return arms.hasMaterialOverrides();
+			case ArmourPiece::AP_COIL: return coil.hasMaterialOverrides();
+			case ArmourPiece::AP_LEGS: return legs.hasMaterialOverrides();
+			default:                   return false;
+			}
+		}
+
 		bool hasAnyModifiers() const {
 			return hasModifiers(ArmourPiece::AP_SET) ||
 				   hasModifiers(ArmourPiece::AP_HELM) ||
@@ -95,13 +119,29 @@ namespace kbf {
 		}
 
 		bool hasAnyPartOverrides() const {
-			return hasPartOverrides(ArmourPiece::AP_SET) ||
+			return hideSlinger || hideWeapon ||
+				   hasPartOverrides(ArmourPiece::AP_SET) ||
 				   hasPartOverrides(ArmourPiece::AP_HELM) ||
 				   hasPartOverrides(ArmourPiece::AP_BODY) ||
 				   hasPartOverrides(ArmourPiece::AP_ARMS) ||
 				   hasPartOverrides(ArmourPiece::AP_COIL) ||
 				   hasPartOverrides(ArmourPiece::AP_LEGS);
 		}
+
+		bool hasAnyMaterialOverrides() const {
+			bool anyQuickOverridesFloat = std::ranges::any_of(quickMaterialOverridesFloat, [](auto& p) { return p.second.enabled; });
+			bool anyQuickOverridesVec4 = std::ranges::any_of(quickMaterialOverridesVec4, [](auto& p) { return p.second.enabled; });
+
+			return anyQuickOverridesFloat || 
+				   anyQuickOverridesVec4 ||
+				   hasMaterialOverrides(ArmourPiece::AP_SET) ||
+				   hasMaterialOverrides(ArmourPiece::AP_HELM) ||
+				   hasMaterialOverrides(ArmourPiece::AP_BODY) ||
+				   hasMaterialOverrides(ArmourPiece::AP_ARMS) ||
+				   hasMaterialOverrides(ArmourPiece::AP_COIL) ||
+				   hasMaterialOverrides(ArmourPiece::AP_LEGS);
+		}
+
 	};
 
 }

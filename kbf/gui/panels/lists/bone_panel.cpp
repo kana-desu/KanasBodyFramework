@@ -41,7 +41,7 @@ namespace kbf {
         std::vector<std::string> cacheBones;
 
         ArmourSetWithCharacterSex armourWithSex{ (**preset).armour, (**preset).female };
-        const BoneCache* cache = dataManager.boneCache().getCachedBones(armourWithSex);
+        const BoneCache* cache = dataManager.boneCacheManager().getCache(armourWithSex);
         if (cache) {
             HashedBoneList cacheBoneList;
             switch (piece) {

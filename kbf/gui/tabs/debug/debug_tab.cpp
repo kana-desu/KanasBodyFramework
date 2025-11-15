@@ -41,12 +41,8 @@ namespace kbf {
                 drawNpcList();
                 CImGui::EndTabItem();
             }
-            if (CImGui::BeginTabItem("Bone Cache")) {
-                drawBoneCacheTab();
-                CImGui::EndTabItem();
-            }
-            if (CImGui::BeginTabItem("Part Cache")) {
-				drawPartCacheTab();
+            if (CImGui::BeginTabItem("Cache")) {
+                drawCacheTab();
                 CImGui::EndTabItem();
             }
             CImGui::EndTabBar();
@@ -100,11 +96,11 @@ namespace kbf {
             CImGui::PushTextWrapPos();
 
             for (const LogData& entry : DEBUG_STACK) {
-                if ((entry.colour == DebugStack::Color::DEBUG && !showDebug) ||
-                    (entry.colour == DebugStack::Color::INFO && !showInfo) ||
-					(entry.colour == DebugStack::Color::SUCCESS && !showSuccess) ||
-                    (entry.colour == DebugStack::Color::WARNING && !showWarn) ||
-                    (entry.colour == DebugStack::Color::ERROR && !showError)) {
+                if ((DebugStack::getColorType(entry.colour) == DebugStack::Color::COL_DEBUG && !showDebug) ||
+                    (DebugStack::getColorType(entry.colour) == DebugStack::Color::COL_INFO && !showInfo) ||
+					(DebugStack::getColorType(entry.colour) == DebugStack::Color::COL_SUCCESS && !showSuccess) ||
+                    (DebugStack::getColorType(entry.colour) == DebugStack::Color::COL_WARNING && !showWarn) ||
+                    (DebugStack::getColorType(entry.colour) == DebugStack::Color::COL_ERROR && !showError)) {
                     continue; // Skip entries based on filter settings
 				}
 
@@ -666,8 +662,27 @@ namespace kbf {
         CImGui::PopStyleColor();
     }
 
+    void DebugTab::drawCacheTab() {
+        CImGui::Spacing();
+        if (CImGui::BeginTabBar("CacheTabs")) {
+            if (CImGui::BeginTabItem("Bone Cache")) {
+                drawBoneCacheTab();
+                CImGui::EndTabItem();
+            }
+            if (CImGui::BeginTabItem("Part Cache")) {
+                drawPartCacheTab();
+                CImGui::EndTabItem();
+            }
+            if (CImGui::BeginTabItem("Material Cache")) {
+                drawMatCacheTab();
+                CImGui::EndTabItem();
+            }
+            CImGui::EndTabBar();
+        }
+    }
+
     void DebugTab::drawBoneCacheTab() {
-        std::vector<ArmourSetWithCharacterSex> existingCaches = dataManager.boneCache().getCachedArmourSets();
+        std::vector<ArmourSetWithCharacterSex> existingCaches = dataManager.boneCacheManager().getCachedArmourSets();
 
         // Sort by armour set name
         std::sort(existingCaches.begin(), existingCaches.end(), [](const ArmourSetWithCharacterSex& a, const ArmourSetWithCharacterSex& b) {
@@ -737,7 +752,7 @@ namespace kbf {
             return;
         }
         else {
-			const BoneCache* cache = dataManager.boneCache().getCachedBones(selectedSet.value());
+			const BoneCache* cache = dataManager.boneCacheManager().getCache(selectedSet.value());
 
             std::vector<std::string> setBones  = cache->set.getBones();
 			std::vector<std::string> helmBones = cache->helm.getBones();
@@ -798,7 +813,7 @@ namespace kbf {
 	}
 
     void DebugTab::drawPartCacheTab() {
-        std::vector<ArmourSetWithCharacterSex> existingCaches = dataManager.partCache().getCachedArmourSets();
+        std::vector<ArmourSetWithCharacterSex> existingCaches = dataManager.partCacheManager().getCachedArmourSets();
 
         // Sort by armour set name
         std::sort(existingCaches.begin(), existingCaches.end(), [](const ArmourSetWithCharacterSex& a, const ArmourSetWithCharacterSex& b) {
@@ -868,7 +883,7 @@ namespace kbf {
             return;
         }
         else {
-            const PartCache* cache = dataManager.partCache().getCachedParts(selectedSet.value());
+            const PartCache* cache = dataManager.partCacheManager().getCache(selectedSet.value());
 
 			std::vector<MeshPart> setParts  = cache->set.getParts();
 			std::vector<MeshPart> helmParts = cache->helm.getParts();
@@ -927,6 +942,199 @@ namespace kbf {
             CImGui::EndTable();
         }
 	}
+
+    void DebugTab::drawMatCacheTab() {
+        std::vector<ArmourSetWithCharacterSex> existingCaches = dataManager.materialCacheManager().getCachedArmourSets();
+
+        // Sort by armour set name
+        std::sort(existingCaches.begin(), existingCaches.end(), [](const ArmourSetWithCharacterSex& a, const ArmourSetWithCharacterSex& b) {
+            if (a.set.name < b.set.name) return true;
+            if (a.set.name > b.set.name) return false;
+
+            // If names are equal, sort based on sex
+            if (a.characterFemale && !b.characterFemale) return true;
+            if (!a.characterFemale && b.characterFemale) return false;
+
+            // then by armour sex...
+            if (a.set.female && !b.set.female) return true;
+            if (!a.set.female && b.set.female) return false;
+
+            return true;
+        });
+
+        static std::optional<ArmourSetWithCharacterSex> selectedSet = std::nullopt;
+
+        CImGui::Spacing();
+        CImGui::PushItemWidth(-1);
+        CImGui::PushFont(wsArmourFont, FONT_SIZE_DEFAULT_WILDS_ARMOUR);
+
+        std::string previewValue = selectedSet.has_value()
+            ? std::format("[{}-{}] {}", selectedSet.value().characterFemale ? "F" : "M", selectedSet.value().set.female ? "F" : "M", selectedSet.value().set.name)
+            : "None Selected";
+
+        if (CImGui::BeginCombo("##MatCacheCombo", previewValue.c_str())) {
+            if (CImGui::Selectable("None Selected", !selectedSet.has_value())) {
+                selectedSet = std::nullopt;
+            }
+
+            for (const ArmourSetWithCharacterSex& armour : existingCaches) {
+                std::string displayName = std::format("[{}-{}] {}",
+                    armour.characterFemale ? "F" : "M",
+                    armour.set.female ? "F" : "M",
+                    armour.set.name);
+
+                bool selected = selectedSet.has_value() && selectedSet.value() == armour;
+
+                if (CImGui::Selectable(displayName.c_str(), selected)) {
+                    selectedSet = armour;
+                }
+
+                if (selected) CImGui::SetItemDefaultFocus();
+            }
+
+            CImGui::EndCombo();
+        }
+        CImGui::PopFont();
+        CImGui::PopItemWidth();
+
+        CImGui::Spacing();
+        CImGui::Separator();
+        CImGui::Spacing();
+
+        CImGui::BeginChild("MatCacheList");
+
+        if (!selectedSet.has_value()) {
+            CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+            constexpr char const* noCacheStr = "\nNo Material Cache Selected.";
+            CImGui::Spacing();
+            preAlignCellContentHorizontal(noCacheStr);
+            CImGui::Text(noCacheStr);
+            CImGui::PopStyleColor();
+            CImGui::EndChild();
+            return;
+        }
+        else {
+            const MaterialCache* cache = dataManager.materialCacheManager().getCache(selectedSet.value());
+
+            std::vector<MeshMaterial> helmMaterials = cache->helm.getMaterials();
+            std::vector<MeshMaterial> bodyMaterials = cache->body.getMaterials();
+            std::vector<MeshMaterial> armsMaterials = cache->arms.getMaterials();
+            std::vector<MeshMaterial> coilMaterials = cache->coil.getMaterials();
+            std::vector<MeshMaterial> legsMaterials = cache->legs.getMaterials();
+            size_t helmHash = cache->helm.getHash();
+            size_t bodyHash = cache->body.getHash();
+            size_t armsHash = cache->arms.getHash();
+            size_t coilHash = cache->coil.getHash();
+            size_t legsHash = cache->legs.getHash();
+
+            std::string helmListLabel = std::format("Helm Materials ({}) [Hash={}]", helmMaterials.size(), helmHash);
+            std::string bodyListLabel = std::format("Body Materials ({}) [Hash={}]", bodyMaterials.size(), bodyHash);
+            std::string armsListLabel = std::format("Arms Materials ({}) [Hash={}]", armsMaterials.size(), armsHash);
+            std::string coilListLabel = std::format("Coil Materials ({}) [Hash={}]", coilMaterials.size(), coilHash);
+            std::string legsListLabel = std::format("Legs Materials ({}) [Hash={}]", legsMaterials.size(), legsHash);
+
+            if (helmMaterials.size() > 0) drawMatCacheTab_MaterialList(helmListLabel.c_str(), helmMaterials);
+            if (bodyMaterials.size() > 0) drawMatCacheTab_MaterialList(bodyListLabel.c_str(), bodyMaterials);
+            if (armsMaterials.size() > 0) drawMatCacheTab_MaterialList(armsListLabel.c_str(), armsMaterials);
+            if (coilMaterials.size() > 0) drawMatCacheTab_MaterialList(coilListLabel.c_str(), coilMaterials);
+            if (legsMaterials.size() > 0) drawMatCacheTab_MaterialList(legsListLabel.c_str(), legsMaterials);
+        }
+
+        CImGui::EndChild();
+    }
+
+    void DebugTab::drawMatCacheTab_MaterialList(
+        const std::string& label,
+        const std::vector<MeshMaterial>& mats
+    ) {
+        constexpr ImGuiTableFlags tableFlags =
+            ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_PadOuterX;
+
+        CImGui::Spacing();
+
+        if (CImGui::CollapsingHeader(label.c_str())) {
+
+            CImGui::BeginTable(("##" + label + "Table").c_str(), 1, tableFlags);
+            CImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(LIST_PADDING.x, 0.0f));
+
+            static std::unordered_map<uint64_t, bool> openState;
+
+            for (const MeshMaterial& mat : mats) {
+
+                CImGui::TableNextRow();
+                CImGui::TableNextColumn();
+
+                constexpr float row_h = 30.0f;
+                ImVec2 pos = CImGui::GetCursorScreenPos();
+
+                // Unique ID for row click
+                std::string selectableID = std::format("##Selectable_{}_{}", label, mat.index);
+                DEBUG_STACK.push(selectableID);
+
+                bool pressed = CImGui::Selectable(selectableID.c_str(), false,
+                    ImGuiSelectableFlags_SpanAllColumns,
+                    ImVec2(0.0f, row_h));
+
+                CImGui::SetItemTooltip(mat.name.c_str());
+
+                // Draw material name manually
+                ImVec2 textSize = CImGui::CalcTextSize(mat.name.c_str());
+                ImVec2 textPos{
+                    pos.x + CImGui::GetStyle().ItemSpacing.x,
+                    pos.y + (row_h - textSize.y) * 0.5f
+                };
+                CImGui::GetWindowDrawList()->AddText(
+                    textPos,
+                    CImGui::GetColorU32(ImGuiCol_Text),
+                    mat.name.c_str()
+                );
+
+                // Toggle open/closed
+                if (pressed)
+                    openState[mat.index] = !openState[mat.index];
+
+                // Draw param list if expanded
+                if (openState[mat.index]) {
+
+                    CImGui::Indent(20.0f);
+
+                    std::string paramTableID = "##ParamTable_" + std::to_string(mat.index);
+                    if (CImGui::BeginTable(paramTableID.c_str(), 2,
+                        ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_PadOuterX))
+                    {
+                        CImGui::TableSetupColumn("Name");
+                        CImGui::TableSetupColumn("Data Type");
+
+                        CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
+
+                        for (auto& kv : mat.params) {
+                            const uint32_t idx = kv.first;
+                            const MeshMaterialParam& param = kv.second;
+
+                            CImGui::TableNextRow();
+
+                            // Column 1: name
+                            CImGui::TableNextColumn();
+                            CImGui::Text(param.name.c_str());
+                                
+                            // Column 2: toggle
+                            CImGui::TableNextColumn();
+                            CImGui::Text(param.type == MAT_TYPE_FLOAT ? "float" : "float4");
+                        }
+
+                        CImGui::PopStyleColor();
+
+                        CImGui::EndTable();
+                    }
+
+                    CImGui::Unindent(20.0f);
+                }
+            }
+
+            CImGui::PopStyleVar();
+            CImGui::EndTable();
+        }
+    }
 
     ImVec4 DebugTab::getTimingColour(double ms) {
 		constexpr double greenThreshold = 0.5;

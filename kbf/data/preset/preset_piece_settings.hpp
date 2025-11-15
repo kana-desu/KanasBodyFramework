@@ -2,6 +2,7 @@
 
 #include <kbf/data/bones/bone_modifier.hpp>
 #include <kbf/data/preset/override_mesh_part.hpp>
+#include <kbf/data/preset/override_material.hpp>
 
 #include <set>
 #include <map>
@@ -19,18 +20,21 @@ namespace kbf {
 
 		// Parts
 		std::set<OverrideMeshPart> partOverrides;
+		std::set<OverrideMaterial> materialOverrides;
 
 		bool operator==(const PresetPieceSettings& other) const {
 			return (
 				modifiers == other.modifiers &&
 				modLimit == other.modLimit &&
 				useSymmetry == other.useSymmetry &&
-				partOverrides == other.partOverrides
+				partOverrides == other.partOverrides &&
+				materialOverrides == other.materialOverrides
 			);
 		}
 
 		bool hasModifiers() const { return !modifiers.empty(); }
 		bool hasPartOverrides() const { return !partOverrides.empty(); }
+		bool hasMaterialOverrides() const { return !materialOverrides.empty(); }
 	};
 
 }

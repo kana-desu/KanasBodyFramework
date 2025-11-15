@@ -9,9 +9,9 @@
 
 namespace kbf {
 
-	class PartRemoverPanel : public iPanel {
+	class PartPanel : public iPanel {
 	public:
-		PartRemoverPanel(
+		PartPanel(
 			const std::string& label,
 			const std::string& strID,
 			KBFDataManager& dataManager,
@@ -27,10 +27,10 @@ namespace kbf {
 		ArmourSetWithCharacterSex armour;
 		ArmourPieceFlags disabledHeaders = ArmourPieceFlagBits::APF_NONE;
 
-		std::vector<MeshPart> filterPartList(
-			const std::string& filter,
-			const std::vector<MeshPart>& partList);
+		std::vector<MeshPart> filterPartList(const std::string& filter, const std::vector<MeshPart>& partList) const;
 		void drawPartList(const std::vector<MeshPart>& partList, ArmourPiece piece);
+
+		std::string getTypeLabel() const { return "Parts"; }
 
 		std::function<void(MeshPart, ArmourPiece)> selectCallback;
 		std::function<bool(MeshPart, ArmourPiece)> checkDisablePartCallback;

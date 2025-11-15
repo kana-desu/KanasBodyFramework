@@ -1,14 +1,11 @@
-#include <kbf/gui/panels/lists/part_remover_panel.hpp>
+#include <kbf/gui/panels/lists/material_panel.hpp>
 
-#include <kbf/data/ids/font_symbols.hpp>
 #include <kbf/util/string/to_lower.hpp>
 #include <kbf/util/functional/invoke_callback.hpp>
 
-#include <set>
-
 namespace kbf {
 
-    PartRemoverPanel::PartRemoverPanel(
+    MaterialPanel::MaterialPanel(
         const std::string& name,
         const std::string& strID,
         KBFDataManager& dataManager,
@@ -17,7 +14,7 @@ namespace kbf {
     ) : iPanel(name, strID),
         dataManager{ dataManager },
         armour{ armour },
-        wsSymbolFont{ wsSymbolFont } 
+        wsSymbolFont{ wsSymbolFont }
     {
         ArmourID armourID = ArmourList::getArmourIdFromSet(armour.set);
 
@@ -29,7 +26,7 @@ namespace kbf {
         if (!armourID.hasPiece(ArmourPiece::AP_LEGS)) disabledHeaders |= ArmourPieceFlagBits::APF_LEGS;
     }
 
-    bool PartRemoverPanel::draw() {
+    bool MaterialPanel::draw() {
         bool open = true;
         processFocus();
         CImGui::PushStyleVar(ImGuiStyleVar_WindowTitleAlign, ImVec2(0.5f, 0.5f));
@@ -45,10 +42,10 @@ namespace kbf {
         static char filterBuffer[128] = "";
         std::string filterStr{ filterBuffer };
 
-        std::vector<MeshPart> cacheParts = {};
-        const PartCache* cache = dataManager.partCache().getCachedParts(armour);
+        std::vector<MeshMaterial> cacheParts = {};
+        const MaterialCache* cache = dataManager.materialCacheManager().getCache(armour);
 
-        ArmourPiece piece = ArmourPiece::AP_SET;
+        ArmourPiece piece = ArmourPiece::AP_HELM;
 
         if (CImGui::BeginTabBar("PartRemovePanelTabs")) {
             struct ArmourTab {
@@ -58,12 +55,14 @@ namespace kbf {
                 const char* tooltip;
             };
 
+            const std::string typeLabel = getTypeLabel();
+
             static const ArmourTab tabs[] = {
-                {"Head",  ArmourPiece::AP_HELM, ArmourPieceFlagBits::APF_HELM, "Armour set has no Helmet part."},
-                {"Body",  ArmourPiece::AP_BODY, ArmourPieceFlagBits::APF_BODY, "Armour set has no Body part."},
-                {"Arms",  ArmourPiece::AP_ARMS, ArmourPieceFlagBits::APF_ARMS, "Armour set has no Arm parts."},
-                {"Waist", ArmourPiece::AP_COIL, ArmourPieceFlagBits::APF_COIL, "Armour set has no Coil part."},
-                {"Legs",  ArmourPiece::AP_LEGS, ArmourPieceFlagBits::APF_LEGS, "Armour set has no Leg parts."},
+                {"Head",  ArmourPiece::AP_HELM, ArmourPieceFlagBits::APF_HELM, std::format("Armour set has no Helmet {}.", typeLabel).c_str()},
+                {"Body",  ArmourPiece::AP_BODY, ArmourPieceFlagBits::APF_BODY, std::format("Armour set has no Body {}."  , typeLabel).c_str()},
+                {"Arms",  ArmourPiece::AP_ARMS, ArmourPieceFlagBits::APF_ARMS, std::format("Armour set has no Arm {}."   , typeLabel).c_str()},
+                {"Waist", ArmourPiece::AP_COIL, ArmourPieceFlagBits::APF_COIL, std::format("Armour set has no Coil {}."  , typeLabel).c_str()},
+                {"Legs",  ArmourPiece::AP_LEGS, ArmourPieceFlagBits::APF_LEGS, std::format("Armour set has no Leg {}."   , typeLabel).c_str()},
             };
 
             const ArmourTab* tabToSelect = nullptr;
@@ -100,20 +99,19 @@ namespace kbf {
         }
 
         if (cache) {
-			const HashedPartList* cachePartList = nullptr;
+            const HashedMaterialList* cachePartList = nullptr;
             switch (piece) {
-			case ArmourPiece::AP_SET:  cachePartList = &cache->set;  break;
-			case ArmourPiece::AP_HELM: cachePartList = &cache->helm; break;
-			case ArmourPiece::AP_BODY: cachePartList = &cache->body; break;
-			case ArmourPiece::AP_ARMS: cachePartList = &cache->arms; break;
-			case ArmourPiece::AP_COIL: cachePartList = &cache->coil; break;
-			case ArmourPiece::AP_LEGS: cachePartList = &cache->legs; break;
+            case ArmourPiece::AP_HELM: cachePartList = &cache->helm; break;
+            case ArmourPiece::AP_BODY: cachePartList = &cache->body; break;
+            case ArmourPiece::AP_ARMS: cachePartList = &cache->arms; break;
+            case ArmourPiece::AP_COIL: cachePartList = &cache->coil; break;
+            case ArmourPiece::AP_LEGS: cachePartList = &cache->legs; break;
             }
-            
-            if (cachePartList) cacheParts = cachePartList->getParts();
+
+            if (cachePartList) cacheParts = cachePartList->getMaterials();
         }
 
-        drawPartList(filterPartList(filterStr, cacheParts), piece);
+        drawMaterialList(filterMaterialList(filterStr, cacheParts), piece);
 
         CImGui::PushItemWidth(-1);
         CImGui::InputTextWithHint("##Search", "Search...", filterBuffer, IM_ARRAYSIZE(filterBuffer));
@@ -125,52 +123,60 @@ namespace kbf {
         return open;
     }
 
-    std::vector<MeshPart> PartRemoverPanel::filterPartList(
+    std::vector<MeshMaterial> MaterialPanel::filterMaterialList(
         const std::string& filter,
-        const std::vector<MeshPart>& partList
-    ) {
-        if (filter == "") return partList;
-
-        std::vector<MeshPart> nameMatches;
+        const std::vector<MeshMaterial>& matList
+    ) const {
+        std::vector<MeshMaterial> nameMatches;
 
         std::string filterLower = toLower(filter);
 
-        for (const MeshPart& part : partList)
+        for (const MeshMaterial& mat : matList)
         {
-            std::string nameLower = toLower(part.name);
+            std::string nameLower = toLower(mat.name);
             if (nameLower.find(filterLower) != std::string::npos)
-                nameMatches.push_back(part);
+                nameMatches.push_back(mat);
         }
 
         return nameMatches;
     }
 
-    void PartRemoverPanel::drawPartList(const std::vector<MeshPart>& partList, ArmourPiece piece) {
+    void MaterialPanel::drawMaterialList(const std::vector<MeshMaterial>& matList, ArmourPiece piece) {
         // Fixed-height, scrollable region
         CImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.02f, 0.02f, 0.02f, 1.0f));
         CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
 
         const float height = -(CImGui::GetFrameHeightWithSpacing() + 10.0f); // Leave space for the search bar
-        CImGui::BeginChild("PartListChild", ImVec2(0, height), true, ImGuiWindowFlags_HorizontalScrollbar);
+        CImGui::BeginChild("MatListChild", ImVec2(0, height), true, ImGuiWindowFlags_HorizontalScrollbar);
 
         float contentRegionWidth = CImGui::GetContentRegionAvail().x;
-        size_t partDrawCount = 0;
+        size_t matDrawCount = 0;
 
-        if (partList.size() != 0) {
-            for (const MeshPart& part : partList)
+        if (matList.size() != 0) {
+            for (const MeshMaterial& mat : matList)
             {
-                bool disablePart = INVOKE_OPTIONAL_CALLBACK_TYPED(bool, false, checkDisablePartCallback, part, piece);
-                if (disablePart) continue;
+                bool disableMat = INVOKE_OPTIONAL_CALLBACK_TYPED(bool, false, checkDisableMatCallback, mat, piece);
+                if (disableMat) continue;
+                matDrawCount++;
 
-                partDrawCount++;
-
-                if (CImGui::Selectable(part.name.c_str())) {
-                    INVOKE_REQUIRED_CALLBACK(selectCallback, part, piece);
+                if (CImGui::Selectable(mat.name.c_str())) {
+                    INVOKE_REQUIRED_CALLBACK(selectCallback, mat, piece);
                 }
+
+                // Param Count
+
+                const std::string rightText = std::format("({} params)", mat.params.size());
+                ImVec2 rightTextSize = CImGui::CalcTextSize(rightText.c_str());
+                float rightTextCursorPosX = CImGui::GetCursorScreenPos().x + contentRegionWidth - (rightTextSize.x);
+                float rightTextCursorPosY = CImGui::GetItemRectMin().y + 4.0f;  // Same Y as the selectable item, plus vertical alignment
+
+                CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+                CImGui::GetWindowDrawList()->AddText(ImVec2(rightTextCursorPosX, rightTextCursorPosY), CImGui::GetColorU32(ImGuiCol_Text), rightText.c_str());
+                CImGui::PopStyleColor();
             }
         }
 
-        if (partList.size() == 0 || partDrawCount == 0) {
+        if (matList.size() == 0 || matDrawCount == 0) {
             std::string pieceName = "";
             switch (piece) {
             case ArmourPiece::AP_SET:  pieceName = "Base";   break;
@@ -181,9 +187,11 @@ namespace kbf {
             case ArmourPiece::AP_LEGS: pieceName = "Leg";    break;
             }
 
-            std::string noneFoundStr = partList.size() == 0 
-                ? std::format("No {} Parts Found In Cache. (Try Equipping the Armour in-game)", pieceName)
-                : "All Recognised Parts Already Added";
+            const std::string typeLabel = getTypeLabel();
+
+            std::string noneFoundStr = matList.size() == 0
+                ? std::format("No {} {} Found In Cache. (Try Equipping the Armour in-game)", pieceName, typeLabel)
+                : std::format("All Recognised {} Already Added", typeLabel);
 
             CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
             CImGui::SetCursorPosX(CImGui::GetCursorPosX() + (CImGui::GetColumnWidth() - CImGui::CalcTextSize(noneFoundStr.c_str()).x) * 0.5f);
