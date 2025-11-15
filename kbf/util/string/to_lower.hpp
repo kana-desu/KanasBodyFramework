@@ -7,7 +7,7 @@ namespace kbf {
 
 	inline std::string toLower(const std::string& str) {
 		std::string lowerStr = str;
-		std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::toupper);
+		std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
 		return lowerStr;
 	}
 
