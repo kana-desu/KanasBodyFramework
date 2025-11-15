@@ -332,6 +332,12 @@ struct ImRectUtils
 #define ARG_ShowStyleEditor     ref
 #define SIG_ShowDemoWindow      bool* p_open
 #define ARG_ShowDemoWindow      p_open
+#define SIG_SetCursorScreenPos  const ImVec2 pos
+#define ARG_SetCursorScreenPos  pos
+#define SIG_ColorEdit4          const char* label, float col[4], ImGuiColorEditFlags flags
+#define ARG_ColorEdit4          label, col, flags
+#define SIG_DragFloat4          const char* label,float v[4],float v_speed,float v_min,float v_max,const char* format,ImGuiSliderFlags flags
+#define ARG_DragFloat4          label, v, v_speed, v_min, v_max, format, flags
 // Funcs for nested objects
 #define SIG_FontAtlas_AddFontFromFileTTF  ImFontAtlas* self,const char* filename,float size_pixels,const ImFontConfig* font_cfg,const ImWchar* glyph_ranges
 #define ARG_FontAtlas_AddFontFromFileTTF  self, filename, size_pixels, font_cfg, glyph_ranges
@@ -491,6 +497,10 @@ namespace CImGui {
     IM_FUNC_SIG(ShowDemoWindow,          void, SIG_ShowDemoWindow);
     IM_FUNC_SIG(SetItemDefaultFocus,     void);
     IM_FUNC_SIG(GetCurrentTable,         ImGuiTable*);
+    IM_FUNC_SIG(SetNextItemAllowOverlap, void);
+    IM_FUNC_SIG(SetCursorScreenPos,      void, SIG_SetCursorScreenPos);
+    IM_FUNC_SIG(ColorEdit4,              bool, SIG_ColorEdit4);
+    IM_FUNC_SIG(DragFloat4,              bool, SIG_DragFloat4);
     // Object Member Functions
     IM_MEMBER_FUNC_SIG(FontAtlas_AddFontFromFileTTF,  ImFont*, SIG_FontAtlas_AddFontFromFileTTF);
     IM_MEMBER_FUNC_SIG(DrawList_AddText_Vec2,    void, SIG_DrawList_AddText_Vec2);
@@ -642,6 +652,10 @@ namespace CImGui {
     IM_FUNC(ShowDemoWindow,        void, (bool* p_open = nullptr), (ARG_ShowDemoWindow));
     IM_FUNC(SetItemDefaultFocus,   void, (), ());
     IM_FUNC(GetCurrentTable,       ImGuiTable*, (), ());
+	IM_FUNC(SetNextItemAllowOverlap, void, (), ());
+    IM_FUNC(SetCursorScreenPos,    void, (SIG_SetCursorScreenPos), (ARG_SetCursorScreenPos));
+    IM_FUNC(ColorEdit4,            bool, (SIG_ColorEdit4), (ARG_ColorEdit4));
+    IM_FUNC(DragFloat4,            bool, (const char* label, float v[4], float v_speed = 1.0f, float v_min = 0.0f, float v_max = 0.0f, const char* format = "%.3f", ImGuiSliderFlags flags = 0), (ARG_DragFloat4));
 	// Neseted Object Functions
 	IM_FUNC(FontAtlas_AddFontFromFileTTF, ImFont*, (ImFontAtlas* self, const char* filename, float size_pixels = 0.0f, const ImFontConfig* font_cfg = nullptr, const ImWchar* glyph_ranges = nullptr), (ARG_FontAtlas_AddFontFromFileTTF));
 	IM_FUNC_OVERLOAD(DrawList_AddText, DrawList_AddText_Vec2,    void, (ImDrawList* self, const ImVec2 pos, ImU32 col, const char* text_begin, const char* text_end = nullptr), (ARG_DrawList_AddText_Vec2));
@@ -812,6 +826,10 @@ namespace CImGui {
         IM_GET_FUNC(ShowDemoWindow);
 		IM_GET_FUNC(SetItemDefaultFocus);
 		IM_GET_FUNC(GetCurrentTable);
+		IM_GET_FUNC(SetNextItemAllowOverlap);
+        IM_GET_FUNC(SetCursorScreenPos);
+        IM_GET_FUNC(ColorEdit4);
+        IM_GET_FUNC(DragFloat4);
 		// Nested Object Functions
 		IM_GET_MEMBER_FUNC(FontAtlas_AddFontFromFileTTF);
 		IM_GET_MEMBER_FUNC(DrawList_AddText_Vec2);
@@ -970,6 +988,10 @@ namespace CImGui {
 		ASSERT_LOADED(SetItemDefaultFocus);
 		ASSERT_LOADED(GetMousePosByArg);
 		ASSERT_LOADED(GetCurrentTable);
+		ASSERT_LOADED(SetNextItemAllowOverlap);
+		ASSERT_LOADED(SetCursorScreenPos);
+        ASSERT_LOADED(ColorEdit4);
+        ASSERT_LOADED(InputFloat4);
 
         ASSERT_LOADED(FontAtlas_AddFontFromFileTTF);
         ASSERT_LOADED(DrawList_AddText_Vec2);  
