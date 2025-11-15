@@ -38,6 +38,7 @@ namespace kbf {
 				.addBlock("NPC Fetch - Normal Gameplay - Armour Transforms")
 				.addBlock("NPC Fetch - Normal Gameplay - Bones")
 				.addBlock("NPC Fetch - Normal Gameplay - Parts")
+				.addBlock("NPC Fetch - Normal Gameplay - Materials")
 				.addBlock("NPC Apply")
 				.addBlock("Player Fetch")
 				.addBlock("Player Fetch - Normal Gameplay - Basic Info")
@@ -48,6 +49,7 @@ namespace kbf {
 				.addBlock("Player Fetch - Normal Gameplay - Armour Transforms")
 				.addBlock("Player Fetch - Normal Gameplay - Bones")
 				.addBlock("Player Fetch - Normal Gameplay - Parts")
+				.addBlock("Player Fetch - Normal Gameplay - Materials")
 				.addBlock("Player Fetch - Normal Gameplay - Weapons")
 				.addBlock("Player Fetch - Main Menu - Basic Info")
 				.addBlock("Player Fetch - Main Menu - Equipped Armours")
@@ -71,6 +73,7 @@ namespace kbf {
 				.addBlock("Player Fetch - Guild Card - Armour Transforms")
 				.addBlock("Player Fetch - Guild Card - Bones")
 				.addBlock("Player Fetch - Guild Card - Parts")
+				.addBlock("Player Fetch - Guild Card - Materials")
 				.addBlock("Player Apply")
 				.build();
 		}
