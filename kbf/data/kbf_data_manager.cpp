@@ -45,6 +45,7 @@ namespace kbf {
 
         m_boneCacheManager.loadCaches();
         m_partCacheManager.loadCaches();
+		m_matCacheManager.loadCaches();
 
         loadAlmaConfig(&presetDefaults.alma);
         loadErikConfig(&presetDefaults.erik);
@@ -1563,18 +1564,7 @@ namespace kbf {
             parsed &= part.value.IsObject();
             if (parsed) {
                 std::string typeStr;
-                parsed &= parseString(part.value, PRESET_OVERRIDE_PARTS_TYPE_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_TYPE_ID, &typeStr);
                 parsed &= parseUint64(part.value, PRESET_OVERRIDE_PARTS_INDEX_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_INDEX_ID, &meshPart.part.index);
-                if (typeStr == "PART_GROUP") {
-                    meshPart.part.type = MeshPartType::PART_GROUP;
-                }
-                else if (typeStr == "MATERIAL") {
-                    meshPart.part.type = MeshPartType::MATERIAL;
-                }
-                else {
-                    DEBUG_STACK.push(std::format("{} Part cache has an invalid part type \"{}\" for part \"{}\". Skipping...", KBF_DATA_MANAGER_LOG_TAG, typeStr, meshPart.part.name), DebugStack::Color::COL_WARNING);
-                    parsed = false;
-                }
 
                 bool hidden = false;
 				parsed &= parseBool(part.value, PRESET_OVERRIDE_PARTS_HIDE_ID, meshPart.part.name + "." + PRESET_OVERRIDE_PARTS_HIDE_ID, &hidden);
@@ -1738,16 +1728,6 @@ namespace kbf {
         rapidjson::Writer<rapidjson::StringBuffer> compactWriter(buf); // one-line writer
 
         compactWriter.StartObject();
-        compactWriter.Key(PRESET_OVERRIDE_PARTS_TYPE_ID);
-        if (partOverride.part.type == MeshPartType::PART_GROUP) {
-            compactWriter.String("PART_GROUP");
-        }
-        else if (partOverride.part.type == MeshPartType::MATERIAL) {
-            compactWriter.String("MATERIAL");
-        }
-        else {
-            compactWriter.String("UNKNOWN");
-        }
         compactWriter.Key(PRESET_OVERRIDE_PARTS_INDEX_ID);
         compactWriter.Uint64(partOverride.part.index);
         compactWriter.Key(PRESET_OVERRIDE_PARTS_HIDE_ID);

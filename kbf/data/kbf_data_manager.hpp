@@ -38,9 +38,9 @@ namespace kbf {
 		// TODO: If can ever be bothered, most of this can be abstracted to 3 
 		//        JSON handler classes that derive from some base.
 
-		BoneCacheManager& boneCacheManager() { return m_boneCacheManager; }
-		PartCacheManager& partCacheManager() { return m_partCacheManager; }
-		//MaterialCacheManager& matCache() { return matCacheManager;  }
+		BoneCacheManager&     boneCacheManager() { return m_boneCacheManager; }
+		PartCacheManager&     partCacheManager() { return m_partCacheManager; }
+		MaterialCacheManager& materialCacheManager() { return m_matCacheManager;  }
 
 		PlayerDefaults& playerDefaults() { return presetGroupDefaults.player; }
 		NpcDefaults& npcDefaults() { return presetGroupDefaults.npc; }
@@ -159,6 +159,10 @@ namespace kbf {
 		const std::filesystem::path settingsPath   = dataBasePath / "settings.json";
 		const std::filesystem::path armourListPath = dataBasePath / "armour_list.json";
 
+		const std::filesystem::path boneCachePath     = dataBasePath / "BoneCaches";
+		const std::filesystem::path partCachePath     = dataBasePath / "PartCaches";
+		const std::filesystem::path materialCachePath = dataBasePath / "MaterialCaches";
+
 	private:
 		void verifyDirectoriesExist() const;
 		void createDirectoryIfNotExists(const std::filesystem::path& path) const;
@@ -238,9 +242,9 @@ namespace kbf {
 		void writeArmourListJsonContent(const ArmourMapping& mapping, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
 
 		KBFSettings m_settings;
-		BoneCacheManager m_boneCacheManager{ CacheManagerType::BONES, dataBasePath / "BoneCaches" };
-		PartCacheManager m_partCacheManager{ CacheManagerType::PARTS, dataBasePath / "PartCaches" };
-		//MaterialCacheManager matCacheManager{ dataBasePath };
+		BoneCacheManager m_boneCacheManager{ CacheManagerType::BONES, boneCachePath };
+		PartCacheManager m_partCacheManager{ CacheManagerType::PARTS, partCachePath };
+		MaterialCacheManager m_matCacheManager{ CacheManagerType::MATERIALS, materialCachePath };
 		const Preset* previewedPreset = nullptr;
 
 		ImFont* regularFontOverride = nullptr;
