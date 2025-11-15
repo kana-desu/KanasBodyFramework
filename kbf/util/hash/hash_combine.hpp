@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 namespace kbf {
 
 	inline void hashCombine(std::size_t& seed, std::size_t value) {
