@@ -991,7 +991,7 @@ namespace CImGui {
 		ASSERT_LOADED(SetNextItemAllowOverlap);
 		ASSERT_LOADED(SetCursorScreenPos);
         ASSERT_LOADED(ColorEdit4);
-        ASSERT_LOADED(InputFloat4);
+        ASSERT_LOADED(DragFloat4);
 
         ASSERT_LOADED(FontAtlas_AddFontFromFileTTF);
         ASSERT_LOADED(DrawList_AddText_Vec2);  
