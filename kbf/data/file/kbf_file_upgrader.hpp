@@ -5,6 +5,9 @@
 
 #include <rapidjson/document.h>
 
+#include <map>
+#include <functional>
+
 namespace kbf {
 
 
@@ -24,24 +27,28 @@ namespace kbf {
 	private:
 		SemanticVersion getFileVersion(const rapidjson::Document& doc) const;
 
-		// Files that need upgrades
-		UpgradeResult upgradePreset(SemanticVersion ver, rapidjson::Document& doc);
-		bool upgradePreset_1_0_4(rapidjson::Document& doc);
+		using UpgradeLUT = std::map<SemanticVersion, std::function<bool(rapidjson::Document&)>>;
+		UpgradeResult upgradeFileUsingLUT(SemanticVersion ver, rapidjson::Document& doc, const UpgradeLUT& lut);
 
-		// Currently no upgrades needed, so these are just stubs.
-		UpgradeResult upgradeSettings      (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeAlmaConfig    (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeErikConfig    (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeGemmaConfig   (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeNpcConfig     (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradePlayerConfig  (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeDotKBF        (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeFBSPreset     (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradePresetGroup   (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradePlayerOverride(SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeArmourList    (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradeBoneCache     (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
-		UpgradeResult upgradePartCache     (SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
+		// Files that need upgrades
+		bool upgradePreset_1_0_4(rapidjson::Document& doc);
+		bool upgradePreset_1_0_6(rapidjson::Document& doc);
+		UpgradeLUT presetUpgradeLUT{
+			{ {1,0,4}, [this](rapidjson::Document& doc) { return upgradePreset_1_0_4(doc); } },
+			{ {1,0,6}, [this](rapidjson::Document& doc) { return upgradePreset_1_0_6(doc); } },
+		};
+
+		bool upgradeBoneCache_1_0_6(rapidjson::Document& doc);
+		UpgradeLUT boneCacheUpgradeLUT{
+			{ {1,0,6}, [this](rapidjson::Document& doc) { return upgradeBoneCache_1_0_6(doc); } },
+		};
+
+		bool upgradePartCache_1_0_6(rapidjson::Document& doc);
+		UpgradeLUT partCacheUpgradeLUT{
+			{ {1,0,6}, [this](rapidjson::Document& doc) { return upgradePartCache_1_0_6(doc); } },
+		};
+
+		UpgradeResult UPGRADE_NO_OP(SemanticVersion ver, rapidjson::Document& doc) { return UpgradeResult::NO_UPGRADE_NEEDED; }
 	};
 
 }
