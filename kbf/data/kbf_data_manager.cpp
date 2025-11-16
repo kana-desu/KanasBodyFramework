@@ -1497,6 +1497,11 @@ namespace kbf {
         parsed &= parseBool(doc, PRESET_HIDE_SLINGER_ID, PRESET_HIDE_SLINGER_ID, &out->hideSlinger);
         parsed &= parseBool(doc, PRESET_HIDE_WEAPON_ID, PRESET_HIDE_WEAPON_ID, &out->hideWeapon);
 
+        parsed &= parseObject(doc, PRESET_QUICK_MATERIAL_OVERRIDES_ID, PRESET_QUICK_MATERIAL_OVERRIDES_ID);
+        if (!parsed) return false;
+
+        parsed &= loadPresetQuickMaterialOverrides(doc[PRESET_QUICK_MATERIAL_OVERRIDES_ID], out);
+
         PresetPieceSettings set{};
         PresetPieceSettings helm{};
         PresetPieceSettings body{};
@@ -1530,6 +1535,60 @@ namespace kbf {
         return parsed;
     }
 
+    bool KBFDataManager::loadPresetQuickMaterialOverrides(const rapidjson::Value& object, Preset* out) const {
+        assert(out != nullptr);
+
+        bool parsed = true;
+
+        for (const auto& qMatOverride : object.GetObject()) {
+            std::string qMatOverrideKey = qMatOverride.name.GetString();
+
+            if (!qMatOverride.value.IsObject()) {
+                DEBUG_STACK.push(
+                    std::format("{} Failed to parse quick material override \"{}\". Expected an object, but got a different type.",
+                        KBF_DATA_MANAGER_LOG_TAG, qMatOverrideKey),
+                    DebugStack::Color::COL_ERROR
+                );
+                parsed = false;
+                continue;
+            }
+
+            const rapidjson::Value& overrideObj = qMatOverride.value; // << use this!
+
+            uint64_t rawType = 0;
+            parsed &= parseUint64(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_TYPE_ID, PRESET_QUICK_MATERIAL_OVERRIDE_TYPE_ID, &rawType);
+            if (!parsed) continue;
+
+            MeshMaterialParamType type = static_cast<MeshMaterialParamType>(rawType);
+
+            bool enabled = false;
+            std::string matName;
+            std::string paramName;
+
+            parsed &= parseBool(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_ENABLED_ID, PRESET_QUICK_MATERIAL_OVERRIDE_ENABLED_ID, &enabled);
+            parsed &= parseString(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_MATCHING_MATERIAL_NAME_ID, PRESET_QUICK_MATERIAL_OVERRIDE_MATCHING_MATERIAL_NAME_ID, &matName);
+            parsed &= parseString(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_PARAM_NAME_ID, PRESET_QUICK_MATERIAL_OVERRIDE_PARAM_NAME_ID, &paramName);
+
+            switch (type) {
+            case MeshMaterialParamType::MAT_TYPE_FLOAT: {
+                QuickMaterialOverride<float> overrideVal = { enabled, matName, paramName, 0.0f };
+                parsed &= parseFloat(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID, PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID, &overrideVal.value);
+
+                if (parsed) out->quickMaterialOverridesFloat[qMatOverrideKey] = overrideVal;
+            } break;
+
+            case MeshMaterialParamType::MAT_TYPE_FLOAT4: {
+                QuickMaterialOverride<glm::vec4> overrideVal = { enabled, matName, paramName, glm::vec4{} };
+                parsed &= parseVec4(overrideObj, PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID, PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID, &overrideVal.value);
+
+                if (parsed) out->quickMaterialOverridesVec4[qMatOverrideKey] = overrideVal;
+            } break;
+            }
+        }
+
+        return parsed;
+    }
+
     bool KBFDataManager::loadPresetPieceSettings(const rapidjson::Value& object, PresetPieceSettings* out) const {
         assert(out != nullptr);
 
@@ -1549,6 +1608,12 @@ namespace kbf {
             std::vector<OverrideMeshPart> parts;
             parsed &= loadOverrideParts(removedParts, &parts);
             out->partOverrides = std::set<OverrideMeshPart>(parts.begin(), parts.end());
+        }
+
+        parsed &= parseObject(object, PRESET_OVERRIDE_MATERIALS_OVERRIDES_ID, PRESET_OVERRIDE_MATERIALS_OVERRIDES_ID);
+        if (parsed) {
+            const rapidjson::Value& matOverrides = object[PRESET_OVERRIDE_MATERIALS_OVERRIDES_ID];
+            parsed &= loadOverrideMaterials(matOverrides, &out->materialOverrides);
         }
 
         return parsed;
@@ -1572,6 +1637,79 @@ namespace kbf {
             }
             if (parsed) out->push_back(meshPart);
         }
+        return parsed;
+    }
+
+    bool KBFDataManager::loadOverrideMaterials(
+        const rapidjson::Value& matOverrides,
+        std::set<OverrideMaterial>* out) const
+    {
+        assert(out != nullptr);
+        bool parsed = true;
+
+        for (auto it = matOverrides.MemberBegin(); it != matOverrides.MemberEnd(); ++it) {
+            const std::string matName = it->name.GetString();
+            const rapidjson::Value& matObject = it->value;
+
+            if (!matObject.IsObject()) continue;
+
+            OverrideMaterial mat;
+            mat.material.name = matName;
+
+            // Load "shown"
+            parseBool(matObject, PRESET_OVERRIDE_MATERIALS_SHOW_ID, PRESET_OVERRIDE_MATERIALS_SHOW_ID, &mat.shown);
+
+            // Load param overrides
+            if (matObject.HasMember(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDES_ID) &&
+                matObject[PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDES_ID].IsObject()) {
+                const rapidjson::Value& paramOverrides = matObject[PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDES_ID];
+                for (auto pIt = paramOverrides.MemberBegin(); pIt != paramOverrides.MemberEnd(); ++pIt) {
+                    const std::string paramName = pIt->name.GetString();
+                    const rapidjson::Value& paramObject = pIt->value;
+
+                    if (!paramObject.IsObject()) continue;
+
+                    // Read type
+                    MeshMaterialParamType type = MeshMaterialParamType::MAT_TYPE_FLOAT; // default
+                    if (paramObject.HasMember(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_DATA_TYPE_ID) &&
+                        paramObject[PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_DATA_TYPE_ID].IsUint64()) {
+                        type = static_cast<MeshMaterialParamType>(
+                            paramObject[PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_DATA_TYPE_ID].GetUint64());
+                    }
+
+                    MaterialParamValue paramValue;
+                    paramValue.type = type;
+
+                    // Read value
+                    if (paramObject.HasMember(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_VALUE_ID)) {
+                        const rapidjson::Value& val = paramObject[PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_VALUE_ID];
+                        switch (type) {
+                        case MeshMaterialParamType::MAT_TYPE_FLOAT:
+                            if (val.IsNumber()) paramValue.value = static_cast<float>(val.GetDouble());
+                            break;
+                        case MeshMaterialParamType::MAT_TYPE_FLOAT4:
+                            if (val.IsArray() && val.Size() == 4) {
+                                paramValue.value = glm::vec4{
+                                    val[0].GetFloat(),
+                                    val[1].GetFloat(),
+                                    val[2].GetFloat(),
+                                    val[3].GetFloat()
+                                };
+                            }
+                            break;
+                        default:
+                            paramValue.value = 0.0f;
+                            break;
+                        }
+                    }
+
+                    mat.paramOverrides[paramName] = paramValue;
+                }
+            }
+
+            out->insert(std::move(mat));
+        }
+
         return parsed;
     }
 
@@ -1641,6 +1779,12 @@ namespace kbf {
         writer.Key(PRESET_HIDE_WEAPON_ID);
         writer.Bool(preset.hideWeapon);
 
+        writer.Key(PRESET_QUICK_MATERIAL_OVERRIDES_ID);
+        writer.StartObject();
+        writePresetQuickMaterialOverrideContent(preset.quickMaterialOverridesFloat, writer);
+        writePresetQuickMaterialOverrideContent(preset.quickMaterialOverridesVec4, writer);
+        writer.EndObject();
+
         // TODO: Write Armour Pieces out
         for (ArmourPiece piece = ArmourPiece::AP_MIN; piece <= ArmourPiece::AP_MAX_EXCLUDING_SLINGER; piece = static_cast<ArmourPiece>(static_cast<int>(piece) + 1)) {
             switch (piece) {
@@ -1657,6 +1801,55 @@ namespace kbf {
         }
 
         writer.EndObject();
+    }
+
+    template<typename T>
+    void KBFDataManager::writePresetQuickMaterialOverrideContent(
+        const std::unordered_map<std::string, QuickMaterialOverride<T>>& quickOverrides,
+        rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
+    ) const
+    {
+        auto always_false = []() { return false; };
+
+        for (const auto& [key, override] : quickOverrides) {
+            writer.Key(key.c_str());
+            writer.StartObject();
+
+            writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_ENABLED_ID);
+            writer.Bool(override.enabled);
+
+
+            writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_MATCHING_MATERIAL_NAME_ID);
+            writer.String(override.materialName.c_str());
+
+            writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_PARAM_NAME_ID);
+            writer.String(override.paramName.c_str());
+
+            if constexpr (std::is_same_v<T, float>) {
+                writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_TYPE_ID);
+                writer.Uint64(static_cast<uint64_t>(MeshMaterialParamType::MAT_TYPE_FLOAT));
+
+                writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID);
+                writer.Double(override.value);
+            }
+            else if constexpr (std::is_same_v<T, glm::vec4>) {
+                writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_TYPE_ID);
+                writer.Uint64(static_cast<uint64_t>(MeshMaterialParamType::MAT_TYPE_FLOAT4));
+
+                writer.Key(PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID);
+                writer.StartArray();
+                writer.Double(override.value.x);
+                writer.Double(override.value.y);
+                writer.Double(override.value.z);
+                writer.Double(override.value.w);
+                writer.EndArray();
+            }
+            else {
+                static_assert(always_false(), "Unsupported QuickMaterialOverride type");
+            }
+
+            writer.EndObject();
+        }
     }
 
     void KBFDataManager::writePresetPieceSettingsJsonContent(
@@ -1685,6 +1878,15 @@ namespace kbf {
 
             rapidjson::StringBuffer compactBuf = getCompactOverridePartJsonContent(partOverride);
             writer.RawValue(compactBuf.GetString(), compactBuf.GetSize(), rapidjson::kObjectType);
+        }
+        writer.EndObject();
+
+        writer.Key(PRESET_OVERRIDE_MATERIALS_OVERRIDES_ID);
+        writer.StartObject();
+        for (const OverrideMaterial& materialOverride : pieceSettings.materialOverrides) {
+            writer.Key(materialOverride.material.name.c_str());
+
+            writeOverrideMaterialJsonContent(materialOverride, writer);
         }
         writer.EndObject();
 
@@ -1733,6 +1935,62 @@ namespace kbf {
         compactWriter.Key(PRESET_OVERRIDE_PARTS_HIDE_ID);
 		compactWriter.Bool(!partOverride.shown);
         compactWriter.EndObject();
+        return buf;
+    }
+
+    void KBFDataManager::writeOverrideMaterialJsonContent(
+        const OverrideMaterial& mat,
+        rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
+    ) const {
+        writer.StartObject();
+        writer.Key(PRESET_OVERRIDE_MATERIALS_SHOW_ID);
+        writer.Bool(mat.shown);
+
+        writer.Key(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDES_ID);
+        writer.StartObject();
+        for (const auto& [paramName, paramOverride] : mat.paramOverrides) {
+            writer.Key(paramName.c_str());
+            rapidjson::StringBuffer compactBuf = getCompactParamOverrideJsonContent(paramOverride);
+            writer.RawValue(compactBuf.GetString(), compactBuf.GetSize(), rapidjson::kObjectType);
+
+        }
+        writer.EndObject();
+
+        writer.EndObject();
+    }
+
+    rapidjson::StringBuffer KBFDataManager::getCompactParamOverrideJsonContent(const MaterialParamValue& paramOverride) const {
+        rapidjson::StringBuffer buf;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buf); // compact writer
+
+        writer.StartObject();
+        writer.Key(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_DATA_TYPE_ID);
+        writer.Uint64(static_cast<uint64_t>(paramOverride.type));
+
+        writer.Key(PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_VALUE_ID);
+
+        switch (paramOverride.type) {
+        case MeshMaterialParamType::MAT_TYPE_FLOAT:
+            writer.Double(paramOverride.asFloat());
+            break;
+
+        case MeshMaterialParamType::MAT_TYPE_FLOAT4: {
+            const auto& v = paramOverride.asVec4();
+            writer.StartArray();
+            writer.Double(v.x);
+            writer.Double(v.y);
+            writer.Double(v.z);
+            writer.Double(v.w);
+            writer.EndArray();
+            break;
+        }
+
+        default:
+            writer.Double(0.0);
+        }
+
+        writer.EndObject();
+
         return buf;
     }
 

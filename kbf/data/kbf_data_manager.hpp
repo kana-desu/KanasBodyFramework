@@ -194,14 +194,22 @@ namespace kbf {
 		std::unordered_map<std::string, Preset> presets; // index by uuid
 		bool loadPreset(const std::filesystem::path& path, Preset* out);
 		bool loadPresetData(const rapidjson::Value& doc, Preset* out) const;
+		bool loadPresetQuickMaterialOverrides(const rapidjson::Value& object, Preset* out) const;
 		bool loadPresetPieceSettings(const rapidjson::Value& object, PresetPieceSettings* out) const;
 		bool loadOverrideParts(const rapidjson::Value& object, std::vector<OverrideMeshPart>* out) const;
+		bool loadOverrideMaterials(const rapidjson::Value& matOverrides, std::set<OverrideMaterial>* out) const;
 		bool loadBoneModifiers(const rapidjson::Value& object, BoneModifierMap* out) const;
 		bool writePreset(const std::filesystem::path& path, const Preset& preset) const;
 		void writePresetJsonContent(const Preset& preset, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+		template<typename T> void writePresetQuickMaterialOverrideContent(
+			const std::unordered_map<std::string, QuickMaterialOverride<T>>& quickOverrides,
+			rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer
+		) const;
 		void writePresetPieceSettingsJsonContent(const PresetPieceSettings& settings, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
 		rapidjson::StringBuffer getCompactBoneModifierJsonContent(const BoneModifier& modifier) const;
 		rapidjson::StringBuffer getCompactOverridePartJsonContent(const OverrideMeshPart& part) const;
+		void writeOverrideMaterialJsonContent(const OverrideMaterial& part, rapidjson::PrettyWriter<rapidjson::StringBuffer>& writer) const;
+		rapidjson::StringBuffer getCompactParamOverrideJsonContent(const MaterialParamValue& paramOverride) const;
 		bool loadPresets();
 
 		bool loadFBSPreset(const std::filesystem::path& path, bool body, bool female, std::string bundle, FBSPreset* out) const;

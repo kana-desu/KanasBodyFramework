@@ -30,4 +30,18 @@
 #define PRESET_OVERRIDE_PARTS_INDEX_ID "index"
 #define PRESET_OVERRIDE_PARTS_HIDE_ID  "hide"
 
+#define PRESET_OVERRIDE_MATERIALS_SHOW_ID                     "show"
+#define PRESET_OVERRIDE_MATERIALS_OVERRIDES_ID                "materialOverrides"
+
+#define PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDES_ID          "paramOverrides"
+#define PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_DATA_TYPE_ID "dataType"
+#define PRESET_OVERRIDE_MATERIALS_PARAM_OVERRIDE_VALUE_ID     "value"
+
+#define PRESET_QUICK_MATERIAL_OVERRIDES_ID                       "quickMaterialOverrides"
+#define PRESET_QUICK_MATERIAL_OVERRIDE_TYPE_ID                   "type"
+#define PRESET_QUICK_MATERIAL_OVERRIDE_ENABLED_ID                "enabled"
+#define PRESET_QUICK_MATERIAL_OVERRIDE_MATCHING_MATERIAL_NAME_ID "matchingMaterialName"
+#define PRESET_QUICK_MATERIAL_OVERRIDE_PARAM_NAME_ID             "paramName"
+#define PRESET_QUICK_MATERIAL_OVERRIDE_VALUE_ID                  "value"
+
 #define PRESET_DEFAULT_BUNDLE "Uncategorized"
