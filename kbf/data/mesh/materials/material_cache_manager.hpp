@@ -13,6 +13,7 @@ namespace kbf {
 		using MaterialCacheManager_t::CacheManager;
 
 		void cache(const ArmourSetWithCharacterSex& armour, const std::vector<MeshMaterial>& parts, ArmourPiece piece) override;
+		void cache(const ArmourSetWithCharacterSex& armour, const std::unordered_map<std::string, MeshMaterial>& parts, ArmourPiece piece);
 
 	private:
 		bool getCacheFromDocument(const rapidjson::Document& doc, ArmourSetWithCharacterSex armour, MaterialCache& out) const override;

@@ -46,6 +46,21 @@ namespace kbf {
 		if (changed) writeCache(armour);
 	}
 
+	void MaterialCacheManager::cache(
+		const ArmourSetWithCharacterSex& armour,
+		const std::unordered_map<std::string, MeshMaterial>& parts,
+		ArmourPiece piece)
+	{
+		// Convert map values to vector container
+		std::vector<MeshMaterial> mats;
+		mats.reserve(parts.size());
+
+		for (const auto& kv : parts)
+			mats.push_back(kv.second);
+
+		cache(armour, mats, piece);
+	}
+
 	bool MaterialCacheManager::getCacheFromDocument(const rapidjson::Document& doc, ArmourSetWithCharacterSex armour, MaterialCache& out) const {
 		std::vector<MeshMaterial> helmParts{};
 		std::vector<MeshMaterial> bodyParts{};
@@ -112,8 +127,9 @@ namespace kbf {
 						parsed &= parseUint64(matParam.value, MATERIAL_CACHE_MAT_PARAM_TYPE_ID, mat.name + "." + matParam.name.GetString() + "." + MATERIAL_CACHE_MAT_PARAM_TYPE_ID, &paramTypeInt);
 						param.type = static_cast<MeshMaterialParamType>(paramTypeInt);
 						param.name = matParam.name.GetString();
+						param.index = paramIndex;
 						if (parsed) {
-							mat.params.emplace(static_cast<uint32_t>(paramIndex), param);
+							mat.params.emplace(param.name, param);
 						}
 					}
 				}
@@ -167,9 +183,9 @@ namespace kbf {
 
 			writer.Key(MATERIAL_CACHE_MAT_PARAMS_ID);
 			writer.StartObject();
-			for (const auto& [paramIndex, paramValue] : mat.params) {
+			for (const auto& [paramName, paramValue] : mat.params) {
 				writer.Key(paramValue.name.c_str());
-				rapidjson::StringBuffer compactBuf = writeCompactMeshMaterialParam(paramIndex, paramValue);
+				rapidjson::StringBuffer compactBuf = writeCompactMeshMaterialParam(paramValue.index, paramValue);
 				writer.RawValue(compactBuf.GetString(), compactBuf.GetSize(), rapidjson::kObjectType);
 			}
 			writer.EndObject();
