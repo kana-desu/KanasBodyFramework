@@ -123,7 +123,6 @@ namespace kbf {
 			meshPart.name = part.name.GetString();
 			parsed &= part.value.IsObject();
 			if (parsed) {
-				std::string typeStr;
 				parsed &= parseUint64(part.value, PART_CACHE_PART_INDEX_ID, meshPart.name + "." + PART_CACHE_PART_INDEX_ID, &meshPart.index);
 			}
 			if (parsed) out.push_back(meshPart);
