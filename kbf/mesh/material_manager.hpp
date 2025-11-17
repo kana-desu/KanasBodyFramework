@@ -30,19 +30,36 @@ namespace kbf {
 		bool isInitialized() const { return initialized; }
 
 	private:
+		using QuickOverrideMatMatchLUT = std::unordered_map<std::string, std::vector<const MeshMaterial*>>;
+		
+		void applyQuickOverrides(
+			const Preset* preset, 
+			REApi::ManagedObject* mesh,
+			QuickOverrideMatMatchLUT& matches);
+
 		bool getMesh(REApi::ManagedObject* transform, REApi::ManagedObject** out) const;
-		void getMaterials(REApi::ManagedObject* mesh, std::vector<MeshMaterial>& out) const;
+		std::unordered_map<std::string, MeshMaterial> getMaterials(
+			REApi::ManagedObject* mesh, 
+			QuickOverrideMatMatchLUT* quickOverrideMatchesOut
+		) const;
+		QuickOverrideMatMatchLUT getQuickOverrideMatches(const MeshMaterial& mat) const;
 
 		KBFDataManager& dataManager;
 		ArmourInfo armourInfo;
 		bool female;
 		bool initialized = false;
 
-		std::vector<MeshMaterial> helmMaterials{};
-		std::vector<MeshMaterial> bodyMaterials{};
-		std::vector<MeshMaterial> armsMaterials{};
-		std::vector<MeshMaterial> coilMaterials{};
-		std::vector<MeshMaterial> legsMaterials{};
+		std::unordered_map<std::string, MeshMaterial> helmMaterials{};
+		std::unordered_map<std::string, MeshMaterial> bodyMaterials{};
+		std::unordered_map<std::string, MeshMaterial> armsMaterials{};
+		std::unordered_map<std::string, MeshMaterial> coilMaterials{};
+		std::unordered_map<std::string, MeshMaterial> legsMaterials{};
+
+		QuickOverrideMatMatchLUT helmQuickOverrideMatches{};
+		QuickOverrideMatMatchLUT bodyQuickOverrideMatches{};
+		QuickOverrideMatMatchLUT armsQuickOverrideMatches{};
+		QuickOverrideMatMatchLUT coilQuickOverrideMatches{};
+		QuickOverrideMatMatchLUT legsQuickOverrideMatches{};
 
 		REApi::ManagedObject* baseTransform = nullptr;
 		REApi::ManagedObject* helmTransform = nullptr;
@@ -51,7 +68,6 @@ namespace kbf {
 		REApi::ManagedObject* coilTransform = nullptr;
 		REApi::ManagedObject* legsTransform = nullptr;
 
-		REApi::ManagedObject* baseMesh = nullptr;
 		REApi::ManagedObject* helmMesh = nullptr;
 		REApi::ManagedObject* bodyMesh = nullptr;
 		REApi::ManagedObject* armsMesh = nullptr;

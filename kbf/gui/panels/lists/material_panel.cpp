@@ -52,17 +52,17 @@ namespace kbf {
                 const char* label;
                 ArmourPiece piece;
                 ArmourPieceFlagBits flag;
-                const char* tooltip;
+                std::string tooltip;
             };
 
             const std::string typeLabel = getTypeLabel();
 
             static const ArmourTab tabs[] = {
-                {"Head",  ArmourPiece::AP_HELM, ArmourPieceFlagBits::APF_HELM, std::format("Armour set has no Helmet {}.", typeLabel).c_str()},
-                {"Body",  ArmourPiece::AP_BODY, ArmourPieceFlagBits::APF_BODY, std::format("Armour set has no Body {}."  , typeLabel).c_str()},
-                {"Arms",  ArmourPiece::AP_ARMS, ArmourPieceFlagBits::APF_ARMS, std::format("Armour set has no Arm {}."   , typeLabel).c_str()},
-                {"Waist", ArmourPiece::AP_COIL, ArmourPieceFlagBits::APF_COIL, std::format("Armour set has no Coil {}."  , typeLabel).c_str()},
-                {"Legs",  ArmourPiece::AP_LEGS, ArmourPieceFlagBits::APF_LEGS, std::format("Armour set has no Leg {}."   , typeLabel).c_str()},
+                {"Head",  ArmourPiece::AP_HELM, ArmourPieceFlagBits::APF_HELM, std::format("Armour set has no Helmet {}.", typeLabel)},
+                {"Body",  ArmourPiece::AP_BODY, ArmourPieceFlagBits::APF_BODY, std::format("Armour set has no Body {}."  , typeLabel)},
+                {"Arms",  ArmourPiece::AP_ARMS, ArmourPieceFlagBits::APF_ARMS, std::format("Armour set has no Arm {}."   , typeLabel)},
+                {"Waist", ArmourPiece::AP_COIL, ArmourPieceFlagBits::APF_COIL, std::format("Armour set has no Coil {}."  , typeLabel)},
+                {"Legs",  ArmourPiece::AP_LEGS, ArmourPieceFlagBits::APF_LEGS, std::format("Armour set has no Leg {}."   , typeLabel)},
             };
 
             const ArmourTab* tabToSelect = nullptr;
@@ -91,7 +91,7 @@ namespace kbf {
 
                 if (disabled) {
                     CImGui::EndDisabled();
-                    CImGui::SetItemTooltip(tab.tooltip);
+                    CImGui::SetItemTooltip(tab.tooltip.c_str());
                 }
             }
 
