@@ -16,13 +16,15 @@ namespace kbf {
 	struct MeshMaterialParam {
 		std::string name;
 		MeshMaterialParamType type;
+        uint64_t index = 0;
         
         bool operator==(const MeshMaterialParam& other) const {
-            return name == other.name && type == other.type;
+            return name == other.name && type == other.type && index == other.index;
 		}
 
         bool operator<(const MeshMaterialParam& other) const {
             if (name != other.name) return name < other.name;
+            if (index != other.index) return index < other.index;
             return type < other.type;
 		}
 	};
@@ -30,24 +32,18 @@ namespace kbf {
 	struct MeshMaterial {
 		std::string name;
 		uint64_t index;
-		std::unordered_map<uint32_t, MeshMaterialParam> params;
+		std::unordered_map<std::string, MeshMaterialParam> params;
 
 		bool operator==(const MeshMaterial& other) const {
-			return name == other.name && index == other.index && params == other.params;
+            return name == other.name; //&& index == other.index && params == other.params;
 		}
 
 		bool operator<(const MeshMaterial& other) const {
-			if (name != other.name) return name < other.name;
-			return index < other.index;
+            return name < other.name;
+			//if (name != other.name) return name < other.name;
+			//return index < other.index;
 		}
-
-        bool getParamAtIndex(uint32_t index, MeshMaterialParam& out) const {
-            if (params.find(index) != params.end()) {
-                out = params.at(index);
-                return true;
-            }
-            return false;
-		}
+        
 	};
 
 	// ---- Hash Funcs -----------------------------------------------------
@@ -76,10 +72,9 @@ namespace kbf {
 
             // Combine hashes for params (unordered_map)
             MeshMaterialParamHash paramHasher;
-            for (const auto& [key, value] : mat.params) {
+            for (const auto& [_, value] : mat.params) {
                 std::size_t paramHash = 0;
-                std::hash<uint32_t> hashUInt32;
-                hashCombine(paramHash, hashUInt32(key));
+                hashCombine(paramHash, hashUInt64(value.index));
                 hashCombine(paramHash, paramHasher(value));
                 hashCombine(h, paramHash);
             }
