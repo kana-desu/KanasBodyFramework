@@ -9,8 +9,21 @@
 #include <glm/glm.hpp>
 
 #include <algorithm>
+#include <unordered_set>
 
 namespace kbf {
+
+	// TODO: Pretty horrible mapping struct.
+	struct QuickOverrideKeys {
+		static inline const std::string Wetness      = "wetness";
+		static inline const std::string WetRoughness = "wet_roughness";
+
+		static inline const std::string Skin = "skin";
+
+		static inline const std::unordered_set<std::string> ALL_MATERIALS = {
+			Skin
+		};
+	};
 
 	struct Preset {
 		std::string uuid;
@@ -30,8 +43,8 @@ namespace kbf {
 		bool hideWeapon = false;
 
 		std::unordered_map<std::string, QuickMaterialOverride<float>> quickMaterialOverridesFloat{
-			{ "wetness",       QuickMaterialOverride<float>{ false, "skin", "...", 0.0f } },
-			{ "wet_roughness", QuickMaterialOverride<float>{ false, "skin", "...", 0.0f } },
+			{ QuickOverrideKeys::Wetness,      QuickMaterialOverride<float>{ false, QuickOverrideKeys::Skin, "WetBlend",      0.0f } },
+			{ QuickOverrideKeys::WetRoughness, QuickMaterialOverride<float>{ false, QuickOverrideKeys::Skin, "Wet_Roughness", 0.0f } },
 		};
 		std::unordered_map<std::string, QuickMaterialOverride<glm::vec4>> quickMaterialOverridesVec4{};
 		
