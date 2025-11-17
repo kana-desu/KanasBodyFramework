@@ -1108,7 +1108,7 @@ namespace kbf {
                         CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
 
                         for (auto& kv : mat.params) {
-                            const uint32_t idx = kv.first;
+                            const uint32_t idx = kv.second.index;
                             const MeshMaterialParam& param = kv.second;
 
                             CImGui::TableNextRow();
@@ -1116,8 +1116,9 @@ namespace kbf {
                             // Column 1: name
                             CImGui::TableNextColumn();
                             CImGui::Text(param.name.c_str());
+                            CImGui::SetItemTooltip(std::to_string(param.index).c_str());
                                 
-                            // Column 2: toggle
+                            // Column 2: type
                             CImGui::TableNextColumn();
                             CImGui::Text(param.type == MAT_TYPE_FLOAT ? "float" : "float4");
                         }
