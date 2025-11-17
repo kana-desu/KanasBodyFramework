@@ -56,7 +56,7 @@ namespace kbf {
 		void openSelectBonePanel(ArmourPiece piece);
 		void openPartOverridePanel();
 		void openMaterialOverridePanel();
-		void openEditMaterialParamPanel(OverrideMaterial& mat);
+		void openEditMaterialParamPanel(OverrideMaterial mat, ArmourPiece piece, std::set<OverrideMaterial>& out);
 		void openAssignPresetPanel(ArmourSet armourSet, ArmourPiece piece);
 		UniquePanel<PresetPanel>            presetPanel;
 		UniquePanel<PresetGroupPanel>       presetGroupPanel;
@@ -108,7 +108,7 @@ namespace kbf {
 		void drawPresetEditor_PartVisibilities(Preset** preset);
 		void drawPresetEditor_PartVisibilitiesTable(std::string tableName, std::set<OverrideMeshPart>& parts);
 		void drawPresetEditor_MaterialParams(Preset** preset);
-		void drawPresetEditor_MaterialParamsTable(std::string tableName, std::set<OverrideMaterial>& mats);
+		void drawPresetEditor_MaterialParamsTable(std::string tableName, ArmourPiece piece, std::set<OverrideMaterial>& mats);
 
 		bool canSavePreset(std::string& errMsg) const;
 

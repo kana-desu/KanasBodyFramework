@@ -303,35 +303,42 @@ namespace kbf {
 
         materialOverridePanel.get()->onCheckMaterialDisabled([&](MeshMaterial mat, ArmourPiece piece) {
             switch (piece) {
-            case ArmourPiece::AP_SET:  return openObject.ptrAfter.preset->set.materialOverrides.contains(mat);
-            case ArmourPiece::AP_HELM: return openObject.ptrAfter.preset->helm.materialOverrides.contains(mat);
-            case ArmourPiece::AP_BODY: return openObject.ptrAfter.preset->body.materialOverrides.contains(mat);
-            case ArmourPiece::AP_ARMS: return openObject.ptrAfter.preset->arms.materialOverrides.contains(mat);
-            case ArmourPiece::AP_COIL: return openObject.ptrAfter.preset->coil.materialOverrides.contains(mat);
-            case ArmourPiece::AP_LEGS: return openObject.ptrAfter.preset->legs.materialOverrides.contains(mat);
+            case ArmourPiece::AP_SET:  return openObject.ptrAfter.preset->set.hasMatOverride(mat);
+            case ArmourPiece::AP_HELM: return openObject.ptrAfter.preset->helm.hasMatOverride(mat);
+            case ArmourPiece::AP_BODY: return openObject.ptrAfter.preset->body.hasMatOverride(mat);
+            case ArmourPiece::AP_ARMS: return openObject.ptrAfter.preset->arms.hasMatOverride(mat);
+            case ArmourPiece::AP_COIL: return openObject.ptrAfter.preset->coil.hasMatOverride(mat);
+            case ArmourPiece::AP_LEGS: return openObject.ptrAfter.preset->legs.hasMatOverride(mat);
             }
 
             return true;
         });
     }
 
-    void EditorTab::openEditMaterialParamPanel(OverrideMaterial& mat) {
+    void EditorTab::openEditMaterialParamPanel(OverrideMaterial mat, ArmourPiece piece, std::set<OverrideMaterial>& out) {
+        ArmourSetWithCharacterSex armourSetWithSex{
+            .set = openObject.ptrAfter.preset->armour,
+            .characterFemale = openObject.ptrAfter.preset->female
+        };
+
         editMaterialParamPanel.openNew(
             std::format("Edit Material Parameters: \"{}\"", mat.material.name),
             "EditPreset_MaterialParamEditPanel", 
             mat,
+            piece,
+            armourSetWithSex,
             dataManager,
             wsSymbolFont);
 
         editMaterialParamPanel.get()->focus();
 
-        editMaterialParamPanel.get()->onCancel([&]() {
+        editMaterialParamPanel.get()->onClose([&]() {
             editMaterialParamPanel.close();
 		});
 
         editMaterialParamPanel.get()->onUpdate([&](OverrideMaterial updatedMat) {
-            mat = updatedMat;
-            editMaterialParamPanel.close();
+            if (out.contains(updatedMat)) out.erase(updatedMat); // This works because ==() matches the MATERIAL not the params.
+            out.insert(updatedMat);
 		});
 	}
 
@@ -1455,7 +1462,7 @@ namespace kbf {
         CImGui::SetNextItemWidth(CImGui::GetContentRegionAvail().x);
         float& matOverrideWetRoughness = quick_wet_roughness.value;
 		CImGui::BeginDisabled(!quick_wet_roughness.enabled);
-        CImGui::DragFloat("##SkinWetRoughnessSlider", &matOverrideWetRoughness, 0.01f, 0.00f, 1.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
+        CImGui::DragFloat("##SkinWetRoughnessSlider", &matOverrideWetRoughness, 0.001f, 0.00f, 1.0f, "%.3f", ImGuiSliderFlags_AlwaysClamp);
 		CImGui::EndDisabled();
         CImGui::SetItemTooltip("Enable this slider to set the roughness of any wet skin parts in this armour set.");
 
@@ -1505,34 +1512,34 @@ namespace kbf {
             CImGui::BeginChild("PartVisibilitiesTable");
             if (hasHelmMats) {
                 if (CImGui::CollapsingHeader("Helm Materials", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_MaterialParamsTable("Helm Materials", (**preset).helm.materialOverrides);
+                    drawPresetEditor_MaterialParamsTable("Helm Materials", ArmourPiece::AP_HELM, (**preset).helm.materialOverrides);
                 }
             }
             if (hasBodyMats) {
                 if (CImGui::CollapsingHeader("Body Materials", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_MaterialParamsTable("Body Materials", (**preset).body.materialOverrides);
+                    drawPresetEditor_MaterialParamsTable("Body Materials", ArmourPiece::AP_BODY, (**preset).body.materialOverrides);
                 }
             }
             if (hasArmsMats) {
                 if (CImGui::CollapsingHeader("Arms Materials", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_MaterialParamsTable("Arms Materials", (**preset).arms.materialOverrides);
+                    drawPresetEditor_MaterialParamsTable("Arms Materials", ArmourPiece::AP_ARMS, (**preset).arms.materialOverrides);
                 }
             }
             if (hasCoilMats) {
                 if (CImGui::CollapsingHeader("Coil Materials", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_MaterialParamsTable("Coil Materials", (**preset).coil.materialOverrides);
+                    drawPresetEditor_MaterialParamsTable("Coil Materials", ArmourPiece::AP_COIL, (**preset).coil.materialOverrides);
                 }
             }
             if (hasLegsMats) {
                 if (CImGui::CollapsingHeader("Legs Materials", ImGuiTreeNodeFlags_SpanFullWidth)) {
-                    drawPresetEditor_MaterialParamsTable("Legs Materials", (**preset).legs.materialOverrides);
+                    drawPresetEditor_MaterialParamsTable("Legs Materials", ArmourPiece::AP_LEGS, (**preset).legs.materialOverrides);
                 }
             }
             CImGui::EndChild();
         }
     }
 
-    void EditorTab::drawPresetEditor_MaterialParamsTable(std::string tableName, std::set<OverrideMaterial>& mats) {
+    void EditorTab::drawPresetEditor_MaterialParamsTable(std::string tableName, ArmourPiece piece, std::set<OverrideMaterial>& mats) {
         std::vector<OverrideMaterial> overrideMats(mats.begin(), mats.end());
 
         constexpr float deleteButtonScale = 1.2f;
@@ -1548,7 +1555,7 @@ namespace kbf {
             ImGuiTableFlags_RowBg
             | ImGuiTableFlags_PadOuterX
             | ImGuiTableFlags_Sortable;
-        CImGui::BeginTable("##PartRemoverList", columnCount, boneModTableFlags);
+        CImGui::BeginTable("##MatList", columnCount, boneModTableFlags);
 
         constexpr ImGuiTableColumnFlags stretchSortFlags =
             ImGuiTableColumnFlags_DefaultSort | ImGuiTableColumnFlags_WidthStretch;
@@ -1606,6 +1613,13 @@ namespace kbf {
             CImGui::TableNextColumn();
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::CalcTextSize(matOverride.material.name.c_str()).y) * 0.5f);
             CImGui::Text(matOverride.material.name.c_str());
+            size_t numEditedParams = matOverride.paramOverrides.size();
+            if (numEditedParams) {
+                CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+                CImGui::SameLine();
+                CImGui::Text(std::format("({} Edited Param{})", numEditedParams, numEditedParams == 1 ? "" : "s").c_str());
+                CImGui::PopStyleColor();
+            }
 
             CImGui::TableNextColumn();
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (selectableHeight - alignAdjust + tableVpad - CImGui::GetFrameHeight()) * 0.5f);
@@ -1638,7 +1652,7 @@ namespace kbf {
                 ImGuiSelectableFlags_SpanAllColumns,
                 ImVec2(0, selectableHeight)))
             {
-                openEditMaterialParamPanel(matOverride);
+                openEditMaterialParamPanel(matOverride, piece, mats);
             }
 
         }
