@@ -28,8 +28,33 @@ namespace kbf {
 				modLimit == other.modLimit &&
 				useSymmetry == other.useSymmetry &&
 				partOverrides == other.partOverrides &&
-				materialOverrides == other.materialOverrides
+				matOverridesExactlyEqual(materialOverrides, other.materialOverrides)
 			);
+		}
+
+		static bool matOverridesExactlyEqual(
+			const std::set<OverrideMaterial>& a,
+			const std::set<OverrideMaterial>& b
+		) {
+			if (a.size() != b.size()) return false;
+
+			auto itA = a.begin();
+			auto itB = b.begin();
+
+			while (itA != a.end()) {
+				if (!itA->isExactlyEqual(*itB)) return false;
+				++itA;
+				++itB;
+			}
+
+			return true;
+		}
+
+		bool hasMatOverride(MeshMaterial material) {
+			for (const auto& matOverride : materialOverrides) {
+				if (matOverride.material.name == material.name) return true;
+			}
+			return false;
 		}
 
 		bool hasModifiers() const { return !modifiers.empty(); }
