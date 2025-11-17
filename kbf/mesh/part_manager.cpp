@@ -149,36 +149,6 @@ namespace kbf {
 				.index = indices_u64,
 			});
 		}
-
-		//uint32_t materialCount = REInvoke<uint32_t>(mesh, "get_MaterialNum", {}, InvokeReturnType::DWORD);
-
-		//for (uint32_t i = 0 ; i < materialCount; i++) {
-		//	std::string materialName = REInvokeStr(mesh, "getMaterialName(System.UInt32)", { (void*)i });
-		//	std::uint32_t matVariableCount = REInvoke<std::uint32_t>(mesh, "getMaterialVariableNum(System.UInt32)", { (void*)i }, InvokeReturnType::DWORD);
-
-		//	std::unordered_map<uint32_t, MeshMaterialParam> params = {};
-		//	for (uint32_t paramIdx = 0; paramIdx < matVariableCount; paramIdx++) {
-		//		MeshMaterialParam param{};
-		//		uint32_t rawType = REInvoke<uint32_t>(mesh, "getMaterialVariableType(System.UInt32, System.UInt32)", { (void*)i, (void*)paramIdx }, InvokeReturnType::DWORD);
-		//		param.name = REInvokeStr(mesh, "getMaterialVariableName(System.UInt32, System.UInt32)", { (void*)i, (void*)paramIdx });
-		//		param.type = static_cast<MeshMaterialParamType>(rawType);
-
-		//		DEBUG_STACK.push(std::format("Material {}: Param [{}]: Name={}, Type={}", materialName, paramIdx, param.name, static_cast<uint32_t>(param.type)));
-		//		
-		//		params.emplace(paramIdx, param);
-		//	}
-
-		//	MeshMaterial mat{};
-		//	mat.index  = i;
-		//	mat.name   = materialName;
-		//	mat.params = std::move(params);
-
-		//	out.emplace_back(MeshPart{
-		//		.name = materialName,
-		//		.index = static_cast<uint64_t>(i),
-		//		.type = MeshPartType::MATERIAL
-		//	});
-		//}
 	}
 
 }
