@@ -17,17 +17,22 @@ namespace kbf {
 			const std::string& name,
 			const std::string& strID,
 			const OverrideMaterial& material,
-			const KBFDataManager& dataManager,
+			ArmourPiece piece,
+			ArmourSetWithCharacterSex armour,
+			KBFDataManager& dataManager,
 			ImFont* wsSymbolFont);
 
 		bool draw() override;
 		void onUpdate(std::function<void(OverrideMaterial)> callback) { updateCallback = callback; }
-		void onCancel(std::function<void()> callback) { cancelCallback = callback; }
+		void onClose(std::function<void()> callback) { closeCallback = callback; }
 
 	private:
-		void drawMaterialParamEditorRow(const MeshMaterialParam& param);
+		bool drawMaterialParamEditorRow(const MeshMaterialParam& param);
+		bool drawMissingMaterialParamRow(const std::string& paramName);
 
-		const KBFDataManager& dataManager;
+		KBFDataManager& dataManager;
+		ArmourSetWithCharacterSex armour;
+		ArmourPiece piece;
 		OverrideMaterial materialBefore;
 		OverrideMaterial materialAfter;
 
@@ -35,7 +40,7 @@ namespace kbf {
 		float widthStretch = 0.0f;
 
 		std::function<void(OverrideMaterial)> updateCallback;
-		std::function<void()>                 cancelCallback;
+		std::function<void()>                 closeCallback;
 
 		ImFont* wsSymbolFont;
 	};
