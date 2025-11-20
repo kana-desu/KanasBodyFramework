@@ -94,6 +94,7 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
 
     # 1. Build the logic DLL (internal target)
     add_library(${PROJECT_NAME}_logic SHARED ${KBF_SOURCES} main.cpp)
+    target_link_options(${PROJECT_NAME}_logic PRIVATE /DEBUG:FASTLINK)
     target_compile_features(${PROJECT_NAME}_logic PUBLIC cxx_std_20)
     target_include_directories(${PROJECT_NAME}_logic 
         PUBLIC
@@ -124,6 +125,7 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
     # 2. The *real* target the user builds: the loader DLL
     add_library(${PROJECT_NAME} SHARED ${KBF_HOT_RELOADER_SOURCES} main_hot_reload.cpp)
     target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
+    target_link_options(${PROJECT_NAME} PRIVATE /DEBUG:FASTLINK)
     target_include_directories(${PROJECT_NAME} 
         PUBLIC
             ${REFRAMEWORK_PATH}/include
