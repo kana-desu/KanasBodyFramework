@@ -640,6 +640,14 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
+        if (CImGui::CollapsingHeader("v1.0.7b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            CImGui::SeparatorText("Changes");
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a bug where quick material overrides (e.g. wetness) would not apply to armour sets which had the needed materials present.");
+            CImGui::Spacing();
+        }
         if (CImGui::CollapsingHeader("v1.0.6b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
