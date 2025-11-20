@@ -63,6 +63,10 @@ namespace kbf {
         }
         #endif
 
+        if (ret.exception_thrown) {
+            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+        }
+
         return (castType*)(ret.ptr); // I *think* this is ok, but may need (castType*)&ret? ??
 	}
 
@@ -90,6 +94,10 @@ namespace kbf {
 		if (callerMethod == nullptr) return nullptr;
         
         reframework::InvokeRet ret = callerMethod->invoke(nullptr, args);
+
+        if (ret.exception_thrown) {
+            DEBUG_STACK.push(std::format("{} REInvokeStatic: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+        }
 
         switch (returnType) {
         case InvokeReturnType::BYTES:
@@ -188,6 +196,10 @@ namespace kbf {
 
         reframework::InvokeRet ret = caller->invoke(methodName, args);
 
+        if (ret.exception_thrown) {
+            DEBUG_STACK.push(std::format("{} REInvoke: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+        }
+
         switch (returnType) {
         case InvokeReturnType::BYTES:
             return *reinterpret_cast<castType*>(&ret.bytes);
@@ -229,9 +241,13 @@ namespace kbf {
 
         #if defined(ENABLE_REINVOKE_LOGGING) && defined(REINVOKE_LOGGING_LEVEL_NULL) && defined(REINVOKE_LOGGING_LEVEL_WARNING)
         if (ret.ptr == nullptr) {
-            DEBUG_STACK.push(std::format("{} REInvokePtr: {} returned nullptr", REINVOKE_LOG_TAG, methodName), DebugStack::Color::WARNING);
+            DEBUG_STACK.push(std::format("{} REInvokePtr: {} returned nullptr", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_WARNING);
         }
         #endif
+
+        if (ret.exception_thrown) {
+            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+        }
 
         return (castType*)(ret.ptr); // I *think* this is ok, but may need (castType*)&ret? ??
 	}
@@ -279,7 +295,11 @@ namespace kbf {
         }
         #endif
 
-        caller->invoke(methodName, args);
+        reframework::InvokeRet ret = caller->invoke(methodName, args);
+
+        if (ret.exception_thrown) {
+            DEBUG_STACK.push(std::format("{} REInvokeVoid: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+        }
 	}
 
 }
