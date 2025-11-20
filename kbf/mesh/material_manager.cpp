@@ -243,7 +243,16 @@ namespace kbf {
 
 			out.emplace(materialName, std::move(mat));
 
-			if (quickOverrideMatchesOut) *quickOverrideMatchesOut = getQuickOverrideMatches(out.at(materialName));
+			// Accumulate values into the out LUT
+			if (quickOverrideMatchesOut) {
+				auto&& result = getQuickOverrideMatches(out.at(materialName));
+
+				for (auto& [key, vec] : result) {
+					// Append to existing vector in the output map
+					auto& targetVec = (*quickOverrideMatchesOut)[key];
+					targetVec.insert(targetVec.end(), vec.begin(), vec.end());
+				}
+			}
 		}
 
 		return out;
