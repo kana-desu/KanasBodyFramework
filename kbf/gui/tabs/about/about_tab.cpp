@@ -642,15 +642,15 @@ namespace kbf {
         //}
         if (CImGui::CollapsingHeader("v1.0.7b", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
-            CImGui::SeparatorText("Additions");
             CImGui::SeparatorText("Changes");
+            WRAP_BULLET("-", "Added additional logging when failing to fetch armour transforms to help track down issues.");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug where quick material overrides (e.g. wetness) would not apply to armour sets which had the needed materials present.");
             WRAP_BULLET("-", "Fixed a bug which caused certain material overrides to crash the game.");
             WRAP_BULLET("-", "Fixed a bug which caused crashes on some systems when a cutscene would end (dereferenced invalid pointer).");
             CImGui::Spacing();
         }
-        if (CImGui::CollapsingHeader("v1.0.6b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.0.6b")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Added a material editing framework for presets, letting you change material parameters per preset.");
