@@ -3,6 +3,7 @@
 #include <kbf/data/armour/armour_list.hpp>
 #include <kbf/util/re_engine/reinvoke.hpp>
 #include <kbf/debug/debug_stack.hpp>
+#include <kbf/util/re_engine/check_re_ptr_validity.hpp>
 #include <kbf/util/re_engine/re_object_properties_to_string.hpp>
 #include <kbf/util/string/ptr_to_hex_string.hpp>
 #include <kbf/util/string/byte_to_binary_string.hpp>
@@ -55,6 +56,10 @@ namespace kbf {
 		case ArmourPiece::AP_LEGS: mesh = legsMesh; break;
 		}
 		if (mesh == nullptr) return false;
+		
+		// Check the mesh is valid before trying to apply anything
+		static const reframework::API::TypeDefinition* def_renderMesh = reframework::API::get()->tdb()->find_type("via.render.Mesh");
+		if (!checkREPtrValidity(mesh, def_renderMesh)) return false;
 
 		std::unordered_map<std::string, MeshMaterial>* targetMaterials = nullptr;
 		switch (piece) {
@@ -101,12 +106,19 @@ namespace kbf {
 			}
 		}
 
+		QuickOverrideMatMatchLUT* targetOverrideMatches = nullptr;
+		switch (piece) {
+		case ArmourPiece::AP_HELM: targetOverrideMatches = &helmQuickOverrideMatches; break;
+		case ArmourPiece::AP_BODY: targetOverrideMatches = &bodyQuickOverrideMatches; break;
+		case ArmourPiece::AP_ARMS: targetOverrideMatches = &armsQuickOverrideMatches; break;
+		case ArmourPiece::AP_COIL: targetOverrideMatches = &coilQuickOverrideMatches; break;
+		case ArmourPiece::AP_LEGS: targetOverrideMatches = &legsQuickOverrideMatches; break;
+		}
+		if (targetOverrideMatches == nullptr) return false;
+
 		// Apply quick overrides.
-		applyQuickOverrides(preset, mesh, helmQuickOverrideMatches);
-		applyQuickOverrides(preset, mesh, bodyQuickOverrideMatches);
-		applyQuickOverrides(preset, mesh, armsQuickOverrideMatches);
-		applyQuickOverrides(preset, mesh, coilQuickOverrideMatches);
-		applyQuickOverrides(preset, mesh, legsQuickOverrideMatches);
+		const QuickOverrideMatMatchLUT& matches = *targetOverrideMatches;
+		applyQuickOverrides(preset, mesh, matches);
 
 		return true;
 	}
@@ -114,7 +126,7 @@ namespace kbf {
 	void MaterialManager::applyQuickOverrides(
 		const Preset* preset, 
 		REApi::ManagedObject* mesh, 
-		QuickOverrideMatMatchLUT& matches
+		const QuickOverrideMatMatchLUT& matches
 	) {
 		// Note: Template this func if any more types get added.
 
@@ -134,6 +146,8 @@ namespace kbf {
 				double v = static_cast<double>(qOverride.value);
 				uint64_t vAsUint = *reinterpret_cast<uint64_t*>(&v);
 
+				uint32_t matIdx32   = static_cast<uint32_t>(foundMat->index);
+				uint32_t paramIdx32 = static_cast<uint32_t>(foundParam.index);
 				REInvokeVoid(mesh, "setMaterialFloat(System.UInt32, System.UInt32, System.Single)", { (void*)foundMat->index, (void*)foundParam.index, (void*)vAsUint });
 			}
 		}
@@ -229,7 +243,7 @@ namespace kbf {
 				param.type = static_cast<MeshMaterialParamType>(rawType);
 				param.index = paramIdx;
 
-				//DEBUG_STACK.push(std::format("Material {}: Param [{}]: Name={}, Type={}", materialName, paramIdx, param.name, static_cast<uint32_t>(param.type)));
+				//DEBUG_STACK.push(std::format("Material [({})]: {} | Param [{}]: Name={}, Type={}", i, materialName, paramIdx, param.name, static_cast<uint32_t>(param.type)));
 				
 				params.emplace(param.name, param);
 			}

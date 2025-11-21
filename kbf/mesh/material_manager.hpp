@@ -35,7 +35,7 @@ namespace kbf {
 		void applyQuickOverrides(
 			const Preset* preset, 
 			REApi::ManagedObject* mesh,
-			QuickOverrideMatMatchLUT& matches);
+			const QuickOverrideMatMatchLUT& matches);
 
 		bool getMesh(REApi::ManagedObject* transform, REApi::ManagedObject** out) const;
 		std::unordered_map<std::string, MeshMaterial> getMaterials(
