@@ -610,27 +610,27 @@ namespace kbf {
 
         if (pInfo.armourInfo.helm.has_value()) {
             std::string helmId = ArmourList::getArmourId(pInfo.armourInfo.helm.value(), ArmourPiece::AP_HELM, info.female);
-            pInfo.Transform_helm = findTransform(info.pointers.Transform, helmId, maxDepth, maxBreadth);
+            pInfo.Transform_helm = findTransform(info.pointers.Transform, helmId);
         }
         if (pInfo.armourInfo.body.has_value()) {
             std::string bodyId = ArmourList::getArmourId(pInfo.armourInfo.body.value(), ArmourPiece::AP_BODY, info.female);
-            pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId, maxDepth, maxBreadth);
+            pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId);
         }
         if (pInfo.armourInfo.arms.has_value()) {
             std::string armsId = ArmourList::getArmourId(pInfo.armourInfo.arms.value(), ArmourPiece::AP_ARMS, info.female);
-            pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId, maxDepth, maxBreadth);
+            pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId);
         }
         if (pInfo.armourInfo.coil.has_value()) {
             std::string coilId = ArmourList::getArmourId(pInfo.armourInfo.coil.value(), ArmourPiece::AP_COIL, info.female);
-            pInfo.Transform_coil = findTransform(info.pointers.Transform, coilId, maxDepth, maxBreadth);
+            pInfo.Transform_coil = findTransform(info.pointers.Transform, coilId);
         }
         if (pInfo.armourInfo.legs.has_value()) {
             std::string legsId = ArmourList::getArmourId(pInfo.armourInfo.legs.value(), ArmourPiece::AP_LEGS, info.female);
-            pInfo.Transform_legs = findTransform(info.pointers.Transform, legsId, maxDepth, maxBreadth);
+            pInfo.Transform_legs = findTransform(info.pointers.Transform, legsId);
         }
         if (pInfo.armourInfo.slinger.has_value()) {
             std::string slingerId = ArmourList::getArmourId(pInfo.armourInfo.slinger.value(), ArmourPiece::AP_SLINGER, info.female);
-            REApi::ManagedObject* slingerTransform = findTransform(info.pointers.Transform, slingerId, maxDepth, maxBreadth);
+            REApi::ManagedObject* slingerTransform = findTransform(info.pointers.Transform, slingerId);
             pInfo.Slinger_GameObject = (slingerTransform) ? REInvokePtr<REApi::ManagedObject>(slingerTransform, "get_GameObject", {}) : nullptr;
         }
 

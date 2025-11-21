@@ -45,9 +45,7 @@ namespace kbf {
 
 	inline REApi::ManagedObject* findTransform(
 		REApi::ManagedObject* rootTransform, 
-		const std::string& name,
-		size_t maxDepth = 20,
-		size_t maxBreadth = 100
+		const std::string& name
 	) {
 		if (rootTransform == nullptr) return nullptr;
 
@@ -61,12 +59,6 @@ namespace kbf {
 			{ (void*)param }
 		);
 		return ptr;
-
-		//return searchTransforms(
-		//	rootTransform,
-		//	name,
-		//	0, maxDepth,
-		//	0, maxBreadth);
 	}
 
 
