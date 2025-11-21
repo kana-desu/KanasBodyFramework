@@ -184,8 +184,40 @@ else()
         )
     endif()
 
+    #
+    # -------------------------------------------------------------------------------------------
+    # ★ DIST PDB PATCH — enable PDB generation AND copy it only when PACKAGE_FOR_DIST=ON
+    # -------------------------------------------------------------------------------------------
+    #
+    if (PACKAGE_FOR_DIST AND MSVC)
+        # Enable debug info in optimized builds
+        target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:/Zi>
+            $<$<CONFIG:MinSizeRel>:/Zi>
+        )
+
+        target_link_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:/DEBUG /OPT:REF /OPT:ICF>
+            $<$<CONFIG:MinSizeRel>:/DEBUG /OPT:REF /OPT:ICF>
+        )
+
+        # PDB output path (matches your message at bottom)
+        set(DIST_PDB_PATH "${CMAKE_SOURCE_DIR}/dist/out/pdb/KanasBodyFramework_v${VER}.pdb")
+
+        message(STATUS "📦 PACKAGE_FOR_DIST active - a PDB will be written to ${DIST_PDB_PATH}")
+
+        # Copy the PDB
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/dist/out/pdb"
+            COMMAND ${CMAKE_COMMAND} -E copy
+                "$<TARGET_PDB_FILE:${PROJECT_NAME}>"
+                "${DIST_PDB_PATH}"
+            COMMENT "📦 Copying PDB to dist/out/pdb/"
+        )
+    endif()
+    # -------------------------------------------------------------------------------------------
+
     get_target_property(_incs ${PROJECT_NAME} INCLUDE_DIRECTORIES)
-    message(STATUS "Include dirs for ${PROJECT_NAME}: ${_incs}")
 
 endif()
 
@@ -229,6 +261,6 @@ if(PACKAGE_FOR_DIST)
         COMMENT "Packaging Release Ver ${Ver}"
         VERBATIM)
 
-    message(STATUS "PACKAGING READY: Build will be packaged to " ${PACKAGE_NAME})
+    message(STATUS "📦 PACKAGING READY: Build will be packaged to " ${PACKAGE_NAME})
 
 endif()
