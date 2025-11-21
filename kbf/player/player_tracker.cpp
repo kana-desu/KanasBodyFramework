@@ -11,6 +11,7 @@
 #include <kbf/util/re_engine/re_memory_ptr.hpp>
 #include <kbf/util/re_engine/dump_components.hpp>
 #include <kbf/util/re_engine/print_re_object.hpp>
+#include <kbf/util/string/ptr_to_hex_string.hpp>
 #include <kbf/debug/debug_stack.hpp>
 
 #include <kbf/profiling/cpu_profiler.hpp>
@@ -303,7 +304,17 @@ namespace kbf {
 
         bool fetchedTransforms = fetchPlayer_ArmourTransforms(info, persistentInfo);
         if (!fetchedTransforms) {
-            DEBUG_STACK.push(std::format("{} Failed to fetch armour transforms for Main Menu Hunter: {} [{}]", PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId), DebugStack::Color::COL_WARNING);
+            DEBUG_STACK.push(std::format(
+                "{} Failed to fetch armour transforms for Main Menu Hunter: {} [{}]. Relevant info:\n"
+                "  Base @ {}\n  Helm: {} @ {}\n  Body: {} @ {}\n  Arms: {} @ {}\n  Coil: {} @ {}\n  Legs:{} @ {}",
+                PLAYER_TRACKER_LOG_TAG, info.playerData.name, info.playerData.hunterId,
+                ptrToHexString(persistentInfo.Transform_base),
+                persistentInfo.armourInfo.helm.has_value() ? persistentInfo.armourInfo.helm.value().name : "NULL", ptrToHexString(persistentInfo.Transform_helm),
+                persistentInfo.armourInfo.body.has_value() ? persistentInfo.armourInfo.body.value().name : "NULL", ptrToHexString(persistentInfo.Transform_body),
+                persistentInfo.armourInfo.arms.has_value() ? persistentInfo.armourInfo.arms.value().name : "NULL", ptrToHexString(persistentInfo.Transform_arms),
+                persistentInfo.armourInfo.coil.has_value() ? persistentInfo.armourInfo.coil.value().name : "NULL", ptrToHexString(persistentInfo.Transform_coil),
+                persistentInfo.armourInfo.legs.has_value() ? persistentInfo.armourInfo.legs.value().name : "NULL", ptrToHexString(persistentInfo.Transform_legs)
+            ), DebugStack::Color::COL_WARNING);
             return;
         }
 
@@ -1343,41 +1354,39 @@ namespace kbf {
         // Base transform is fetched every frame
         pInfo.Transform_base = info.pointers.Transform;
 
-        // TODO: Can probably reduce to 1, 100
-        constexpr size_t maxDepth = 1;
-        constexpr size_t maxBreadth = 100;
-
         if (pInfo.armourInfo.helm.has_value()) {
             std::string helmId = ArmourList::getArmourId(pInfo.armourInfo.helm.value(), ArmourPiece::AP_HELM, info.playerData.female);
-            pInfo.Transform_helm = findTransform(info.pointers.Transform, helmId, maxDepth, maxBreadth);
+            pInfo.Transform_helm = findTransform(info.pointers.Transform, helmId);
         }
         if (pInfo.armourInfo.body.has_value()) {
             std::string bodyId = ArmourList::getArmourId(pInfo.armourInfo.body.value(), ArmourPiece::AP_BODY, info.playerData.female);
-            pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId, maxDepth, maxBreadth);
+            pInfo.Transform_body = findTransform(info.pointers.Transform, bodyId);
         }
         if (pInfo.armourInfo.arms.has_value()) {
             std::string armsId = ArmourList::getArmourId(pInfo.armourInfo.arms.value(), ArmourPiece::AP_ARMS, info.playerData.female);
-            pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId, maxDepth, maxBreadth);
+            pInfo.Transform_arms = findTransform(info.pointers.Transform, armsId);
         }
         if (pInfo.armourInfo.coil.has_value()) {
             std::string coilId = ArmourList::getArmourId(pInfo.armourInfo.coil.value(), ArmourPiece::AP_COIL, info.playerData.female);
-            pInfo.Transform_coil = findTransform(info.pointers.Transform, coilId, maxDepth, maxBreadth);
+            pInfo.Transform_coil = findTransform(info.pointers.Transform, coilId);
         }
         if (pInfo.armourInfo.legs.has_value()) {
             std::string legsId = ArmourList::getArmourId(pInfo.armourInfo.legs.value(), ArmourPiece::AP_LEGS, info.playerData.female);
-            pInfo.Transform_legs = findTransform(info.pointers.Transform, legsId, maxDepth, maxBreadth);
+            pInfo.Transform_legs = findTransform(info.pointers.Transform, legsId);
         }
         if (pInfo.armourInfo.slinger.has_value()) {
             std::string slingerId = ArmourList::getArmourId(pInfo.armourInfo.slinger.value(), ArmourPiece::AP_SLINGER, info.playerData.female);
-            REApi::ManagedObject* slingerTransform = findTransform(info.pointers.Transform, slingerId, maxDepth, maxBreadth);
+            REApi::ManagedObject* slingerTransform = findTransform(info.pointers.Transform, slingerId);
             pInfo.Slinger_GameObject = (slingerTransform) ? REInvokePtr<REApi::ManagedObject>(slingerTransform, "get_GameObject", {}) : nullptr;
         }
 
-        return (pInfo.Transform_base &&
-               pInfo.Transform_body &&
-               pInfo.Transform_arms && 
-               pInfo.Transform_coil &&
-               pInfo.Transform_legs);
+        bool foundRequired = (pInfo.Transform_base &&
+            pInfo.Transform_body &&
+            pInfo.Transform_arms &&
+            pInfo.Transform_coil &&
+            pInfo.Transform_legs);
+
+        return foundRequired;
     }
 
     bool PlayerTracker::fetchPlayer_WeaponObjects(const PlayerInfo& info, PersistentPlayerInfo& pInfo) {
