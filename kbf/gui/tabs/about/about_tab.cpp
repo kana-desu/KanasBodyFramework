@@ -647,6 +647,7 @@ namespace kbf {
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a bug where quick material overrides (e.g. wetness) would not apply to armour sets which had the needed materials present.");
             WRAP_BULLET("-", "Fixed a bug which caused certain material overrides to crash the game.");
+            WRAP_BULLET("-", "Fixed a bug which caused crashes on some systems when a cutscene would end (dereferenced invalid pointer).");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.0.6b", ImGuiTreeNodeFlags_DefaultOpen)) {
