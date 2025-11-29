@@ -37,7 +37,7 @@ namespace kbf {
 
         // Normal Gameplay Singletons
         npcManager = api->get_managed_singleton("app.NpcManager");
-        assert(npcManager != nullptr && "Could not get NPC Managed");
+        assert(npcManager != nullptr && "Could not get NPC Manager");
 
         kbf::HookManager::add_tdb("app.NpcCharacterCore", "onWarp",        onNpcChangeStateHook, nullptr, false);
         kbf::HookManager::add_tdb("app.NpcCharacterCore", "setupHeadCtrl", onNpcChangeStateHook, nullptr, false);
