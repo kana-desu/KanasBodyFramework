@@ -9,6 +9,8 @@
 
 #include <unordered_set>
 
+#include <kbf/util/re_engine/re_singleton.hpp>
+
 using REApi = reframework::API;
 
 namespace kbf {
@@ -53,31 +55,14 @@ namespace kbf {
         std::unordered_set<CustomSituation> customSituations{};
 
         // Pointers to some app.cSimpleStageControllers for various scenes that we need to track
-        REApi::ManagedObject* MasterFieldManager = nullptr;
+        RESingleton MasterFieldManager{ "app.MasterFieldManager" };
         REApi::ManagedObject* stageController_GuildCard  = nullptr;
         REApi::ManagedObject* stageController_CharaMake  = nullptr;
         REApi::ManagedObject* stageController_SaveSelect = nullptr;
 
         // Cutscene Tracker Singleton
-        REApi::ManagedObject* CutScenePropsControllerManager = nullptr;
+        RESingleton CutScenePropsControllerManager{ "app.CutScenePropsControllerManager" };
         int currentCutsceneId = -1;
-
-        // Getters for managers as on some machines they may be / become invalid??
-        template<const char* TypeName>
-        inline REApi::ManagedObject* getSingleton(REApi::ManagedObject*& ptr) {
-            static const REApi::TypeDefinition* def = REApi::get()->tdb()->find_type(TypeName);
-            if (checkREPtrValidity(ptr, def)) return ptr;
-
-            // Try and refetch once
-            getSingletons();
-            return checkREPtrValidity(ptr, def) ? ptr : nullptr;
-        }
-
-        inline REApi::ManagedObject* getMasterFieldManager()             { return getSingleton<AppMasterFieldManagerTypeStr>(MasterFieldManager); }
-        inline REApi::ManagedObject* getCutscenePropsControllerManager() { return getSingleton<AppCutscenePropsControllerManagerTypeStr>(CutScenePropsControllerManager); }
-        inline REApi::ManagedObject* getStageController_GuildCard()      { return getSingleton<AppSimpleStageControllerTypeStr>(stageController_GuildCard ); }
-        inline REApi::ManagedObject* getStageController_CharaMake()      { return getSingleton<AppSimpleStageControllerTypeStr>(stageController_CharaMake ); }
-        inline REApi::ManagedObject* getStageController_SaveSelect()     { return getSingleton<AppSimpleStageControllerTypeStr>(stageController_SaveSelect); }
     };
 
 }

@@ -640,7 +640,13 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("v1.0.7b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("vX.X.Xb", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed an issue causing KBF to not be able to find game singletons. This was the cause of various issues / crashes.");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.0.7b")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Changes");
             WRAP_BULLET("-", "Added additional logging when failing to fetch armour transforms to help track down issues.");

@@ -9,6 +9,10 @@
 
 #include <unordered_set>
 
+#include <kbf/util/re_engine/re_singleton.hpp>
+
+// UPDATE NOTE: This size may change with future updates.
+
 #define NPC_LIST_SIZE 681
 #define TRY_FETCH_LIMIT 100
 
@@ -74,7 +78,7 @@ namespace kbf {
         std::array<std::optional<NormalGameplayNpcCache>, NPC_LIST_SIZE> npcInfoCaches;
 
         // Main Menu Refs
-        void* sceneManager = nullptr;
+        RENativeSingleton sceneManager{ "via.SceneManager" };
         std::optional<MainMenuNpcCache> mainMenuAlmaCache;
         std::optional<MainMenuNpcCache> mainMenuErikCache;
 
@@ -83,7 +87,7 @@ namespace kbf {
         std::optional<size_t> characterCreatorHashedArmourTransformsCache = std::nullopt;
 
         // Normal Gameplay Refs
-        reframework::API::ManagedObject* npcManager = nullptr;
+        RESingleton npcManager{ "app.NpcManager" };
         bool needsAllNpcFetch = false;
 
         std::optional<CustomSituation> lastSituation = std::nullopt;

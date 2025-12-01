@@ -38,23 +38,23 @@ namespace kbf {
         auto& api = REApi::get();
 
         // Main Menu Singletons
-        sceneManager = api->get_native_singleton("via.SceneManager");
-        assert(sceneManager != nullptr && "Could not get sceneManager!");
-        saveDataManager = api->get_managed_singleton("app.SaveDataManager");
-        assert(saveDataManager != nullptr && "Could not get saveDataManager!");
+        //sceneManager = api->get_native_singleton("via.SceneManager");
+        //assert(sceneManager != nullptr && "Could not get sceneManager!");
+        //saveDataManager = api->get_managed_singleton("app.SaveDataManager");
+        //assert(saveDataManager != nullptr && "Could not get saveDataManager!");
 
         // Guild Card Singletons
-        guiManager = api->get_managed_singleton("app.GUIManager");
-        assert(guiManager != nullptr && "Could not get GUIManager!");
+        //guiManager = api->get_managed_singleton("app.GUIManager");
+        //assert(guiManager != nullptr && "Could not get GUIManager!");
 
         // Normal Gameplay Singletons
-        playerManager = api->get_managed_singleton("app.PlayerManager");
-        assert(playerManager != nullptr && "Could not get playerManager!");
-        networkManager = api->get_managed_singleton("app.NetworkManager");
-        assert(networkManager != nullptr && "Could not get networkManager!");
-        netContextManager = REInvokePtr<REApi::ManagedObject>(networkManager, "get_ContextManager", {});
+        //playerManager = api->get_managed_singleton("app.PlayerManager");
+        //assert(playerManager != nullptr && "Could not get playerManager!");
+        //networkManager = api->get_managed_singleton("app.NetworkManager");
+        //assert(networkManager != nullptr && "Could not get networkManager!");
+        netContextManager = REInvokePtr<REApi::ManagedObject>(networkManager.get(), "get_ContextManager", {});
         assert(netContextManager != nullptr && "Could not get netContextManager!");
-        netUserInfoManager = REInvokePtr<REApi::ManagedObject>(networkManager, "get_UserInfoManager", {});
+        netUserInfoManager = REInvokePtr<REApi::ManagedObject>(networkManager.get(), "get_UserInfoManager", {});
         assert(netUserInfoManager != nullptr && "Could not get networkManager!");
         Net_UserInfoList = REInvokePtr<REApi::ManagedObject>(netUserInfoManager, "getUserInfoList(app.net_session_manager.SESSION_TYPE)", { (void*)1 });
         assert(Net_UserInfoList != nullptr && "Could not get Net_UserInfoList!");
@@ -957,7 +957,7 @@ namespace kbf {
 
         // UPDATE NOTE: The offset here *might* change here? Still not sure why this function provides incorrect offsets...
         constexpr uint64_t offset_IsSelfProfile = 0x50;
-        bool* isSelfProfile = REFieldPtr<bool>(guiManager, "_HunterProfile_IsSelfProfile", true);
+        bool* isSelfProfile = REFieldPtr<bool>(guiManager.get(), "_HunterProfile_IsSelfProfile", true);
         isSelfProfile = reinterpret_cast<bool*>((uintptr_t)isSelfProfile + offset_IsSelfProfile);
 
         if (isSelfProfile == nullptr) return false;
@@ -972,7 +972,7 @@ namespace kbf {
         }
         else {
             // Name & Hunter ID
-            REApi::ManagedObject* HunterProfile_UserInfo = REFieldPtr<REApi::ManagedObject>(guiManager, "_HunterProfile_UserInfo", false);
+            REApi::ManagedObject* HunterProfile_UserInfo = REFieldPtr<REApi::ManagedObject>(guiManager.get(), "_HunterProfile_UserInfo", false);
             if (HunterProfile_UserInfo == nullptr) return false;
 
             std::string name = REInvokeStr(HunterProfile_UserInfo, "get_PlName", {});
@@ -982,7 +982,7 @@ namespace kbf {
             if (shortHunterId.empty()) return false;
 
             // Go fishing for the gender...
-            REApi::ManagedObject* GuildCardSceneController = REFieldPtr<REApi::ManagedObject>(guiManager, "_HunterProfile_SceneController", false);
+            REApi::ManagedObject* GuildCardSceneController = REFieldPtr<REApi::ManagedObject>(guiManager.get(), "_HunterProfile_SceneController", false);
             if (GuildCardSceneController == nullptr) return false;
 
             REApi::ManagedObject* CharacterEditBuilder = REFieldPtr<REApi::ManagedObject>(GuildCardSceneController, "_HunterBuilder", false);
@@ -1135,11 +1135,11 @@ namespace kbf {
 
     PlayerFetchFlags PlayerTracker::fetchPlayer_BasicInfo(size_t i, bool inQuest, bool online, PlayerInfo& out) {
         // app.cPlayerManageInfo
-        REApi::ManagedObject* cPlayerManageInfo = REInvokePtr<REApi::ManagedObject>(playerManager, "findPlayer_StableMemberIndex(System.Int32, app.net_session_manager.SESSION_TYPE)", { (void*)i, (void*)1 });
+        REApi::ManagedObject* cPlayerManageInfo = REInvokePtr<REApi::ManagedObject>(playerManager.get(), "findPlayer_StableMemberIndex(System.Int32, app.net_session_manager.SESSION_TYPE)", {(void*)i, (void*)1});
         if (cPlayerManageInfo == nullptr) { clearPlayerSlot(i); return PlayerFetchFlags::FETCH_PLAYER_SLOT_EMPTY; } // Player slot is empty, clear it
 
         bool includeThisPlayer = false;
-        if (inQuest) includeThisPlayer = REInvoke<bool>(playerManager, "isQuestMember(System.Int32)", { (void*)i }, InvokeReturnType::BOOL);
+        if (inQuest) includeThisPlayer = REInvoke<bool>(playerManager.get(), "isQuestMember(System.Int32)", {(void*)i}, InvokeReturnType::BOOL);
         else         includeThisPlayer = cPlayerManageInfo->is_managed_object();
         if (!includeThisPlayer) { clearPlayerSlot(i); return PlayerFetchFlags::FETCH_PLAYER_SLOT_EMPTY; }
 
@@ -1476,12 +1476,12 @@ namespace kbf {
         return pInfo.materialManager->isInitialized();
     }
 
-    bool PlayerTracker::getSavePlayerData(int saveIdx, PlayerData& out) const {
+    bool PlayerTracker::getSavePlayerData(int saveIdx, PlayerData& out) {
         if (saveIdx < 0 || saveIdx >= 3) return false; // Invalid save index
 
         out = PlayerData{};
 
-        REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager, "getUserSaveData(System.Int32)", { (void*)saveIdx });
+        REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager.get(), "getUserSaveData(System.Int32)", {(void*)saveIdx});
         if (currentSaveData == nullptr) return false;
 
         char* activeByte = re_memory_ptr<char>(currentSaveData, 0x3AC);
@@ -1510,10 +1510,10 @@ namespace kbf {
         return true;
     }
 
-    bool PlayerTracker::getActiveSavePlayerData(PlayerData& out) const {
+    bool PlayerTracker::getActiveSavePlayerData(PlayerData& out) {
         out = PlayerData{};
 
-        REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager, "getCurrentUserSaveData", {});
+        REApi::ManagedObject* currentSaveData = REInvokePtr<REApi::ManagedObject>(saveDataManager.get(), "getCurrentUserSaveData", {});
         if (currentSaveData == nullptr) return false;
 
         char* activeByte = re_memory_ptr<char>(currentSaveData, 0x3AC);

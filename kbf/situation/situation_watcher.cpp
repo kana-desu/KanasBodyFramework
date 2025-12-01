@@ -63,14 +63,14 @@ namespace kbf {
     bool SituationWatcher::getSingletons() {
         std::unique_ptr<reframework::API>& api = reframework::API::get();
 
-        MasterFieldManager = api->get_managed_singleton("app.MasterFieldManager");
-        CutScenePropsControllerManager = api->get_managed_singleton("app.CutScenePropsControllerManager");
-        stageController_GuildCard = REInvokePtr<REApi::ManagedObject>(MasterFieldManager, "get_GuildCard", {});
-        stageController_CharaMake = REInvokePtr<REApi::ManagedObject>(MasterFieldManager, "get_CharaMake", {});
-        stageController_SaveSelect = REInvokePtr<REApi::ManagedObject>(MasterFieldManager, "get_SaveSelect", {});
+        //MasterFieldManager = api->get_managed_singleton("app.MasterFieldManager");
+        //CutScenePropsControllerManager = api->get_managed_singleton("app.CutScenePropsControllerManager");
+        stageController_GuildCard = REInvokePtr<REApi::ManagedObject>(MasterFieldManager.get(), "get_GuildCard", {});
+        stageController_CharaMake = REInvokePtr<REApi::ManagedObject>(MasterFieldManager.get(), "get_CharaMake", {});
+        stageController_SaveSelect = REInvokePtr<REApi::ManagedObject>(MasterFieldManager.get(), "get_SaveSelect", {});
 
-        assert(MasterFieldManager != nullptr && "Could not get MasterFieldManager!");
-        assert(CutScenePropsControllerManager != nullptr && "Could not get CutScenePropsControllerManager");
+        //assert(MasterFieldManager != nullptr && "Could not get MasterFieldManager!");
+        //assert(CutScenePropsControllerManager != nullptr && "Could not get CutScenePropsControllerManager");
         assert(stageController_GuildCard != nullptr && "Could not get GuildCard stage controller!");
         assert(stageController_CharaMake != nullptr && "Could not get CharaMake stage controller!");
         assert(stageController_SaveSelect != nullptr && "Could not get SaveSelect stage controller!");
@@ -80,11 +80,11 @@ namespace kbf {
         static const REApi::TypeDefinition* def_cSimpleStageController         = REApi::get()->tdb()->find_type("app.cSimpleStageController");
 
         bool valid = true;
-        valid &= checkREPtrValidity(MasterFieldManager            , def_MasterFieldManager);
-        valid &= checkREPtrValidity(CutScenePropsControllerManager, def_CutScenePropsControllerManager);
-        valid &= checkREPtrValidity(stageController_GuildCard     , def_cSimpleStageController);
-        valid &= checkREPtrValidity(stageController_CharaMake     , def_cSimpleStageController);
-        valid &= checkREPtrValidity(stageController_SaveSelect    , def_cSimpleStageController);
+        valid &= checkREPtrValidity(MasterFieldManager.get()            , def_MasterFieldManager);
+        valid &= checkREPtrValidity(CutScenePropsControllerManager.get(), def_CutScenePropsControllerManager);
+        valid &= checkREPtrValidity(stageController_GuildCard           , def_cSimpleStageController);
+        valid &= checkREPtrValidity(stageController_CharaMake           , def_cSimpleStageController);
+        valid &= checkREPtrValidity(stageController_SaveSelect          , def_cSimpleStageController);
 
         return valid;
     }
@@ -176,7 +176,7 @@ namespace kbf {
     void SituationWatcher::cutsceneStartPostStart(void** ret_val, REFrameworkTypeDefinitionHandle ret_ty, unsigned long long ret_addr) {
         SituationWatcher& instance = get();
 
-        REApi::ManagedObject* cutscenePropsControllerManager = instance.getCutscenePropsControllerManager();
+        REApi::ManagedObject* cutscenePropsControllerManager = instance.CutScenePropsControllerManager.get();
         if (cutscenePropsControllerManager == nullptr)
             return DEBUG_STACK.push(std::format("{} Could not fetch CutScenePropsControllerManager singleton in \'cutsceneStartPostStart\'.", SITUATION_WATCHER_LOG_TAG), DebugStack::Color::COL_WARNING);
 
@@ -231,9 +231,9 @@ namespace kbf {
     }
 
     void SituationWatcher::updateCustomSituations() {
-        REApi::ManagedObject* guildCardCtrl  = getStageController_GuildCard();
-        REApi::ManagedObject* charaMakeCtrl  = getStageController_CharaMake();
-        REApi::ManagedObject* saveSelectCtrl = getStageController_SaveSelect();
+        REApi::ManagedObject* guildCardCtrl  = stageController_GuildCard;
+        REApi::ManagedObject* charaMakeCtrl  = stageController_CharaMake;
+        REApi::ManagedObject* saveSelectCtrl = stageController_SaveSelect;
 
         if (guildCardCtrl == nullptr)
             return DEBUG_STACK.push(std::format("{} Could not fetch guild card cSimpleStageController in \'updateCustomSituations\'.", SITUATION_WATCHER_LOG_TAG), DebugStack::Color::COL_WARNING);

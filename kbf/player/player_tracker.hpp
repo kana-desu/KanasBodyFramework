@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <kbf/util/re_engine/re_singleton.hpp>
+
 #define PLAYER_LIST_SIZE 103
 
 namespace kbf {
@@ -68,8 +70,8 @@ namespace kbf {
 
         int detectPlayer(void* hunterCharacterPtr, const std::string& logStrSuffix);
 
-        bool getSavePlayerData(int saveIdx, PlayerData& out) const;
-        bool getActiveSavePlayerData(PlayerData& out) const;
+        bool getSavePlayerData(int saveIdx, PlayerData& out);
+        bool getActiveSavePlayerData(PlayerData& out);
         REApi::ManagedObject* getCurrentScene() const;
 
         void updateApplyDelays();
@@ -86,8 +88,8 @@ namespace kbf {
         std::array<std::optional<NormalGameplayPlayerCache>, PLAYER_LIST_SIZE> playerInfoCaches;
 
         // Main Menu Refs
-        void* sceneManager = nullptr;
-        reframework::API::ManagedObject* saveDataManager = nullptr;
+        RENativeSingleton sceneManager{ "via.SceneManager" };
+        RESingleton saveDataManager{ "app.SaveDataManager" };
 
         // Save Select Refs
 		int lastSelectedSaveIdx = -1;
@@ -99,13 +101,13 @@ namespace kbf {
         std::optional<size_t> characterCreatorHashedArmourTransformsCache = std::nullopt;
 
         // Guild Card Refs
-        reframework::API::ManagedObject* guiManager = nullptr;
+        RESingleton guiManager{ "app.GUIManager" };
         reframework::API::ManagedObject* guildCardHunterTransformCache = nullptr;
         std::optional<size_t> guildCardHashedArmourTransformsCache = std::nullopt;
 
         // Normal Gameplay Refs
-        reframework::API::ManagedObject* playerManager  = nullptr;
-        reframework::API::ManagedObject* networkManager = nullptr;
+        RESingleton playerManager{ "app.PlayerManager" };
+        RESingleton networkManager{ "app.NetworkManager" };
         reframework::API::ManagedObject* netUserInfoManager = nullptr;
         reframework::API::ManagedObject* netContextManager = nullptr;
 		reframework::API::ManagedObject* Net_UserInfoList = nullptr;

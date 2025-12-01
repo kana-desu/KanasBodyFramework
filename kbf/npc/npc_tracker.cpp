@@ -32,12 +32,12 @@ namespace kbf {
         auto& api = REApi::get();
 
         // Main Menu Singletons
-        sceneManager = api->get_native_singleton("via.SceneManager");
-        assert(sceneManager != nullptr && "Could not get sceneManager!");
+        //sceneManager = api->get_native_singleton("via.SceneManager");
+        //assert(sceneManager != nullptr && "Could not get sceneManager!");
 
         // Normal Gameplay Singletons
-        npcManager = api->get_managed_singleton("app.NpcManager");
-        assert(npcManager != nullptr && "Could not get NPC Manager");
+        //npcManager = api->get_managed_singleton("app.NpcManager");
+        //assert(npcManager != nullptr && "Could not get NPC Manager");
 
         kbf::HookManager::add_tdb("app.NpcCharacterCore", "onWarp",        onNpcChangeStateHook, nullptr, false);
         kbf::HookManager::add_tdb("app.NpcCharacterCore", "setupHeadCtrl", onNpcChangeStateHook, nullptr, false);
@@ -452,7 +452,7 @@ namespace kbf {
 
     NpcFetchFlags NpcTracker::fetchNpc_BasicInfo(size_t i, NpcInfo& out) {
         // app.cNpcManageInfo
-        REApi::ManagedObject* cNpcManageInfo = REInvokePtr<REApi::ManagedObject>(npcManager, "findNpcInfo_NpcId_NoCheck(System.Int32)", { (void*)i });
+        REApi::ManagedObject* cNpcManageInfo = REInvokePtr<REApi::ManagedObject>(npcManager.get(), "findNpcInfo_NpcId_NoCheck(System.Int32)", {(void*)i});
         if (cNpcManageInfo == nullptr) { clearNpcSlot(i); return NpcFetchFlags::FETCH_ERROR_NULL; } // Npc slot is empty, clear it
 
         REApi::ManagedObject* GameObject = REInvokePtr<REApi::ManagedObject>(cNpcManageInfo, "get_Object", {});    // via.GameObject
