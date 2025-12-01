@@ -87,6 +87,17 @@ set(KBF_HOT_RELOADER_SOURCES
 # ------------------------------------------------------------------------------
 
 if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+    # Force /Z7 for Debug builds - this suppresses annoying Z7 over Zi warnings in MSVC
+    if(MSVC AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+        # Override the default /Zi flag
+        string(REPLACE "/Zi" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+        string(REPLACE "/Zi" "" CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG}")
+
+        # Add /Z7 explicitly
+        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Z7")
+        set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS_DEBUG} /Z7")
+    endif()
+
     message(STATUS "⚙️ Debug build: hot reload loader + logic DLL")
     message(STATUS "Hot Reload Dir: " ${PLUGIN_HOT_RELOAD_DIR})
 
