@@ -100,6 +100,7 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
 
     message(STATUS "⚙️ Debug build: hot reload loader + logic DLL")
     message(STATUS "Hot Reload Dir: " ${PLUGIN_HOT_RELOAD_DIR})
+    message(STATUS "Plugin Output Dir: " ${PLUGIN_OUTPUT_DIR})
 
     add_compile_definitions(KBF_DEBUG_BUILD)
 
@@ -165,6 +166,8 @@ if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDeb
                 "$<TARGET_FILE:${PROJECT_NAME}>"
                 "${PLUGIN_OUTPUT_DIR}/$<TARGET_FILE_NAME:${PROJECT_NAME}>.pdb"
         )
+    else()
+        message(FATAL_ERROR "PLUGIN_OUTPUT_DIR: '${PLUGIN_OUTPUT_DIR}' is not defined or is not a directory!")
     endif()
 
     get_target_property(_incs ${PROJECT_NAME} INCLUDE_DIRECTORIES)
