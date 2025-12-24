@@ -1,15 +1,9 @@
 #include <kbf/mesh/bone_manager.hpp>
 
-#include <kbf/data/armour/armour_list.hpp>
 #include <kbf/util/re_engine/reinvoke.hpp>
 #include <kbf/debug/debug_stack.hpp>
 #include <kbf/util/string/ptr_to_hex_string.hpp>
 #include <kbf/util/re_engine/check_re_ptr_validity.hpp>
-#include <kbf/util/re_engine/find_transform.hpp>
-
-#include <kbf/util/re_engine/write_re_memory.hpp>
-#include <kbf/util/re_engine/read_re_memory.hpp>
-#include <kbf/util/re_engine/re_memory_ptr.hpp>
 
 #include <kbf/data/bones/bone_cache_manager.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -69,41 +63,43 @@ namespace kbf {
 
 		static reframework::API::TypeDefinition* def_ViaJoint = reframework::API::get()->tdb()->find_type("via.Joint");
 		if (!checkREPtrValidity(bone, def_ViaJoint)) return false;
-
+		
+		const static std::vector<void*> nullArgs{};
+		
 		if (modifier.hasScale()) {
-			float* scaleX = re_memory_ptr<float>(bone, 0x40);
-			float* scaleY = re_memory_ptr<float>(bone, 0x44);
-			float* scaleZ = re_memory_ptr<float>(bone, 0x48);
+			// Avoid using REInvoke here to cache methods & get most performance on this hot path
+			static REApi::Method* getJointScale = REApi::get()->tdb()->find_method("via.Joint", "get_LocalScale");
+			static REApi::Method* setJointScale = REApi::get()->tdb()->find_method("via.Joint", "set_LocalScale(via.vec3)");
+			reframework::InvokeRet ret = getJointScale->invoke(bone, nullArgs);
 
-			write_re_memory_no_check<float>(bone, 0x40, *scaleX + modifier.scale.x);
-			write_re_memory_no_check<float>(bone, 0x44, *scaleY + modifier.scale.y);
-			write_re_memory_no_check<float>(bone, 0x48, *scaleZ + modifier.scale.z);
+			// Why the fuck do we need the pointer to this ret value??? I don't even want to know anymore
+			glm::vec3* scaleData = reinterpret_cast<glm::vec3*>(&ret);
+			glm::vec3  newScaleData = modifier.scale + *scaleData;
+
+			setJointScale->invoke(bone, { (void*)&newScaleData });
 		}
 
 		if (modifier.hasPosition()) {
-			float* posX = re_memory_ptr<float>(bone, 0x20);
-			float* posY = re_memory_ptr<float>(bone, 0x24);
-			float* posZ = re_memory_ptr<float>(bone, 0x28);
+			static REApi::Method* getJointPos = REApi::get()->tdb()->find_method("via.Joint", "get_LocalPosition");
+			static REApi::Method* setJointPos = REApi::get()->tdb()->find_method("via.Joint", "set_LocalPosition(via.vec3)");
+			reframework::InvokeRet ret = getJointPos->invoke(bone, nullArgs);
 
-			write_re_memory_no_check<float>(bone, 0x20, *posX + modifier.position.x);
-			write_re_memory_no_check<float>(bone, 0x24, *posY + modifier.position.y);
-			write_re_memory_no_check<float>(bone, 0x28, *posZ + modifier.position.z);
+			glm::vec3* posData = reinterpret_cast<glm::vec3*>(&ret);
+			glm::vec3  newPosData = modifier.position + *posData;
+
+			setJointPos->invoke(bone, { (void*)&newPosData });
 		}
 
 		if (modifier.hasRotation()) {
-			glm::fquat rotation{
-				read_re_memory_no_check<float>(bone, 0x3C),
-				read_re_memory_no_check<float>(bone, 0x30),
-				read_re_memory_no_check<float>(bone, 0x34),
-				read_re_memory_no_check<float>(bone, 0x38)
-			};
+			// TODO: Quaternion has always been preferable for performance but for some god forsaken reason, passing in a 12 byte struct doesn't work.
+			static REApi::Method* getJointRot = REApi::get()->tdb()->find_method("via.Joint", "get_LocalEulerAngle");
+			static REApi::Method* setJointRot = REApi::get()->tdb()->find_method("via.Joint", "set_LocalEulerAngle(via.vec3)");
+			reframework::InvokeRet ret = getJointRot->invoke(bone, nullArgs);
 
-			rotation *= modifier.getQuaternionRotation();
+			glm::vec3* rotData = reinterpret_cast<glm::vec3*>(&ret);
+			glm::vec3  newRotData = *rotData + modifier.getRotation();
 
-			write_re_memory_no_check<float>(bone, 0x30, rotation.x);
-			write_re_memory_no_check<float>(bone, 0x34, rotation.y);
-			write_re_memory_no_check<float>(bone, 0x38, rotation.z);
-			write_re_memory_no_check<float>(bone, 0x3C, rotation.w);
+			setJointRot->invoke(bone, { (void*)&newRotData });
 		}
 
 		return true;
