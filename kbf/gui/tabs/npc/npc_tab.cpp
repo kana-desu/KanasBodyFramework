@@ -55,6 +55,11 @@ namespace kbf {
             dataManager.getPresetByUUID(dataManager.almaConfig().autumnWitch),
             editAlmaAutumnWitchCb,
             namedNpcSelectableHeight);
+        drawPresetSelectTableEntry(wsSymbolFont,
+			"##AlmaPresetCombo_FeatherskirtSeikretDress", "Featherskirt Seikret Dress",
+			dataManager.getPresetByUUID(dataManager.almaConfig().featherskirtSeikretDress),
+			editAlmaFeatherskirtSeikretDressCb,
+            namedNpcSelectableHeight);
         CImGui::EndTable();
 
         drawTabBarSeparator("Gemma", "NpcTabGemma");
@@ -70,6 +75,11 @@ namespace kbf {
             dataManager.getPresetByUUID(dataManager.gemmaConfig().summerCoveralls),
             editGemmaSummerCoverallsCb,
             namedNpcSelectableHeight);
+		drawPresetSelectTableEntry(wsSymbolFont,
+			"##GemmaPresetCombo_RedveilSeikretDress", "Redveil Seikret Dress",
+			dataManager.getPresetByUUID(dataManager.gemmaConfig().redveilSeikretDress),
+            editGemmaRedveilSeikretDressCb,
+			namedNpcSelectableHeight);
         CImGui::EndTable();
 
         drawTabBarSeparator("Erik", "NpcTabErik");
@@ -90,6 +100,11 @@ namespace kbf {
             dataManager.getPresetByUUID(dataManager.erikConfig().autumnTherian),
             editErikAutumnTherianCb,
             namedNpcSelectableHeight);
+		drawPresetSelectTableEntry(wsSymbolFont,
+			"##ErikPresetCombo_CrestcollarSeikretSuit", "Crestcollar Seikret Suit",
+            dataManager.getPresetByUUID(dataManager.erikConfig().crestcollarSeikretSuit),
+			editErikCrestcollarSeikretSuitCb,
+			namedNpcSelectableHeight);
         CImGui::EndTable();
 
         drawTabBarSeparator("Unnamed NPCs", "NpcTabUnnamed");

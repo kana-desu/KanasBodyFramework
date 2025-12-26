@@ -1237,6 +1237,7 @@ namespace kbf {
         parseString(config, ALMA_CAMMY_OUTFIT_ID, ALMA_CAMMY_OUTFIT_ID, &out->cammyOutfit);
         parseString(config, ALMA_SUMMER_PONCHO_ID, ALMA_SUMMER_PONCHO_ID, &out->summerPoncho);
         parseString(config, ALMA_AUTUMN_WITCH_ID, ALMA_AUTUMN_WITCH_ID, &out->autumnWitch);
+        parseString(config, ALMA_FEATHERSKIRT_SEIKRET_DRESS_ID, ALMA_FEATHERSKIRT_SEIKRET_DRESS_ID, &out->featherskirtSeikretDress);
 
         DEBUG_STACK.push(std::format("{} Loaded Alma config from {}", KBF_DATA_MANAGER_LOG_TAG, almaConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
@@ -1267,6 +1268,8 @@ namespace kbf {
         writer.String(out.summerPoncho.c_str());
         writer.Key(ALMA_AUTUMN_WITCH_ID);
         writer.String(out.autumnWitch.c_str());
+		writer.Key(ALMA_FEATHERSKIRT_SEIKRET_DRESS_ID);
+		writer.String(out.featherskirtSeikretDress.c_str());
         writer.EndObject();
 
         bool success = writeJsonFile(almaConfigPath.string(), s.GetString());
@@ -1296,6 +1299,7 @@ namespace kbf {
         parseString(config, ERIK_HANDLERS_OUTFIT_ID, ERIK_HANDLERS_OUTFIT_ID, &out->handlersOutfit);
         parseString(config, ERIK_SUMMER_HAT_ID, ERIK_SUMMER_HAT_ID, &out->summerHat);
         parseString(config, ERIK_AUTUMN_THERIAN_ID, ERIK_AUTUMN_THERIAN_ID, &out->autumnTherian);
+		parseString(config, ERIK_CRESTCOLLAR_SEIKRET_SUIT_ID, ERIK_CRESTCOLLAR_SEIKRET_SUIT_ID, &out->crestcollarSeikretSuit);
 
         DEBUG_STACK.push(std::format("{} Loaded Erik config from {}", KBF_DATA_MANAGER_LOG_TAG, erikConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
@@ -1316,6 +1320,8 @@ namespace kbf {
         writer.String(out.summerHat.c_str());
         writer.Key(ERIK_AUTUMN_THERIAN_ID);
         writer.String(out.autumnTherian.c_str());
+		writer.Key(ERIK_CRESTCOLLAR_SEIKRET_SUIT_ID);
+		writer.String(out.crestcollarSeikretSuit.c_str());
         writer.EndObject();
 
         bool success = writeJsonFile(erikConfigPath.string(), s.GetString());
@@ -1344,6 +1350,7 @@ namespace kbf {
         // Outfits
         parseString(config, GEMMA_SMITHYS_OUTFIT_ID, GEMMA_SMITHYS_OUTFIT_ID, &out->smithysOutfit);
         parseString(config, GEMMA_SUMMER_COVERALLS_ID, GEMMA_SUMMER_COVERALLS_ID, &out->summerCoveralls);
+		parseString(config, GEMMA_REDVEIL_SEIKRET_DRESS_ID, GEMMA_REDVEIL_SEIKRET_DRESS_ID, &out->redveilSeikretDress);
 
         DEBUG_STACK.push(std::format("{} Loaded Gemma config from {}", KBF_DATA_MANAGER_LOG_TAG, gemmaConfigPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
@@ -1362,6 +1369,8 @@ namespace kbf {
         writer.String(out.smithysOutfit.c_str());
         writer.Key(GEMMA_SUMMER_COVERALLS_ID);
         writer.String(out.summerCoveralls.c_str());
+		writer.Key(GEMMA_REDVEIL_SEIKRET_DRESS_ID);
+		writer.String(out.redveilSeikretDress.c_str());
         writer.EndObject();
 
         bool success = writeJsonFile(gemmaConfigPath.string(), s.GetString());

@@ -161,13 +161,16 @@ namespace kbf {
         { "ch04_000_0076" , "Alma" },
         { "ch04_000_0076" , "Alma" },
         { "ch04_000_0072" , "Alma" },
+        { "ch04_000_0073" , "Alma" },
 
         { "ch04_004_0000" , "Gemma" },
         { "ch04_004_0072" , "Gemma" },
+		{ "ch04_004_0073" , "Gemma" },
 
         { "ch04_010_0000" , "Erik" },
         { "ch04_010_0071" , "Erik" },
         { "ch04_010_0072" , "Erik" },
+        { "ch04_010_0073" , "Erik" },
 
         { "ch04_001_0000"             , "Y'sai"                     }, //(NPC) Y'sai's Outfit"            
         { "ch04_001_0050"             , "Windward Plains NPC"       }, //(NPC) Windward Plains Hood 1"    
@@ -194,7 +197,8 @@ namespace kbf {
         { "ch04_019_0000"             , "Santiago"                  }, //(NPC) Santiago's Outfit"         
         { "ch04_020_0000"             , "Vio"                       }, //(NPC) Vio's Outfit"              
         { "ch04_022_0000"             , "Legendary Artisan"         }, //(NPC) Legendary Artisan's Outfit"
-        { "ch04_023_0000"             , "Diva"                      }, //(NPC) Diva's Outfit"             
+        { "ch04_023_0000"             , "Diva"                      }, //(NPC) Diva's Outfit"      
+        { "ch04_025_0000"             , "Nadia"                     }, //(NPC) Nadia's Outfit"
         { "ch04_200_0000"             , "Windward Plains NPC"       }, //(NPC) Windward Plains Outfit 1"                             
         { "ch04_200_0001"             , "Windward Plains NPC"       }, //(NPC) Windward Plains Outfit 2"                             
         { "ch04_200_0100"             , "Windward Plains NPC"       }, //(NPC) Windward Plains Outfit 3"  
@@ -206,6 +210,7 @@ namespace kbf {
         { "ch04_200_0205"             , "Clerk NPC"                 }, //(NPC) Blossomdance"                               
         { "ch04_200_0206"             , "Clerk NPC"                 }, //(NPC) Flamefete"                 
         { "ch04_200_0207"             , "Clerk NPC"                 }, //(NPC) Dreamspell"                 
+        { "ch04_200_0208"             , "Clerk NPC"                 }, //(NPC) Lumenhymn"                 
         { "ch04_200_0300"             , "Provisions NPC"            }, //(NPC) Forge Outfit 2"                                  
         { "ch04_200_0301"             , "Provisions NPC"            }, //(NPC) Forge Outfit 3"                                  
         { "ch04_200_0302"             , "Provisions NPC"            }, //(NPC) Forge Outfit 4"            
@@ -221,6 +226,7 @@ namespace kbf {
         { "ch04_201_0205"             , "Clerk NPC"                 }, //(NPC) Blossomdance"                               
         { "ch04_201_0206"             , "Clerk NPC"                 }, //(NPC) Flamefete"                 
         { "ch04_201_0207"             , "Clerk NPC"                 }, //(NPC) Dreamspell"                 
+        { "ch04_201_0208"             , "Clerk NPC"                 }, //(NPC) Lumenhymn"                 
         { "ch04_201_0300"             , "Oilwell Basin NPC"         }, //(NPC) Forge Outfit 2"                                      
         { "ch04_201_0301"             , "Oilwell Basin NPC"         }, //(NPC) Forge Outfit 3"                                      
         { "ch04_201_0302"             , "Oilwell Basin NPC"         }, //(NPC) Forge Outfit 4"            

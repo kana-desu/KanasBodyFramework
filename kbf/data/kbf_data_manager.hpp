@@ -53,21 +53,24 @@ namespace kbf {
 		void setNpcConfig_Male     (std::string presetUUID) { npcDefaults().male      = presetUUID; writeNpcConfig(npcDefaults()); }
 		void setNpcConfig_Female   (std::string presetUUID) { npcDefaults().female    = presetUUID; writeNpcConfig(npcDefaults()); }
 
-		void setAlmaConfig_HandlersOutfit     (std::string presetUUID) { almaConfig().handlersOutfit      = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_NewWorldCommission (std::string presetUUID) { almaConfig().newWorldCommission  = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_ScrivenersCoat     (std::string presetUUID) { almaConfig().scrivenersCoat      = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_SpringBlossomKimono(std::string presetUUID) { almaConfig().springBlossomKimono = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_ChunLiOutfit       (std::string presetUUID) { almaConfig().chunLiOutfit        = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_CammyOutfit        (std::string presetUUID) { almaConfig().cammyOutfit         = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_SummerPoncho       (std::string presetUUID) { almaConfig().summerPoncho        = presetUUID; writeAlmaConfig(almaConfig()); }
-		void setAlmaConfig_AutumnWitch        (std::string presetUUID) { almaConfig().autumnWitch         = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_HandlersOutfit          (std::string presetUUID) { almaConfig().handlersOutfit           = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_NewWorldCommission      (std::string presetUUID) { almaConfig().newWorldCommission       = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_ScrivenersCoat          (std::string presetUUID) { almaConfig().scrivenersCoat           = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_SpringBlossomKimono     (std::string presetUUID) { almaConfig().springBlossomKimono      = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_ChunLiOutfit            (std::string presetUUID) { almaConfig().chunLiOutfit             = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_CammyOutfit             (std::string presetUUID) { almaConfig().cammyOutfit              = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_SummerPoncho            (std::string presetUUID) { almaConfig().summerPoncho             = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_AutumnWitch             (std::string presetUUID) { almaConfig().autumnWitch              = presetUUID; writeAlmaConfig(almaConfig()); }
+		void setAlmaConfig_FeatherskirtSeikretDress(std::string presetUUID) { almaConfig().featherskirtSeikretDress = presetUUID; writeAlmaConfig(almaConfig()); }
 
-		void setGemmaConfig_SmithysOutfit     (std::string presetUUID) { gemmaConfig().smithysOutfit   = presetUUID; writeGemmaConfig(gemmaConfig()); }
-		void setGemmaConfig_SummerCoveralls   (std::string presetUUID) { gemmaConfig().summerCoveralls = presetUUID; writeGemmaConfig(gemmaConfig()); }
+		void setGemmaConfig_SmithysOutfit      (std::string presetUUID) { gemmaConfig().smithysOutfit       = presetUUID; writeGemmaConfig(gemmaConfig()); }
+		void setGemmaConfig_SummerCoveralls    (std::string presetUUID) { gemmaConfig().summerCoveralls     = presetUUID; writeGemmaConfig(gemmaConfig()); }
+		void setGemmaConfig_RedveilSeikretDress(std::string presetUUID) { gemmaConfig().redveilSeikretDress = presetUUID; writeGemmaConfig(gemmaConfig()); }
 
-		void setErikConfig_HandlersOutfit     (std::string presetUUID) { erikConfig().handlersOutfit = presetUUID; writeErikConfig(erikConfig()); }
-		void setErikConfig_SummerHat          (std::string presetUUID) { erikConfig().summerHat      = presetUUID; writeErikConfig(erikConfig()); }
-		void setErikConfig_AutumnTherian      (std::string presetUUID) { erikConfig().autumnTherian  = presetUUID; writeErikConfig(erikConfig()); }
+		void setErikConfig_HandlersOutfit        (std::string presetUUID) { erikConfig().handlersOutfit         = presetUUID; writeErikConfig(erikConfig()); }
+		void setErikConfig_SummerHat             (std::string presetUUID) { erikConfig().summerHat              = presetUUID; writeErikConfig(erikConfig()); }
+		void setErikConfig_AutumnTherian         (std::string presetUUID) { erikConfig().autumnTherian          = presetUUID; writeErikConfig(erikConfig()); }
+		void setErikConfig_CrestcollarSeikretSuit(std::string presetUUID) { erikConfig().crestcollarSeikretSuit = presetUUID; writeErikConfig(erikConfig()); }
 
 		void previewPreset(const Preset* preset) { previewedPreset = preset; }
 		const Preset* getPreviewedPreset() const { return previewedPreset; }

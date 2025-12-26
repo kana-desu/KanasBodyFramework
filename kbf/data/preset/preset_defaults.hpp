@@ -16,12 +16,14 @@ namespace kbf {
 		std::string cammyOutfit;
 		std::string summerPoncho;
 		std::string autumnWitch;
+		std::string featherskirtSeikretDress;
 		FormatMetadata metadata;
 	};
 
 	struct GemmaDefaults {
 		std::string smithysOutfit;
 		std::string summerCoveralls;
+		std::string redveilSeikretDress;
 		FormatMetadata metadata;
 	};
 
@@ -29,6 +31,7 @@ namespace kbf {
 		std::string handlersOutfit;
 		std::string summerHat;
 		std::string autumnTherian;
+		std::string crestcollarSeikretSuit;
 		FormatMetadata metadata;
 	};
 

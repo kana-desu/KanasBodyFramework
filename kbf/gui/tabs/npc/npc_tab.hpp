@@ -43,36 +43,42 @@ namespace kbf {
 
 		// Callbacks for setting individual presets
 		// Alma
-		const std::function<void(std::string)> setAlmaHandlersOutfitCb       = [&](std::string uuid) { dataManager.setAlmaConfig_HandlersOutfit(uuid); };
-		const std::function<void(std::string)> setAlmaNewWorldCommissionCb   = [&](std::string uuid) { dataManager.setAlmaConfig_NewWorldCommission(uuid); };
-		const std::function<void(std::string)> setAlmaScrivenersCoatCb       = [&](std::string uuid) { dataManager.setAlmaConfig_ScrivenersCoat(uuid); };
-		const std::function<void(std::string)> setAlmaSpringBlossomKimonoCb  = [&](std::string uuid) { dataManager.setAlmaConfig_SpringBlossomKimono(uuid); };
-		const std::function<void(std::string)> setAlmaChunLiOutfitCb         = [&](std::string uuid) { dataManager.setAlmaConfig_ChunLiOutfit(uuid); };
-		const std::function<void(std::string)> setAlmaCammyOutfitCb          = [&](std::string uuid) { dataManager.setAlmaConfig_CammyOutfit(uuid); };
-		const std::function<void(std::string)> setAlmaSummerPonchoCb         = [&](std::string uuid) { dataManager.setAlmaConfig_SummerPoncho(uuid); };
-		const std::function<void(std::string)> setAlmaAutumnWitchCb          = [&](std::string uuid) { dataManager.setAlmaConfig_AutumnWitch(uuid); };
-		const std::function<void()>            editAlmaHandlersOutfitCb      = [&]() { openEditPanel(setAlmaHandlersOutfitCb     ); };
-		const std::function<void()>            editAlmaNewWorldCommissionCb  = [&]() { openEditPanel(setAlmaNewWorldCommissionCb ); };
-		const std::function<void()>            editAlmaScrivenersCoatCb      = [&]() { openEditPanel(setAlmaScrivenersCoatCb     ); };
-		const std::function<void()>            editAlmaSpringBlossomKimonoCb = [&]() { openEditPanel(setAlmaSpringBlossomKimonoCb); };
-		const std::function<void()>            editAlmaChunLiOutfitCb        = [&]() { openEditPanel(setAlmaChunLiOutfitCb       ); };
-		const std::function<void()>            editAlmaCammyOutfitCb         = [&]() { openEditPanel(setAlmaCammyOutfitCb        ); };
-		const std::function<void()>            editAlmaSummerPonchoCb        = [&]() { openEditPanel(setAlmaSummerPonchoCb       ); };
-		const std::function<void()>            editAlmaAutumnWitchCb         = [&]() { openEditPanel(setAlmaAutumnWitchCb        ); };
+		const std::function<void(std::string)> setAlmaHandlersOutfitCb            = [&](std::string uuid) { dataManager.setAlmaConfig_HandlersOutfit(uuid); };
+		const std::function<void(std::string)> setAlmaNewWorldCommissionCb        = [&](std::string uuid) { dataManager.setAlmaConfig_NewWorldCommission(uuid); };
+		const std::function<void(std::string)> setAlmaScrivenersCoatCb            = [&](std::string uuid) { dataManager.setAlmaConfig_ScrivenersCoat(uuid); };
+		const std::function<void(std::string)> setAlmaSpringBlossomKimonoCb       = [&](std::string uuid) { dataManager.setAlmaConfig_SpringBlossomKimono(uuid); };
+		const std::function<void(std::string)> setAlmaChunLiOutfitCb              = [&](std::string uuid) { dataManager.setAlmaConfig_ChunLiOutfit(uuid); };
+		const std::function<void(std::string)> setAlmaCammyOutfitCb               = [&](std::string uuid) { dataManager.setAlmaConfig_CammyOutfit(uuid); };
+		const std::function<void(std::string)> setAlmaSummerPonchoCb              = [&](std::string uuid) { dataManager.setAlmaConfig_SummerPoncho(uuid); };
+		const std::function<void(std::string)> setAlmaAutumnWitchCb               = [&](std::string uuid) { dataManager.setAlmaConfig_AutumnWitch(uuid); };
+		const std::function<void(std::string)> setAlmaFeatherskirtSeikretDressCb  = [&](std::string uuid) { dataManager.setAlmaConfig_FeatherskirtSeikretDress(uuid); };
+		const std::function<void()>            editAlmaHandlersOutfitCb           = [&]() { openEditPanel(setAlmaHandlersOutfitCb          ); };
+		const std::function<void()>            editAlmaNewWorldCommissionCb       = [&]() { openEditPanel(setAlmaNewWorldCommissionCb      ); };
+		const std::function<void()>            editAlmaScrivenersCoatCb           = [&]() { openEditPanel(setAlmaScrivenersCoatCb          ); };
+		const std::function<void()>            editAlmaSpringBlossomKimonoCb      = [&]() { openEditPanel(setAlmaSpringBlossomKimonoCb     ); };
+		const std::function<void()>            editAlmaChunLiOutfitCb             = [&]() { openEditPanel(setAlmaChunLiOutfitCb            ); };
+		const std::function<void()>            editAlmaCammyOutfitCb              = [&]() { openEditPanel(setAlmaCammyOutfitCb             ); };
+		const std::function<void()>            editAlmaSummerPonchoCb             = [&]() { openEditPanel(setAlmaSummerPonchoCb            ); };
+		const std::function<void()>            editAlmaAutumnWitchCb              = [&]() { openEditPanel(setAlmaAutumnWitchCb             ); };
+		const std::function<void()>            editAlmaFeatherskirtSeikretDressCb = [&]() { openEditPanel(setAlmaFeatherskirtSeikretDressCb); };
 
 		// Gemma
-		const std::function<void(std::string)> setGemmaSmithysOutfitCb       = [&](std::string uuid) { dataManager.setGemmaConfig_SmithysOutfit(uuid); };
-		const std::function<void(std::string)> setGemmaSummerCoverallsCb     = [&](std::string uuid) { dataManager.setGemmaConfig_SummerCoveralls(uuid); };
-		const std::function<void()>            editGemmaSmithysOutfitCb      = [&]() { openEditPanel(setGemmaSmithysOutfitCb   ); };
-		const std::function<void()>            editGemmaSummerCoverallsCb    = [&]() { openEditPanel(setGemmaSummerCoverallsCb); };
+		const std::function<void(std::string)> setGemmaSmithysOutfitCb        = [&](std::string uuid) { dataManager.setGemmaConfig_SmithysOutfit(uuid); };
+		const std::function<void(std::string)> setGemmaSummerCoverallsCb      = [&](std::string uuid) { dataManager.setGemmaConfig_SummerCoveralls(uuid); };
+		const std::function<void(std::string)> setGemmaRedveilSeikretDressCb  = [&](std::string uuid) { dataManager.setGemmaConfig_RedveilSeikretDress(uuid); };
+		const std::function<void()>            editGemmaSmithysOutfitCb       = [&]() { openEditPanel(setGemmaSmithysOutfitCb      ); };
+		const std::function<void()>            editGemmaSummerCoverallsCb     = [&]() { openEditPanel(setGemmaSummerCoverallsCb    ); };
+		const std::function<void()>            editGemmaRedveilSeikretDressCb = [&]() { openEditPanel(setGemmaRedveilSeikretDressCb); };
 
 		// Erik
-		const std::function<void(std::string)> setErikHandlersOutfitCb       = [&](std::string uuid) { dataManager.setErikConfig_HandlersOutfit(uuid); };
-		const std::function<void(std::string)> setErikSummerHatCb            = [&](std::string uuid) { dataManager.setErikConfig_SummerHat(uuid); };
-		const std::function<void(std::string)> setErikAutumnTherianCb        = [&](std::string uuid) { dataManager.setErikConfig_AutumnTherian(uuid); };
-		const std::function<void()>            editErikHandlersOutfitCb      = [&]() { openEditPanel(setErikHandlersOutfitCb); };
-		const std::function<void()>            editErikSummerHatCb           = [&]() { openEditPanel(setErikSummerHatCb     ); };
-		const std::function<void()>            editErikAutumnTherianCb       = [&]() { openEditPanel(setErikAutumnTherianCb ); };
+		const std::function<void(std::string)> setErikHandlersOutfitCb          = [&](std::string uuid) { dataManager.setErikConfig_HandlersOutfit(uuid); };
+		const std::function<void(std::string)> setErikSummerHatCb               = [&](std::string uuid) { dataManager.setErikConfig_SummerHat(uuid); };
+		const std::function<void(std::string)> setErikAutumnTherianCb           = [&](std::string uuid) { dataManager.setErikConfig_AutumnTherian(uuid); };
+		const std::function<void(std::string)> setErikCrestcollarSeikretSuitCb  = [&](std::string uuid) { dataManager.setErikConfig_CrestcollarSeikretSuit(uuid); };
+		const std::function<void()>            editErikHandlersOutfitCb         = [&]() { openEditPanel(setErikHandlersOutfitCb        ); };
+		const std::function<void()>            editErikSummerHatCb              = [&]() { openEditPanel(setErikSummerHatCb             ); };
+		const std::function<void()>            editErikAutumnTherianCb          = [&]() { openEditPanel(setErikAutumnTherianCb         ); };
+		const std::function<void()>            editErikCrestcollarSeikretSuitCb = [&]() { openEditPanel(setErikCrestcollarSeikretSuitCb); };
 
 	};
 
