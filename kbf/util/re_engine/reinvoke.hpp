@@ -64,7 +64,7 @@ namespace kbf {
         #endif
 
         if (ret.exception_thrown) {
-            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_DEBUG);
         }
 
         return (castType*)(ret.ptr); // I *think* this is ok, but may need (castType*)&ret? ??
@@ -96,7 +96,7 @@ namespace kbf {
         reframework::InvokeRet ret = callerMethod->invoke(nullptr, args);
 
         if (ret.exception_thrown) {
-            DEBUG_STACK.push(std::format("{} REInvokeStatic: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+            DEBUG_STACK.push(std::format("{} REInvokeStatic: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_DEBUG);
         }
 
         switch (returnType) {
@@ -197,7 +197,7 @@ namespace kbf {
         reframework::InvokeRet ret = caller->invoke(methodName, args);
 
         if (ret.exception_thrown) {
-            DEBUG_STACK.push(std::format("{} REInvoke: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+            DEBUG_STACK.push(std::format("{} REInvoke: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_DEBUG);
         }
 
         switch (returnType) {
@@ -246,7 +246,7 @@ namespace kbf {
         #endif
 
         if (ret.exception_thrown) {
-            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+            DEBUG_STACK.push(std::format("{} REInvokePtr: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_DEBUG);
         }
 
         return (castType*)(ret.ptr); // I *think* this is ok, but may need (castType*)&ret? ??
@@ -298,7 +298,7 @@ namespace kbf {
         reframework::InvokeRet ret = caller->invoke(methodName, args);
 
         if (ret.exception_thrown) {
-            DEBUG_STACK.push(std::format("{} REInvokeVoid: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_ERROR);
+            DEBUG_STACK.push(std::format("{} REInvokeVoid: {} threw an exception!", REINVOKE_LOG_TAG, methodName), DebugStack::Color::COL_DEBUG);
         }
 	}
 
