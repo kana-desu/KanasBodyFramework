@@ -54,7 +54,7 @@ namespace kbf {
 
         drawTabBarSeparator("Version", "Version");
         CImGui::Text(std::format("Kana's Body Framework v{}", KBF_VERSION).c_str());
-        CImGui::Text(std::format("This version is tested to support MHWilds TU3, and migration from FBS v1.19").c_str());
+        CImGui::Text(std::format("This version is tested to support MHWilds TU4, and migration from FBS v1.19").c_str());
         
         CImGui::Spacing();
 
@@ -640,7 +640,17 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("vX.X.Xb", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.1.0", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "KBF Is now out of beta! :) I think it's reach a bug-free enough state to remove this tag :p");
+            WRAP_BULLET("-", "Added support for TU4 & Lumenhymn event.");
+            WRAP_BULLET("-", "Added TU4 armours for players & NPCs.");
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed crashes caused by TU4 (Capcom changed model joints under the hood in preparation for GPU skinning update).");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.0.8b")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed an issue causing KBF to not be able to find game singletons. This was the cause of various issues / crashes.");
