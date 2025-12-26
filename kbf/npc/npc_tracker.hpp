@@ -13,7 +13,7 @@
 
 // UPDATE NOTE: This size may change with future updates.
 
-#define NPC_LIST_SIZE 681
+#define NPC_LIST_SIZE 685
 #define TRY_FETCH_LIMIT 100
 
 namespace kbf {
