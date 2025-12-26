@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 
-set(VER 1.0.8)
+set(VER 1.1.0)
 
 project(
     KanaBodyFramework
@@ -14,6 +14,7 @@ message(STATUS "Version: " ${VER})
 # --- Packaging Options --------------------------------------------------------------------------
 
 option(PACKAGE_FOR_DIST "Package build for distribution (v${VER})" OFF)
+option(FORCE_HOT_RELOADER "Force hot-reloader even in Release builds" OFF)
 
 # --- Compiler Definitions -----------------------------------------------------------------------
 
@@ -86,7 +87,7 @@ set(KBF_HOT_RELOADER_SOURCES
 # Choose build mode
 # ------------------------------------------------------------------------------
 
-if((CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
+if(FORCE_HOT_RELOADER OR (CMAKE_BUILD_TYPE STREQUAL "Debug") OR (CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
     # Force /Z7 for Debug builds - this suppresses annoying Z7 over Zi warnings in MSVC
     if(MSVC AND (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo"))
         # Override the default /Zi flag
