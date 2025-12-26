@@ -58,48 +58,36 @@ namespace kbf {
 		return BoneApplyStatusFlag::BONE_APPLY_SUCCESS;
 	}
 
+	// UPDATE NOTE: This func is reverse engineered from get_LocalXXX ASM. It will need updating frequently.
+	template<int64_t Offset>
+	inline uintptr_t getJointTransformPtr(REApi::ManagedObject*& bone) {
+		uint64_t rax = *(uint64_t*)(bone + 0x10); //qword ptr [r8 + 0x10]
+		if (rax == 0) return 0;
+
+		int64_t rcx = (int64_t) * (int32_t*)(bone + 0x18);
+		rax = *(uint64_t*)(rax + Offset);
+		rcx = rcx << 0x04;
+
+		return rax + rcx;
+	}
+
 	bool BoneManager::modifyBone(REApi::ManagedObject* bone, const BoneModifier& modifier) {
 		if (bone == nullptr) return false;
-
-		static reframework::API::TypeDefinition* def_ViaJoint = reframework::API::get()->tdb()->find_type("via.Joint");
-		if (!checkREPtrValidity(bone, def_ViaJoint)) return false;
-		
-		const static std::vector<void*> nullArgs{};
 		
 		if (modifier.hasScale()) {
-			// Avoid using REInvoke here to cache methods & get most performance on this hot path
-			static REApi::Method* getJointScale = REApi::get()->tdb()->find_method("via.Joint", "get_LocalScale");
-			static REApi::Method* setJointScale = REApi::get()->tdb()->find_method("via.Joint", "set_LocalScale(via.vec3)");
-			reframework::InvokeRet ret = getJointScale->invoke(bone, nullArgs);
-
-			// Why the fuck do we need the pointer to this ret value??? I don't even want to know anymore
-			glm::vec3* scaleData = reinterpret_cast<glm::vec3*>(&ret);
-			glm::vec3  newScaleData = modifier.scale + *scaleData;
-
-			setJointScale->invoke(bone, { (void*)&newScaleData });
+			// Direct read for best performance
+			glm::vec3* scalePtr = (glm::vec3*)getJointTransformPtr<0x38>(bone);
+			if (scalePtr != nullptr) *scalePtr = *scalePtr + modifier.scale;
 		}
 
 		if (modifier.hasPosition()) {
-			static REApi::Method* getJointPos = REApi::get()->tdb()->find_method("via.Joint", "get_LocalPosition");
-			static REApi::Method* setJointPos = REApi::get()->tdb()->find_method("via.Joint", "set_LocalPosition(via.vec3)");
-			reframework::InvokeRet ret = getJointPos->invoke(bone, nullArgs);
-
-			glm::vec3* posData = reinterpret_cast<glm::vec3*>(&ret);
-			glm::vec3  newPosData = modifier.position + *posData;
-
-			setJointPos->invoke(bone, { (void*)&newPosData });
+			glm::vec3* posPtr = (glm::vec3*)getJointTransformPtr<0x18>(bone);
+			if (posPtr != nullptr) *posPtr = *posPtr + modifier.position;
 		}
 
 		if (modifier.hasRotation()) {
-			// TODO: Quaternion has always been preferable for performance but for some god forsaken reason, passing in a 12 byte struct doesn't work.
-			static REApi::Method* getJointRot = REApi::get()->tdb()->find_method("via.Joint", "get_LocalEulerAngle");
-			static REApi::Method* setJointRot = REApi::get()->tdb()->find_method("via.Joint", "set_LocalEulerAngle(via.vec3)");
-			reframework::InvokeRet ret = getJointRot->invoke(bone, nullArgs);
-
-			glm::vec3* rotData = reinterpret_cast<glm::vec3*>(&ret);
-			glm::vec3  newRotData = *rotData + modifier.getRotation();
-
-			setJointRot->invoke(bone, { (void*)&newRotData });
+			glm::fquat* rotPtr = (glm::fquat*)getJointTransformPtr<0x28>(bone);
+			if (rotPtr != nullptr) *rotPtr *= modifier.getQuaternionRotation();
 		}
 
 		return true;
