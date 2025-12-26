@@ -17,6 +17,9 @@
     "Amstrigian 0": {
         "male": {"helm":"ch03_078_0003"}
     },
+    "Analytic E.Y.E. 0": {
+        "male": {"helm":"ch03_088_9003"}
+    },
     "Any": {
         "male": {"helm":"Any","body":"Any","arms":"Any","coil":"Any","legs":"Any"}
     },
@@ -49,6 +52,10 @@
         "female": {"helm":"ch03_041_0013","body":"ch03_041_0012","arms":"ch03_041_0011","coil":"ch03_041_0015","legs":"ch03_041_0014"},
         "male": {"helm":"ch03_041_0003","body":"ch03_041_0002","arms":"ch03_041_0001","coil":"ch03_041_0005","legs":"ch03_041_0004"}
     },
+    "Blessed Waistchain 0": {
+        "female": {"coil":"ch03_102_0015"},
+        "male": {"coil":"ch03_102_0005"}
+    },
     "Blossom 0": {
         "female": {"helm":"ch03_075_0013","body":"ch03_075_0012","arms":"ch03_075_0011","coil":"ch03_075_0015","legs":"ch03_075_0014"},
         "male": {"helm":"ch03_075_0003","body":"ch03_075_0002","arms":"ch03_075_0001","coil":"ch03_075_0005","legs":"ch03_075_0004"}
@@ -64,6 +71,10 @@
     "Butterfly 0": {
         "female": {"helm":"ch03_054_0013","body":"ch03_054_0012","arms":"ch03_054_0011","coil":"ch03_054_0015","legs":"ch03_054_0014"},
         "male": {"helm":"ch03_054_0003","body":"ch03_054_0002","arms":"ch03_054_0001","coil":"ch03_054_0005","legs":"ch03_054_0004"}
+    },
+    "Ceremonial 0": {
+        "female": {"helm":"ch03_093_0013","body":"ch03_093_0012","arms":"ch03_093_0011","coil":"ch03_093_0015","legs":"ch03_093_0014"},
+        "male": {"helm":"ch03_093_0003","body":"ch03_093_0002","arms":"ch03_093_0001","coil":"ch03_093_0005","legs":"ch03_093_0004"}
     },
     "Chainmail 0": {
         "female": {"helm":"ch03_006_0013","body":"ch03_006_0012","arms":"ch03_006_0011","coil":"ch03_006_0015","legs":"ch03_006_0014"},
@@ -89,6 +100,9 @@
         "female": {"helm":"ch03_013_0013","body":"ch03_013_0012","arms":"ch03_013_0011","coil":"ch03_013_0015","legs":"ch03_013_0014"},
         "male": {"helm":"ch03_013_0003","body":"ch03_013_0002","arms":"ch03_013_0001","coil":"ch03_013_0005","legs":"ch03_013_0004"}
     },
+    "Cosmoloid": {
+        "male": {"helm":"ch03_091_0003","body":"ch03_091_0002","arms":"ch03_091_0001","coil":"ch03_091_0005","legs":"ch03_091_0004"}
+    },
     "Cypurrpunk": {
         "female": {"helm":"ch03_080_0013","body":"ch03_080_0012","arms":"ch03_080_0011","coil":"ch03_080_0015","legs":"ch03_080_0014"},
         "male": {"helm":"ch03_080_0003","body":"ch03_080_0002","arms":"ch03_080_0001","coil":"ch03_080_0005","legs":"ch03_080_0004"}
@@ -96,6 +110,10 @@
     "Dahaad 0/1": {
         "female": {"helm":"ch03_029_0013","body":"ch03_029_0012","arms":"ch03_029_0011","coil":"ch03_029_0015","legs":"ch03_029_0014"},
         "male": {"helm":"ch03_029_0003","body":"ch03_029_0002","arms":"ch03_029_0001","coil":"ch03_029_0005","legs":"ch03_029_0004"}
+    },
+    "Dahaad 2": {
+        "female": {"helm":"ch03_029_3013","body":"ch03_029_3012","arms":"ch03_029_3011","coil":"ch03_029_3015","legs":"ch03_029_3014"},
+        "male": {"helm":"ch03_029_3003","body":"ch03_029_3002","arms":"ch03_029_3001","coil":"ch03_029_3005","legs":"ch03_029_3004"}
     },
     "Damascus 0": {
         "female": {"helm":"ch03_025_0013","body":"ch03_025_0012","arms":"ch03_025_0011","coil":"ch03_025_0015","legs":"ch03_025_0014"},
@@ -124,6 +142,10 @@
     "Dreamwalker 0": {
         "female": {"helm":"ch03_085_0013","body":"ch03_085_0012","arms":"ch03_085_0011","coil":"ch03_085_0015","legs":"ch03_085_0014"},
         "male": {"helm":"ch03_085_0003","body":"ch03_085_0002","arms":"ch03_085_0001","coil":"ch03_085_0005","legs":"ch03_085_0004"}
+    },
+    "Eager Wudwud 0": {
+        "female": {"helm":"ch03_101_0013"},
+        "male": {"helm":"ch03_101_0003"}
     },
     "Earrings of Dedication 0": {
         "female": {"helm":"ch03_076_0013"},
@@ -159,6 +181,10 @@
     },
     "Gelidron 0": {
         "male": {"helm":"ch03_096_0003","body":"ch03_096_0002"}
+    },
+    "Gogmazios 0/1": {
+        "female": {"helm":"ch03_092_0013","body":"ch03_092_0012","arms":"ch03_092_0011","coil":"ch03_092_0015","legs":"ch03_092_0014"},
+        "male": {"helm":"ch03_092_0003","body":"ch03_092_0002","arms":"ch03_092_0001","coil":"ch03_092_0005","legs":"ch03_092_0004"}
     },
     "Gore 0/1": {
         "female": {"helm":"ch03_042_0013","body":"ch03_042_0012","arms":"ch03_042_0011","coil":"ch03_042_0015","legs":"ch03_042_0014"},
@@ -284,6 +310,9 @@
     "Mimiphyta 0": {
         "male": {"helm":"ch03_063_0003"}
     },
+    "Mirror Visor 0": {
+        "male": {"helm":"ch03_088_8003"}
+    },
     "Mizutsune 0/1": {
         "female": {"helm":"ch03_066_0013","body":"ch03_066_0012","arms":"ch03_066_0011","coil":"ch03_066_0015","legs":"ch03_066_0014"},
         "male": {"helm":"ch03_066_0003","body":"ch03_066_0002","arms":"ch03_066_0001","coil":"ch03_066_0005","legs":"ch03_066_0004"}
@@ -313,6 +342,10 @@
     },
     "Oni Horns Wig 0": {
         "male": {"helm":"ch03_064_0003"}
+    },
+    "Orion 0": {
+        "female": {"helm":"ch03_099_0013","body":"ch03_099_0012","arms":"ch03_099_0011","coil":"ch03_099_0015","legs":"ch03_099_0014"},
+        "male": {"helm":"ch03_099_0003","body":"ch03_099_0002","arms":"ch03_099_0001","coil":"ch03_099_0005","legs":"ch03_099_0004"}
     },
     "Pinion Necklace 0": {
         "male": {"helm":"ch03_089_0003","body":"ch03_089_0002","arms":"ch03_089_0001","coil":"ch03_089_0005"}
@@ -420,6 +453,9 @@
     "[NPC] Alma's Chun Li Outfit": {
         "female": {"body":"ch04_000_0075"}
     },
+    "[NPC] Alma's Featherskirt Seikret Dress": {
+        "female": {"body":"ch04_000_0073"}
+    },
     "[NPC] Alma's Handler's Outfit": {
         "female": {"body":"ch04_000_0000"}
     },
@@ -454,6 +490,12 @@
         "female": {"body":"ch04_201_0206"},
         "male": {"body":"ch04_200_0206"}
     },
+    "[NPC] Clerk (LumenHymn)": {
+        "female": {"body":"ch04_201_0208"}
+    },
+    "[NPC] Clerk (Lumenhymn)": {
+        "male": {"body":"ch04_200_0208"}
+    },
     "[NPC] Defender Armour": {
         "female": {"body":"ch04_201_0201"},
         "male": {"body":"ch04_200_0201"}
@@ -476,6 +518,9 @@
     "[NPC] Erik's Autumn Therian": {
         "male": {"body":"ch04_010_0072"}
     },
+    "[NPC] Erik's Crestcollar Seikret Suit": {
+        "male": {"body":"ch04_010_0073"}
+    },
     "[NPC] Erik's Handler's Outfit": {
         "male": {"body":"ch04_010_0000"}
     },
@@ -488,6 +533,9 @@
     },
     "[NPC] Fabius's Outfit": {
         "male": {"body":"ch04_008_0000"}
+    },
+    "[NPC] Gemma's Redveil Seikret Dress": {
+        "female": {"body":"ch04_004_0073"}
     },
     "[NPC] Gemma's Smithy's Outfit": {
         "female": {"body":"ch04_004_0000"}
@@ -504,6 +552,9 @@
     },
     "[NPC] Maki's Outfit": {
         "female": {"body":"ch04_015_0000"}
+    },
+    "[NPC] Nadia's Outfit": {
+        "female": {"body":"ch04_025_0000"}
     },
     "[NPC] Nata's Hunter Outfit": {
         "male": {"body":"ch04_006_0001"}
