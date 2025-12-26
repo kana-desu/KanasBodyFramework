@@ -37,21 +37,6 @@ namespace kbf {
 
         auto& api = REApi::get();
 
-        // Main Menu Singletons
-        //sceneManager = api->get_native_singleton("via.SceneManager");
-        //assert(sceneManager != nullptr && "Could not get sceneManager!");
-        //saveDataManager = api->get_managed_singleton("app.SaveDataManager");
-        //assert(saveDataManager != nullptr && "Could not get saveDataManager!");
-
-        // Guild Card Singletons
-        //guiManager = api->get_managed_singleton("app.GUIManager");
-        //assert(guiManager != nullptr && "Could not get GUIManager!");
-
-        // Normal Gameplay Singletons
-        //playerManager = api->get_managed_singleton("app.PlayerManager");
-        //assert(playerManager != nullptr && "Could not get playerManager!");
-        //networkManager = api->get_managed_singleton("app.NetworkManager");
-        //assert(networkManager != nullptr && "Could not get networkManager!");
         netContextManager = REInvokePtr<REApi::ManagedObject>(networkManager.get(), "get_ContextManager", {});
         assert(netContextManager != nullptr && "Could not get netContextManager!");
         netUserInfoManager = REInvokePtr<REApi::ManagedObject>(networkManager.get(), "get_UserInfoManager", {});
@@ -102,6 +87,8 @@ namespace kbf {
                 players.begin() + std::min<size_t>(maxPlayersToApply, players.size()),
                 players.end(),
                 [&](const std::pair<const PlayerData*, size_t>& a, const std::pair<const PlayerData*, size_t>& b) {
+                    if (!playerInfos[a.second]) return false;
+                    if (!playerInfos[b.second]) return true;
                     return playerInfos[a.second]->distanceFromCameraSq < playerInfos[b.second]->distanceFromCameraSq;
                 }
             );
@@ -1241,7 +1228,7 @@ namespace kbf {
         if (distThreshold > 0 && sqDist > distThreshold * distThreshold) return;
 
         info.distanceFromCameraSq = sqDist;
-        info.visible = true;
+        info.visible = info.index == 0 || (info.index != 0 && !info.inTent);
         return;
     }
 
