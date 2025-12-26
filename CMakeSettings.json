@@ -1,7 +1,7 @@
 ﻿{
   "configurations": [
     {
-      "name": "x64-Release-HotReload",
+      "name": "x64-RelDeb-HotReload",
       "generator": "Ninja",
       "configurationType": "RelWithDebInfo",
       "buildRoot": "${projectDir}\\out\\build\\${name}",
@@ -82,6 +82,34 @@
       "variables": [
         {
           "name": "PACKAGE_FOR_DIST",
+          "value": "True",
+          "type": "BOOL"
+        }
+      ]
+    },
+    {
+      "name": "x64-Release-HotReload",
+      "generator": "Ninja",
+      "configurationType": "MinSizeRel",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "",
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "variables": [
+        {
+          "name": "PLUGIN_OUTPUT_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/plugins",
+          "type": "STRING"
+        },
+        {
+          "name": "PLUGIN_HOT_RELOAD_DIR",
+          "value": "C:/SteamLibrary/steamapps/common/MonsterHunterWilds/reframework/data/KBF/HotReload",
+          "type": "STRING"
+        },
+        {
+          "name": "FORCE_HOT_RELOADER",
           "value": "True",
           "type": "BOOL"
         }
