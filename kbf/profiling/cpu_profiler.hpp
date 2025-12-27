@@ -23,6 +23,7 @@
 #else
     #define BEGIN_CPU_PROFILING_BLOCK(profiler, blockName)
     #define END_CPU_PROFILING_BLOCK(profiler, blockName)
+    #define PROFILED_FLOW_OP(profiler, blockName, op) op
 #endif
 
 namespace kbf {
