@@ -9,7 +9,10 @@
 #include <kbf/util/string/byte_to_binary_string.hpp>
 #include <kbf/util/re_engine/find_transform.hpp>
 
+#include <kbf/profiling/cpu_profiler.hpp>
+
 #include <kbf/util/string/to_lower.hpp>
+#include <kbf/util/hash/pair_hash.hpp>
 
 #include <kbf/data/mesh/parts/part_cache_manager.hpp>
 
@@ -44,8 +47,17 @@ namespace kbf {
 		if (preset == nullptr) return false;
 		if (piece == ArmourPiece::AP_SET) return true; // SET does not have materials to modify
 
+		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Fetch Piece Info");
 		const std::set<OverrideMaterial> matOverrides = preset->getPieceSettings(piece).materialOverrides;
-		// TODO: Should probably check that the parts being removed actually exist in the mesh.
+		// TODO: I Hate literally all of this OverrideMaterial code, but i cba to refactor it
+		// Do a shitty map based on name so subsequent searches are faster - this is a big performance bottleneck
+		const std::unordered_map<std::pair<size_t, std::string>, const OverrideMaterial*, PairHash> matOverridesLUT = [&matOverrides]() {
+			std::unordered_map<std::pair<size_t, std::string>, const OverrideMaterial*, PairHash> lut;
+			for (const auto& mat : matOverrides) {
+				lut[{ mat.material.index, mat.material.name }] = &mat;
+			}
+			return lut;
+		}();
 
 		REApi::ManagedObject* mesh = nullptr;
 		switch (piece) {
@@ -55,12 +67,16 @@ namespace kbf {
 		case ArmourPiece::AP_COIL: mesh = coilMesh; break;
 		case ArmourPiece::AP_LEGS: mesh = legsMesh; break;
 		}
+		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Fetch Piece Info");
 		if (mesh == nullptr) return false;
 		
+		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Check Mesh Validity");
 		// Check the mesh is valid before trying to apply anything
 		static const reframework::API::TypeDefinition* def_renderMesh = reframework::API::get()->tdb()->find_type("via.render.Mesh");
 		if (!checkREPtrValidity(mesh, def_renderMesh)) return false;
+		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Check Mesh Validity");
 
+		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Fetch Material Info");
 		std::unordered_map<std::string, MeshMaterial>* targetMaterials = nullptr;
 		switch (piece) {
 		case ArmourPiece::AP_HELM: targetMaterials = &helmMaterials; break;
@@ -69,20 +85,29 @@ namespace kbf {
 		case ArmourPiece::AP_COIL: targetMaterials = &coilMaterials; break;
 		case ArmourPiece::AP_LEGS: targetMaterials = &legsMaterials; break;
 		}
+		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Fetch Material Info");
 		if (targetMaterials == nullptr) return false;
 
+		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides");
 		// Only mask out visible items
 		for (const auto& [_, mat] : *targetMaterials) {
-			const auto it = matOverrides.find(mat);
-			if (it == matOverrides.end()) continue;
+			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Mat Search");
+			const auto it = matOverridesLUT.find({ mat.index, mat.name });
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Mat Search");
+			if (it == matOverridesLUT.end()) continue;
 
-			bool vis = it->shown;
+			bool vis = it->second->shown;
+			
+			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Set Visibility");
 			REInvokeVoid(mesh, "setMaterialsEnable(System.UInt64, System.Boolean)", { (void*)mat.index, (void*)vis });
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Set Visibility");
+
 			if (!vis) continue;
 
+			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params");
 			// Apply params.
 			//  All my bad design choices coming to bite me in the ass here :)
-			for (const auto& [name, value] : it->paramOverrides) {
+			for (const auto& [name, value] : it->second->paramOverrides) {
 				const auto paramIt = mat.params.find(name);
 				if (paramIt != mat.params.end()) {
 					uint32_t matIndex   = static_cast<uint32_t>(mat.index);
@@ -90,21 +115,27 @@ namespace kbf {
 					
 					switch (value.type) {
 					case MeshMaterialParamType::MAT_TYPE_FLOAT: {
+						BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params - Set Float");
 						// For whatever dumbass reason, System.Single is actually a double?????????????????????????????????????????????
 						double v = static_cast<double>(value.asFloat());
 						uint64_t vAsUint = *reinterpret_cast<uint64_t*>(&v);
 
 						REInvokeVoid(mesh, "setMaterialFloat(System.UInt32, System.UInt32, System.Single)", { (void*)matIndex, (void*)paramIndex, (void*)vAsUint });
+						END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params - Set Float");
 					} break;
 					case MeshMaterialParamType::MAT_TYPE_FLOAT4: {
+						BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params - Set Float4");
 						glm::vec4 v = value.asVec4();
 						REInvokeVoid(mesh, "setMaterialFloat4(System.UInt32, System.UInt32, via.Float4)", { (void*)matIndex, (void*)paramIndex, (void*)&v });
+						END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params - Set Float4");
 					} break;
 					}
 
 				}
 			}
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides - Apply Params");
 		}
+		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Process Overrides");
 
 		QuickOverrideMatMatchLUT* targetOverrideMatches = nullptr;
 		switch (piece) {
@@ -116,9 +147,11 @@ namespace kbf {
 		}
 		if (targetOverrideMatches == nullptr) return false;
 
+		BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Quick Overrides");
 		// Apply quick overrides.
 		const QuickOverrideMatMatchLUT& matches = *targetOverrideMatches;
 		applyQuickOverrides(preset, mesh, matches);
+		END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler, "Material Apply - Quick Overrides");
 
 		return true;
 	}
