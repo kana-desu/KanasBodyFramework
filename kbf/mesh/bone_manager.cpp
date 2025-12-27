@@ -64,7 +64,7 @@ namespace kbf {
 		uint64_t rax = *(uint64_t*)(bone + 0x10); //qword ptr [r8 + 0x10]
 		if (rax == 0) return 0;
 
-		int64_t rcx = (int64_t) * (int32_t*)(bone + 0x18);
+		int64_t rcx = (int64_t)*(int32_t*)(bone + 0x18);
 		rax = *(uint64_t*)(rax + Offset);
 		rcx = rcx << 0x04;
 
