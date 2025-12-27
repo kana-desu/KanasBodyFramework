@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 
-set(VER 1.1.0)
+set(VER 1.1.1)
 
 project(
     KanaBodyFramework

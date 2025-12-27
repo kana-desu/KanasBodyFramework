@@ -640,7 +640,13 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("v1.1.0", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.1.1", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a major performance bottleneck (~0.15ms to general frametime per player) when trying to apply material overrides.");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.1.0")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "KBF Is now out of beta! :) I think it's reach a bug-free enough state to remove this tag :p");
