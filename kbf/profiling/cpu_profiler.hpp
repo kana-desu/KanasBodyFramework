@@ -14,6 +14,12 @@
 
     #define END_CPU_PROFILING_BLOCK(profiler, blockName)  \
        if ((profiler)) (profiler)->endBlock((blockName));
+
+    #define PROFILED_FLOW_OP(profiler, blockName, op)           \
+        { 					                                    \
+            END_CPU_PROFILING_BLOCK((profiler), (blockName))    \
+            op;                                                 \
+        }
 #else
     #define BEGIN_CPU_PROFILING_BLOCK(profiler, blockName)
     #define END_CPU_PROFILING_BLOCK(profiler, blockName)

@@ -27,6 +27,7 @@ namespace kbf {
 				.addBlock("(Post) OnLateUpdateBehavior")
 				.build();
 
+			// TODO: Better naming conventions for this would be `method::tag - info` etc...
 			CpuProfiler::GlobalMultiScopeProfiler = CpuProfiler::Builder()
 				.setWindowSize(1.0)
 				.addBlock("NPC Fetch")
@@ -75,6 +76,23 @@ namespace kbf {
 				.addBlock("Player Fetch - Guild Card - Parts")
 				.addBlock("Player Fetch - Guild Card - Materials")
 				.addBlock("Player Apply")
+				.addBlock("Player Apply - Precompute & Sort")
+				.addBlock("Player Apply - Info Validation")
+				.addBlock("Player Apply - Apply Bones")
+				.addBlock("Player Apply - Apply Parts")
+				.addBlock("Player Apply - Apply Materials")
+				.addBlock("Player Apply - Weapon Visibility")
+				.addBlock("Player Apply - Slinger Visibility")
+				.addBlock("Material Apply - Fetch Piece Info")
+				.addBlock("Material Apply - Check Mesh Validity")
+				.addBlock("Material Apply - Fetch Material Info")
+				.addBlock("Material Apply - Process Overrides")
+				.addBlock("Material Apply - Process Overrides - Mat Search")
+				.addBlock("Material Apply - Process Overrides - Set Visibility")
+				.addBlock("Material Apply - Process Overrides - Apply Params")
+				.addBlock("Material Apply - Process Overrides - Apply Params - Set Float")
+				.addBlock("Material Apply - Process Overrides - Apply Params - Set Float4")
+				.addBlock("Material Apply - Quick Overrides")
 				.build();
 		}
 

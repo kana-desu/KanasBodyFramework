@@ -64,9 +64,20 @@ namespace kbf {
     }
 
     void PlayerTracker::applyPresets() {
+		constexpr auto& profiler = CpuProfiler::GlobalMultiScopeProfiler;
+        constexpr const char* BLOCK_PRECOMPUTE      = "Player Apply - Precompute & Sort";
+        constexpr const char* BLOCK_INFO_VALIDATION = "Player Apply - Info Validation";
+        constexpr const char* BLOCK_APPLY_BONES     = "Player Apply - Apply Bones";
+        constexpr const char* BLOCK_APPLY_PARTS     = "Player Apply - Apply Parts";
+        constexpr const char* BLOCK_APPLY_MATS      = "Player Apply - Apply Materials";
+        constexpr const char* BLOCK_WEAPON_VIS      = "Player Apply - Weapon Visibility";
+        constexpr const char* BLOCK_SLINGER_VIS     = "Player Apply - Slinger Visibility";
+
         bool inQuest = SituationWatcher::inSituation(isinQuestPlayingasGuest) || SituationWatcher::inSituation(isinQuestPlayingasHost);
         if (dataManager.settings().enableDuringQuestsOnly && !inQuest) return;
 
+        // ==== PRECOMPUTE ==================================================================================================
+        BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_PRECOMPUTE);
         // Additionally consider one extra 'preview preset' for those currently being edited in the GUI
         const Preset* previewedPreset = dataManager.getPreviewedPreset();
         const bool hasPreview = previewedPreset != nullptr;
@@ -95,29 +106,33 @@ namespace kbf {
         }
 
         size_t limit = maxPlayersToApply > 0 ? std::min<size_t>(maxPlayersToApply, players.size()) : players.size();
+        END_CPU_PROFILING_BLOCK(profiler, BLOCK_PRECOMPUTE);
+        // ==================================================================================================================
 
         for (size_t i = 0; i < limit; ++i) {
+			BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_INFO_VALIDATION);
             const PlayerData& player = *players[i].first;
             size_t idx = players[i].second;
 
-            if (playerInfos[idx] == nullptr) continue;
-            if (playerApplyDelays[player] && playerApplyDelays[player].has_value()) continue;
+            if (playerInfos[idx] == nullptr)                                        PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
+            if (playerApplyDelays[player] && playerApplyDelays[player].has_value()) PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
 
             const PlayerInfo* infoPtr = playerInfos[idx].get();
             if (infoPtr == nullptr) {
                 playerApplyDelays.erase(player);
-                continue;
+                PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
             }
 
             const PlayerInfo& info = *playerInfos[idx];
-            if (!info.visible) continue;
+            if (!info.visible) PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
 
             PersistentPlayerInfo* pInfo = persistentPlayerInfos[idx].get();
-            if (pInfo == nullptr) continue;
+            if (pInfo == nullptr) PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
             if (!pInfo->areSetPointersValid()) {
                 persistentPlayerInfos[idx] = nullptr;
-                continue;
+                PROFILED_FLOW_OP(profiler, BLOCK_INFO_VALIDATION, continue);
             }
+			END_CPU_PROFILING_BLOCK(profiler, BLOCK_INFO_VALIDATION);
 
             if (pInfo->boneManager && pInfo->partManager) {
 
@@ -139,19 +154,27 @@ namespace kbf {
 
                         const Preset* activePreset = usePreview ? previewedPreset : preset;
 
+						BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_BONES);
                         BoneManager::BoneApplyStatusFlag applyFlag = pInfo->boneManager->applyPreset(activePreset, piece);
                         bool invalidBones = applyFlag == BoneManager::BoneApplyStatusFlag::BONE_APPLY_ERROR_INVALID_BONE;
                         if (invalidBones) { 
                             applyError = true; 
                             clearPlayerSlot(idx); 
                             playersToFetch[idx] = true;
-                            break; 
+                            PROFILED_FLOW_OP(profiler, BLOCK_APPLY_BONES, break);
                         }
+						END_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_BONES);
 
+						BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_PARTS);
                         pInfo->partManager->applyPreset(activePreset, piece);
+						END_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_PARTS);
+
+						BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_MATS);
 						pInfo->materialManager->applyPreset(activePreset, piece);
+						END_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_MATS);
 
                         if (!invalidBones && activePreset->set.hasModifiers() && !presetBasesApplied.contains(activePreset->uuid)) {
+                            BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_BONES);
                             presetBasesApplied.insert(activePreset->uuid);
                             BoneManager::BoneApplyStatusFlag baseApplyFlag = pInfo->boneManager->applyPreset(activePreset, AP_SET);
                             bool invalidBaseBones = baseApplyFlag == BoneManager::BoneApplyStatusFlag::BONE_APPLY_ERROR_INVALID_BONE;
@@ -159,8 +182,9 @@ namespace kbf {
                                 applyError = true; 
                                 clearPlayerSlot(idx); 
                                 playersToFetch[idx] = true; 
-                                break;
+                                PROFILED_FLOW_OP(profiler, BLOCK_APPLY_BONES, break);
                             }
+                            END_CPU_PROFILING_BLOCK(profiler, BLOCK_APPLY_BONES);
                         }
 
                         // Check Weapon & Slinger Disables
@@ -170,6 +194,7 @@ namespace kbf {
                 }
 
                 if (!applyError) {
+					BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_WEAPON_VIS);
                     // Weapon Visibility
                     if (dataManager.settings().enableHideWeapons) {
 
@@ -193,10 +218,13 @@ namespace kbf {
                         if (validWpInsect)        REInvokeVoid(pInfo->Wp_Insect,        "set_DrawSelf", { (void*)(kinsectVisible) });
                         if (validWpReserveInsect) REInvokeVoid(pInfo->Wp_ReserveInsect, "set_DrawSelf", { (void*)(kinsectVisible) });
                     }
-                
+					END_CPU_PROFILING_BLOCK(profiler, BLOCK_WEAPON_VIS);
+
+					BEGIN_CPU_PROFILING_BLOCK(profiler, BLOCK_SLINGER_VIS);
                     // Slinger Visibility
                     bool slingerVisible = !hideSlinger || (info.inCombat && dataManager.settings().hideSlingerOutsideOfCombatOnly);
                     if (pInfo->Slinger_GameObject) REInvokeVoid(pInfo->Slinger_GameObject, "set_DrawSelf", { (void*)(slingerVisible) });
+					END_CPU_PROFILING_BLOCK(profiler, BLOCK_SLINGER_VIS);
                 }
             }
         }
