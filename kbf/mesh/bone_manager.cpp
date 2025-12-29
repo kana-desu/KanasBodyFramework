@@ -74,20 +74,36 @@ namespace kbf {
 	bool BoneManager::modifyBone(REApi::ManagedObject* bone, const BoneModifier& modifier) {
 		if (bone == nullptr) return false;
 		
-		if (modifier.hasScale()) {
-			// Direct read for best performance
-			glm::vec3* scalePtr = (glm::vec3*)getJointTransformPtr<0x38>(bone);
-			if (scalePtr != nullptr) *scalePtr = *scalePtr + modifier.scale;
-		}
+		// if any of these accesses fault, the bone is invalid for modification - do nothing
+		__try {
+			if (modifier.hasScale()) {
+				// Direct read for best performance
+				glm::vec3* scalePtr = (glm::vec3*)getJointTransformPtr<0x38>(bone);
+				if (scalePtr != nullptr) {
+					scalePtr->x += modifier.scale.x;
+					scalePtr->y += modifier.scale.y;
+					scalePtr->z += modifier.scale.z;
+				}
+			}
 
-		if (modifier.hasPosition()) {
-			glm::vec3* posPtr = (glm::vec3*)getJointTransformPtr<0x18>(bone);
-			if (posPtr != nullptr) *posPtr = *posPtr + modifier.position;
-		}
+			if (modifier.hasPosition()) {
+				glm::vec3* posPtr = (glm::vec3*)getJointTransformPtr<0x18>(bone);
+				if (posPtr != nullptr) {
+					posPtr->x += modifier.position.x;
+					posPtr->y += modifier.position.y;
+					posPtr->z += modifier.position.z;
+				}
+			}
 
-		if (modifier.hasRotation()) {
-			glm::fquat* rotPtr = (glm::fquat*)getJointTransformPtr<0x28>(bone);
-			if (rotPtr != nullptr) *rotPtr *= modifier.getQuaternionRotation();
+			if (modifier.hasRotation()) {
+				glm::fquat* rotPtr = (glm::fquat*)getJointTransformPtr<0x28>(bone);
+				if (rotPtr != nullptr) {
+					*rotPtr *= modifier.getQuaternionRotation();
+				}
+			}
+		}
+		__except (EXCEPTION_EXECUTE_HANDLER) {
+			return false;
 		}
 
 		return true;

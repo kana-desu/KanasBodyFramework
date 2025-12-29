@@ -640,7 +640,15 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("v1.1.1", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.1.2b", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            CImGui::SeparatorText("Changes");
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a crash where a memory access fault would occur while trying to apply bone modifiers during normal gameplay.");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.1.1")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a major performance bottleneck (~0.15ms to general frametime per player) when trying to apply material overrides.");
