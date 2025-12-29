@@ -36,21 +36,22 @@ namespace kbf {
 		UpgradeResult res = UpgradeResult::NO_UPGRADE_NEEDED;
 
 		switch (fileType) {
-			case KbfFileType::SETTINGS:        res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::ALMA_CONFIG:     res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::ERIK_CONFIG:     res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::GEMMA_CONFIG:    res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::NPC_CONFIG:      res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::PLAYER_CONFIG:   res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::DOT_KBF:         res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::FBS_PRESET:      res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::PRESET:          res = upgradeFileUsingLUT(ver, doc, presetUpgradeLUT); break;
-			case KbfFileType::PRESET_GROUP:    res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::PLAYER_OVERRIDE: res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::ARMOUR_LIST:     res = UPGRADE_NO_OP(ver, doc); break;
-			case KbfFileType::BONE_CACHE:      res = upgradeFileUsingLUT(ver, doc, boneCacheUpgradeLUT); break;
-			case KbfFileType::PART_CACHE:      res = upgradeFileUsingLUT(ver, doc, partCacheUpgradeLUT); break;
-			case KbfFileType::MATERIAL_CACHE:  res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::SETTINGS:              res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::ALMA_CONFIG:           res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::ERIK_CONFIG:           res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::GEMMA_CONFIG:          res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::SUPPORT_HUNTER_CONFIG: res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::NPC_CONFIG:            res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::PLAYER_CONFIG:         res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::DOT_KBF:               res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::FBS_PRESET:            res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::PRESET:                res = upgradeFileUsingLUT(ver, doc, presetUpgradeLUT); break;
+			case KbfFileType::PRESET_GROUP:          res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::PLAYER_OVERRIDE:       res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::ARMOUR_LIST:           res = UPGRADE_NO_OP(ver, doc); break;
+			case KbfFileType::BONE_CACHE:            res = upgradeFileUsingLUT(ver, doc, boneCacheUpgradeLUT); break;
+			case KbfFileType::PART_CACHE:            res = upgradeFileUsingLUT(ver, doc, partCacheUpgradeLUT); break;
+			case KbfFileType::MATERIAL_CACHE:        res = UPGRADE_NO_OP(ver, doc); break;
 		}
 
 		// Update version in file to latest

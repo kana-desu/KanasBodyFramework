@@ -1,6 +1,6 @@
 #include <kbf/gui/tabs/debug/debug_tab.hpp>
 
-#include <kbf/npc/get_npc_name_from_armour.hpp>
+#include <kbf/npc/get_npc_name.hpp>
 #include <kbf/gui/shared/styling_consts.hpp>
 #include <kbf/gui/shared/alignment.hpp>
 #include <kbf/data/ids/font_symbols.hpp>
@@ -625,9 +625,9 @@ namespace kbf {
         // Npc name
         std::string npcName = std::format("[{}] NPC (Not loaded)", info.index);
         if (pInfo != nullptr) {
-			npcName = std::format("[{}] {}", info.index, getNpcNameFromArmourSet(pInfo->armourInfo.body.has_value()
-                ? pInfo->armourInfo.body.value()
-                : ArmourList::DefaultArmourSet()));
+			npcName = std::format("[{}] {}", info.index, getNpcName(
+                pInfo->npcID,
+                pInfo->armourInfo.body.has_value() ? pInfo->armourInfo.body.value() : ArmourList::DefaultArmourSet()));
         }
 
         constexpr float npcNameSpacingAfter = 5.0f;

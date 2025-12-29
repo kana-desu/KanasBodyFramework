@@ -1,5 +1,6 @@
 #pragma once
 
+#include <kbf/npc/npc_id.hpp>
 #include <kbf/data/armour/armour_list.hpp>
 #include <kbf/data/ids/special_armour_ids.hpp>
 
@@ -8,7 +9,22 @@
 
 namespace kbf {
 
-    static const std::unordered_map<std::string, std::string> NPC_ID_TO_NAME_MAP{
+    static const std::unordered_map<NpcID, std::string> NPC_ID_TO_NAME_MAP{
+        { NpcID::NPC_ID_ALMA      , "Alma"      },
+        { NpcID::NPC_ID_GEMMA     , "Gemma"     },
+        { NpcID::NPC_ID_ERIK      , "Erik"      },
+        { NpcID::NPC_ID_OLIVIA    , "Olivia"    },
+        { NpcID::NPC_ID_ROSSO     , "Rosso"     },
+        { NpcID::NPC_ID_ALESSA    , "Alessa"    },
+        { NpcID::NPC_ID_MINA      , "Mina"      },
+        { NpcID::NPC_ID_KAI       , "Kai"       },
+        { NpcID::NPC_ID_GRIFFIN   , "Griffin"   },
+        { NpcID::NPC_ID_NIGHTMIST , "Nightmist" },
+        { NpcID::NPC_ID_FABIUS    , "Fabius"    },
+        { NpcID::NPC_ID_NADIA     , "Nadia"     },
+	};
+
+    static const std::unordered_map<std::string, std::string> NPC_ARMOUR_ID_TO_NAME_MAP{
         { ANY_ARMOUR_ID   , "Unknown Hunter" },
         { "ch03_002_0002" , "Hunter NPC" },
         { "ch03_002_0012" , "Hunter NPC" },
@@ -152,25 +168,25 @@ namespace kbf {
         { "ch03_100_1002" , "Hunter NPC" },
         { "ch03_096_0002" , "Hunter NPC" },
 
-        { "ch04_000_0000" , "Alma" },
-        { "ch04_000_0002" , "Alma" },
-        { "ch04_000_0070" , "Alma" },
-        { "ch04_000_0071" , "Alma" },
-        { "ch04_000_0074" , "Alma" },
-        { "ch04_000_0075" , "Alma" },
-        { "ch04_000_0076" , "Alma" },
-        { "ch04_000_0076" , "Alma" },
-        { "ch04_000_0072" , "Alma" },
-        { "ch04_000_0073" , "Alma" },
-
-        { "ch04_004_0000" , "Gemma" },
-        { "ch04_004_0072" , "Gemma" },
-		{ "ch04_004_0073" , "Gemma" },
-
-        { "ch04_010_0000" , "Erik" },
-        { "ch04_010_0071" , "Erik" },
-        { "ch04_010_0072" , "Erik" },
-        { "ch04_010_0073" , "Erik" },
+        { "ch04_000_0000" , "Alma" },       // Note: These are made redundant by the NpcID check and *shouldn't* need updating 
+        { "ch04_000_0002" , "Alma" },       //
+        { "ch04_000_0070" , "Alma" },       //
+        { "ch04_000_0071" , "Alma" },       //
+        { "ch04_000_0074" , "Alma" },       //
+        { "ch04_000_0075" , "Alma" },       //
+        { "ch04_000_0076" , "Alma" },       //
+        { "ch04_000_0076" , "Alma" },       //
+        { "ch04_000_0072" , "Alma" },       //
+        { "ch04_000_0073" , "Alma" },       //
+                                            //
+        { "ch04_004_0000" , "Gemma" },      //
+        { "ch04_004_0072" , "Gemma" },      //
+		{ "ch04_004_0073" , "Gemma" },      //
+                                            //
+        { "ch04_010_0000" , "Erik" },       //
+        { "ch04_010_0071" , "Erik" },       //
+        { "ch04_010_0072" , "Erik" },       //
+        { "ch04_010_0073" , "Erik" },       //
 
         { "ch04_001_0000"             , "Y'sai"                     }, //(NPC) Y'sai's Outfit"            
         { "ch04_001_0050"             , "Windward Plains NPC"       }, //(NPC) Windward Plains Hood 1"    
@@ -250,8 +266,14 @@ namespace kbf {
         { "ch04_209_0201"             , "Suja Guard"                }, //(NPC) Suja Guard"             
     };
 
+	inline std::string getNpcNameFromNpcID(NpcID npcID, bool& success) {
+		return NPC_ID_TO_NAME_MAP.find(npcID) != NPC_ID_TO_NAME_MAP.end() 
+            ? (success = true,  NPC_ID_TO_NAME_MAP.at(npcID)) 
+            : (success = false, "FLAG_NPC_ID_TO_NAME_FETCH_FAILURE");
+    }
+
     inline std::string getNpcNameFromArmourID(ArmourID armour) {
-        return NPC_ID_TO_NAME_MAP.find(armour.body) != NPC_ID_TO_NAME_MAP.end() ? NPC_ID_TO_NAME_MAP.at(armour.body) : "NPC (UNKNOWN SET!)";
+        return NPC_ARMOUR_ID_TO_NAME_MAP.find(armour.body) != NPC_ARMOUR_ID_TO_NAME_MAP.end() ? NPC_ARMOUR_ID_TO_NAME_MAP.at(armour.body) : "NPC (UNKNOWN SET!)";
     }
 
     inline std::string getNpcNameFromArmourSet(ArmourSet set) {
@@ -261,5 +283,15 @@ namespace kbf {
 
         return getNpcNameFromArmourID(ArmourList::ACTIVE_MAPPING.at(set));
 	}
+
+    inline std::string getNpcName(NpcID npcID, ArmourSet set) {
+        // Try get named npc name from npcID first
+        bool npcIdSuccess = false;
+        std::string npcName = getNpcNameFromNpcID(npcID, npcIdSuccess);
+        if (npcIdSuccess) return npcName;
+
+        // Fallback to generic name from armour set
+        return getNpcNameFromArmourSet(set);
+    }
 
 }

@@ -26,6 +26,27 @@ namespace kbf {
 		void closePopouts() override;
 
 	private:
+		static constexpr ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_PadOuterX;
+		static constexpr float namedNpcSelectableHeight = 40.0f;
+
+		void drawCoreNpcsTab();
+		void drawAlmaTabLists();
+		void drawGemmaTabLists();
+		void drawErikTabLists();
+		void drawSupportHuntersTab();
+		void drawOliviaTabLists();
+		void drawRossoTabLists();
+		void drawAlessaTabLists();
+		void drawMinaTabLists();
+		void drawKaiTabLists();
+		void drawGriffinTabLists();
+		void drawNightmistTabLists();
+		void drawFabiusTabLists();
+		void drawNadiaTabLists();
+		void drawOtherNpcsTab();
+
+		void drawNpcListTabItem(const std::string& tabLabel, const std::function<void()>& drawFunc);
+
 		UniquePanel<PresetGroupPanel> editDefaultPanel;
 		UniquePanel<PresetPanel>      editPanel;
 		void openEditDefaultPanel(const std::function<void(std::string)>& onSelect);
@@ -79,6 +100,26 @@ namespace kbf {
 		const std::function<void()>            editErikSummerHatCb              = [&]() { openEditPanel(setErikSummerHatCb             ); };
 		const std::function<void()>            editErikAutumnTherianCb          = [&]() { openEditPanel(setErikAutumnTherianCb         ); };
 		const std::function<void()>            editErikCrestcollarSeikretSuitCb = [&]() { openEditPanel(setErikCrestcollarSeikretSuitCb); };
+
+		// Support Hunters
+		const std::function<void(std::string)> setOliviaDefaultOutfitCb = [&](std::string uuid) { dataManager.setOliviaConfig_DefaultOutfit(uuid); };
+		const std::function<void(std::string)> setRossoQuematriceCb     = [&](std::string uuid) { dataManager.setRossoConfig_Quematrice(uuid); };
+		const std::function<void(std::string)> setAlessaBalaharaCb      = [&](std::string uuid) { dataManager.setAlessaConfig_Balahara(uuid); };
+		const std::function<void(std::string)> setMinaChatacabraCb      = [&](std::string uuid) { dataManager.setMinaConfig_Chatacabra(uuid); };
+		const std::function<void(std::string)> setKaiIngotCb            = [&](std::string uuid) { dataManager.setKaiConfig_Ingot(uuid); };
+		const std::function<void(std::string)> setGriffinCongaCb        = [&](std::string uuid) { dataManager.setGriffinConfig_Conga(uuid); };
+		const std::function<void(std::string)> setNightmistIngotCb      = [&](std::string uuid) { dataManager.setNightmistConfig_Ingot(uuid); };
+		const std::function<void(std::string)> setFabiusDefaultOutfitCb = [&](std::string uuid) { dataManager.setFabiusConfig_DefaultOutfit(uuid); };
+		const std::function<void(std::string)> setNadiaDefaultOutfitCb  = [&](std::string uuid) { dataManager.setNadiaConfig_DefaultOutfit(uuid); };
+		const std::function<void()>            editOliviaDefaultOutfitCb = [&]() { openEditPanel(setOliviaDefaultOutfitCb); };
+		const std::function<void()>            editRossoQuematriceCb     = [&]() { openEditPanel(setRossoQuematriceCb    ); };
+		const std::function<void()>            editAlessaBalaharaCb      = [&]() { openEditPanel(setAlessaBalaharaCb     ); };
+		const std::function<void()>            editMinaChatacabraCb      = [&]() { openEditPanel(setMinaChatacabraCb     ); };
+		const std::function<void()>            editKaiIngotCb            = [&]() { openEditPanel(setKaiIngotCb           ); };
+		const std::function<void()>            editGriffinCongaCb        = [&]() { openEditPanel(setGriffinCongaCb       ); };
+		const std::function<void()>            editNightmistIngotCb      = [&]() { openEditPanel(setNightmistIngotCb     ); };
+		const std::function<void()>            editFabiusDefaultOutfitCb = [&]() { openEditPanel(setFabiusDefaultOutfitCb); };
+		const std::function<void()>            editNadiaDefaultOutfitCb  = [&]() { openEditPanel(setNadiaDefaultOutfitCb ); };
 
 	};
 

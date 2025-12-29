@@ -47,6 +47,7 @@ namespace kbf {
 		AlmaDefaults& almaConfig() { return presetDefaults.alma; }
 		GemmaDefaults& gemmaConfig() { return presetDefaults.gemma; }
 		ErikDefaults& erikConfig() { return presetDefaults.erik; }
+		SupportHunterDefaults& supportHunterConfigs() { return presetDefaults.supportHunters; }
 
 		void setPlayerConfig_Male  (std::string presetUUID) { playerDefaults().male   = presetUUID; writePlayerConfig(playerDefaults()); }
 		void setPlayerConfig_Female(std::string presetUUID) { playerDefaults().female = presetUUID; writePlayerConfig(playerDefaults()); }
@@ -71,6 +72,16 @@ namespace kbf {
 		void setErikConfig_SummerHat             (std::string presetUUID) { erikConfig().summerHat              = presetUUID; writeErikConfig(erikConfig()); }
 		void setErikConfig_AutumnTherian         (std::string presetUUID) { erikConfig().autumnTherian          = presetUUID; writeErikConfig(erikConfig()); }
 		void setErikConfig_CrestcollarSeikretSuit(std::string presetUUID) { erikConfig().crestcollarSeikretSuit = presetUUID; writeErikConfig(erikConfig()); }
+
+		void setOliviaConfig_DefaultOutfit(std::string presetUUID) { supportHunterConfigs().olivia.defaultOutfit = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setRossoConfig_Quematrice    (std::string presetUUID) { supportHunterConfigs().rosso.quematrice     = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setAlessaConfig_Balahara     (std::string presetUUID) { supportHunterConfigs().alessa.balahara      = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setMinaConfig_Chatacabra     (std::string presetUUID) { supportHunterConfigs().mina.chatacabra      = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setKaiConfig_Ingot           (std::string presetUUID) { supportHunterConfigs().kai.ingot            = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setGriffinConfig_Conga       (std::string presetUUID) { supportHunterConfigs().griffin.conga        = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setNightmistConfig_Ingot     (std::string presetUUID) { supportHunterConfigs().nightmist.ingot      = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setFabiusConfig_DefaultOutfit(std::string presetUUID) { supportHunterConfigs().fabius.defaultOutfit = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
+		void setNadiaConfig_DefaultOutfit (std::string presetUUID) { supportHunterConfigs().nadia.defaultOutfit  = presetUUID; writeSupportHunterConfigs(supportHunterConfigs()); }
 
 		void previewPreset(const Preset* preset) { previewedPreset = preset; }
 		const Preset* getPreviewedPreset() const { return previewedPreset; }
@@ -153,11 +164,12 @@ namespace kbf {
 		const std::filesystem::path playerOverridePath = dataBasePath / "PlayerOverrides";
 		const std::filesystem::path exportsPath        = dataBasePath / "Exports";
 
-		const std::filesystem::path almaConfigPath     = defaultConfigsPath / "alma.json";
-		const std::filesystem::path erikConfigPath     = defaultConfigsPath / "erik.json";
-		const std::filesystem::path gemmaConfigPath    = defaultConfigsPath / "gemma.json";
-		const std::filesystem::path npcConfigPath      = defaultConfigsPath / "npc.json";
-		const std::filesystem::path playerConfigPath   = defaultConfigsPath / "players.json";
+		const std::filesystem::path almaConfigPath          = defaultConfigsPath / "alma.json";
+		const std::filesystem::path erikConfigPath          = defaultConfigsPath / "erik.json";
+		const std::filesystem::path gemmaConfigPath         = defaultConfigsPath / "gemma.json";
+		const std::filesystem::path supportHunterConfigPath = defaultConfigsPath / "support_hunters.json";
+		const std::filesystem::path npcConfigPath           = defaultConfigsPath / "npc.json";
+		const std::filesystem::path playerConfigPath        = defaultConfigsPath / "players.json";
 
 		const std::filesystem::path settingsPath   = dataBasePath / "settings.json";
 		const std::filesystem::path armourListPath = dataBasePath / "armour_list.json";
@@ -183,6 +195,8 @@ namespace kbf {
 		bool writeGemmaConfig(const GemmaDefaults& out) const;
 		bool loadErikConfig(ErikDefaults* out);
 		bool writeErikConfig(const ErikDefaults& out) const;
+		bool loadSupportHunterConfigs(SupportHunterDefaults* out);
+		bool writeSupportHunterConfigs(const SupportHunterDefaults& out) const;
 
 		bool loadNpcConfig(NpcDefaults* out);
 		bool writeNpcConfig(const NpcDefaults& out) const;

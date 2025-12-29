@@ -50,6 +50,7 @@ namespace kbf {
         loadAlmaConfig(&presetDefaults.alma);
         loadErikConfig(&presetDefaults.erik);
         loadGemmaConfig(&presetDefaults.gemma);
+		loadSupportHunterConfigs(&presetDefaults.supportHunters);
         loadNpcConfig(&presetGroupDefaults.npc);
         loadPlayerConfig(&presetGroupDefaults.player);
 
@@ -187,6 +188,7 @@ namespace kbf {
     const Preset* KBFDataManager::getActivePreset(NpcID npcId, bool female, const ArmourSet& armourSet, ArmourPiece piece) const {
         switch (npcId) {
         case NpcID::NPC_ID_UNKNOWN: return nullptr;
+        // ---- Core NPCs Mapping ----
         case NpcID::NPC_ID_ALMA: {
             ArmourID armour = ArmourList::getArmourIdFromSet(armourSet);
             std::string pieceId = armour.getPiece(piece);
@@ -224,6 +226,17 @@ namespace kbf {
 
             return getPresetByUUID(presetUUID);
         }
+        // ---- Support Hunters Mapping ----
+        // TODO: For now all support hunters have only one outfit mapping. If this ever changes (likely will, at least for olivia), you'll have to add proper logic here.
+        case NpcID::NPC_ID_OLIVIA:    return getPresetByUUID(presetDefaults.supportHunters.olivia.defaultOutfit);
+		case NpcID::NPC_ID_ROSSO:     return getPresetByUUID(presetDefaults.supportHunters.rosso.quematrice);
+		case NpcID::NPC_ID_ALESSA:    return getPresetByUUID(presetDefaults.supportHunters.alessa.balahara);
+		case NpcID::NPC_ID_MINA:      return getPresetByUUID(presetDefaults.supportHunters.mina.chatacabra);
+		case NpcID::NPC_ID_KAI:       return getPresetByUUID(presetDefaults.supportHunters.kai.ingot);
+		case NpcID::NPC_ID_GRIFFIN:   return getPresetByUUID(presetDefaults.supportHunters.griffin.conga);
+		case NpcID::NPC_ID_NIGHTMIST: return getPresetByUUID(presetDefaults.supportHunters.nightmist.ingot);
+		case NpcID::NPC_ID_FABIUS:    return getPresetByUUID(presetDefaults.supportHunters.fabius.defaultOutfit);
+		case NpcID::NPC_ID_NADIA:     return getPresetByUUID(presetDefaults.supportHunters.nadia.defaultOutfit);
         case NpcID::NPC_ID_UNNAMED:
         case NpcID::NPC_ID_HUNTER: {
             const PresetGroup* activePresetGroup = getActivePresetGroup(npcId, female);
@@ -1332,6 +1345,73 @@ namespace kbf {
 
         return success;
     }
+
+	bool KBFDataManager::loadSupportHunterConfigs(SupportHunterDefaults* out) {
+        assert(out != nullptr);
+
+        DEBUG_STACK.push(std::format("{} Loading Support Hunter Configs...", KBF_DATA_MANAGER_LOG_TAG), DebugStack::Color::COL_INFO);
+
+        rapidjson::Document config = loadConfigJson(KbfFileType::SUPPORT_HUNTER_CONFIG, supportHunterConfigPath.string(), [&]() {
+            SupportHunterDefaults temp{};
+            return writeSupportHunterConfigs(temp);
+        });
+
+        if (!config.IsObject() || config.HasParseError()) return false;
+        parseString(config, FORMAT_VERSION_ID, FORMAT_VERSION_ID, &out->metadata.VERSION);
+        parseString(config, FORMAT_MOD_ARCHIVE_ID, FORMAT_MOD_ARCHIVE_ID, &out->metadata.MOD_ARCHIVE);
+
+        // Outfits
+        parseString(config, SUPPORT_HUNTER_OLIVIA_DEFAULT_ID,   SUPPORT_HUNTER_OLIVIA_DEFAULT_ID,   &out->olivia.defaultOutfit);
+        parseString(config, SUPPORT_HUNTER_ROSSO_QUEMATRICE_ID, SUPPORT_HUNTER_ROSSO_QUEMATRICE_ID, &out->rosso.quematrice);
+		parseString(config, SUPPORT_HUNTER_ALESSA_BALAHARA_ID,  SUPPORT_HUNTER_ALESSA_BALAHARA_ID,  &out->alessa.balahara);
+		parseString(config, SUPPORT_HUNTER_MINA_CHATACABRA_ID,  SUPPORT_HUNTER_MINA_CHATACABRA_ID,  &out->mina.chatacabra);
+		parseString(config, SUPPORT_HUNTER_KAI_INGOT_ID,        SUPPORT_HUNTER_KAI_INGOT_ID,        &out->kai.ingot);
+		parseString(config, SUPPORT_HUNTER_GRIFFIN_CONGA_ID,    SUPPORT_HUNTER_GRIFFIN_CONGA_ID,    &out->griffin.conga);
+		parseString(config, SUPPORT_HUNTER_NIGHTMIST_INGOT_ID,  SUPPORT_HUNTER_NIGHTMIST_INGOT_ID,  &out->nightmist.ingot);
+		parseString(config, SUPPORT_HUNTER_FABIUS_DEFAULT_ID,   SUPPORT_HUNTER_FABIUS_DEFAULT_ID,   &out->fabius.defaultOutfit);
+		parseString(config, SUPPORT_HUNTER_NADIA_DEFAULT_ID,    SUPPORT_HUNTER_NADIA_DEFAULT_ID,    &out->nadia.defaultOutfit);
+
+        DEBUG_STACK.push(std::format("{} Loaded Support Hunter configs from {}", KBF_DATA_MANAGER_LOG_TAG, supportHunterConfigPath.string()), DebugStack::Color::COL_SUCCESS);
+        return true;
+    }
+
+    bool KBFDataManager::writeSupportHunterConfigs(const SupportHunterDefaults& out) const {
+        rapidjson::StringBuffer s;
+        rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+
+        writer.StartObject();
+        writer.Key(FORMAT_VERSION_ID);
+        writer.String(out.metadata.VERSION.c_str());
+        writer.Key(FORMAT_MOD_ARCHIVE_ID);
+        writer.String(out.metadata.MOD_ARCHIVE.c_str());
+        writer.Key(SUPPORT_HUNTER_OLIVIA_DEFAULT_ID);
+        writer.String(out.olivia.defaultOutfit.c_str());
+        writer.Key(SUPPORT_HUNTER_ROSSO_QUEMATRICE_ID);
+		writer.String(out.rosso.quematrice.c_str());
+		writer.Key(SUPPORT_HUNTER_ALESSA_BALAHARA_ID);
+		writer.String(out.alessa.balahara.c_str());
+		writer.Key(SUPPORT_HUNTER_MINA_CHATACABRA_ID);
+		writer.String(out.mina.chatacabra.c_str());
+		writer.Key(SUPPORT_HUNTER_KAI_INGOT_ID);
+		writer.String(out.kai.ingot.c_str());
+		writer.Key(SUPPORT_HUNTER_GRIFFIN_CONGA_ID);
+		writer.String(out.griffin.conga.c_str());
+		writer.Key(SUPPORT_HUNTER_NIGHTMIST_INGOT_ID);
+		writer.String(out.nightmist.ingot.c_str());
+		writer.Key(SUPPORT_HUNTER_FABIUS_DEFAULT_ID);
+		writer.String(out.fabius.defaultOutfit.c_str());
+		writer.Key(SUPPORT_HUNTER_NADIA_DEFAULT_ID);
+        writer.String(out.nadia.defaultOutfit.c_str());
+        writer.EndObject();
+
+        bool success = writeJsonFile(supportHunterConfigPath.string(), s.GetString());
+
+        if (!success) {
+            DEBUG_STACK.push(std::format("{} Failed to write Support Hunter configs to {}", KBF_DATA_MANAGER_LOG_TAG, supportHunterConfigPath.string()), DebugStack::Color::COL_ERROR);
+        }
+
+        return success;
+	}
 
     bool KBFDataManager::loadGemmaConfig(GemmaDefaults* out) {
         assert(out != nullptr);

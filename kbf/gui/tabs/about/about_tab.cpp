@@ -633,16 +633,17 @@ namespace kbf {
 
         CImGui::Spacing();
         /// ===== Template =====
-        //if (CImGui::CollapsingHeader("vX.X.Xb", ImGuiTreeNodeFlags_DefaultOpen)) {
+        //if (CImGui::CollapsingHeader("vX.X.X", ImGuiTreeNodeFlags_DefaultOpen)) {
         //    CImGui::Spacing();
         //    CImGui::SeparatorText("Additions");
         //    CImGui::SeparatorText("Changes");
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("v1.1.2b", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.1.2", ImGuiTreeNodeFlags_DefaultOpen)) {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "Added the ability to apply presets to individual support hunters.");
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a crash where a memory access fault would occur while trying to apply bone modifiers during normal gameplay.");

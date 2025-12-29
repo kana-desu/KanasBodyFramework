@@ -9,6 +9,18 @@
 
 namespace kbf {
 
+    static const std::unordered_map<std::string, NpcID> GAMEOBJ_ID_TO_NPC_ID_MAP{
+        { "NPC102_00_007", NpcID::NPC_ID_OLIVIA    },
+        { "NPC101_00_030", NpcID::NPC_ID_ROSSO     },
+        { "NPC112_00_021", NpcID::NPC_ID_ALESSA    },
+        { "NPC112_00_014", NpcID::NPC_ID_MINA      },
+        { "NPC111_00_016", NpcID::NPC_ID_KAI       },
+        { "NPC112_00_011", NpcID::NPC_ID_GRIFFIN   },
+        { "NPC112_00_024", NpcID::NPC_ID_NIGHTMIST },
+        { "NPC101_00_006", NpcID::NPC_ID_FABIUS    },
+        { "NPC112_00_041", NpcID::NPC_ID_NADIA     },
+    };
+
     static const std::unordered_map<std::string, NpcID> ARMOUR_ID_TO_NPC_ID_MAP{
         { ANY_ARMOUR_ID   , NpcID::NPC_ID_UNKNOWN },
         { "ch03_002_0002" , NpcID::NPC_ID_HUNTER },
@@ -252,6 +264,12 @@ namespace kbf {
         { "ch04_209_0201"             , NpcID::NPC_ID_UNNAMED },
     };
 
+    inline NpcID getNpcIDFromGameObjName(const std::string& name, bool& success) {
+        return GAMEOBJ_ID_TO_NPC_ID_MAP.find(name) != GAMEOBJ_ID_TO_NPC_ID_MAP.end() 
+            ? (success = true, GAMEOBJ_ID_TO_NPC_ID_MAP.at(name)) 
+            : (success = false, NpcID::NPC_ID_UNKNOWN);
+    }
+
     inline NpcID getNpcIDFromArmourID(ArmourID armour) {
         return ARMOUR_ID_TO_NPC_ID_MAP.find(armour.body) != ARMOUR_ID_TO_NPC_ID_MAP.end() ? ARMOUR_ID_TO_NPC_ID_MAP.at(armour.body) : NpcID::NPC_ID_UNKNOWN;
     }
@@ -262,6 +280,16 @@ namespace kbf {
         }
 
         return getNpcIDFromArmourID(ArmourList::ACTIVE_MAPPING.at(set));
+    }
+
+    inline NpcID getNpcID(const std::string& gameObjName, ArmourSet set) {
+        // Check gameobj ids first to see if npc is mapped (i.e. more important than unnamed)
+        bool objIdSuccess = false;
+        NpcID npcIdFromObj = getNpcIDFromGameObjName(gameObjName, objIdSuccess);
+        if (objIdSuccess) return npcIdFromObj;
+
+        // Fallback to armour set mapping
+        return getNpcIDFromArmourSet(set);
     }
 
 }

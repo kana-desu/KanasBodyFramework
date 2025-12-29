@@ -21,6 +21,18 @@
 #define ERIK_AUTUMN_THERIAN_ID           "erik-autumn-therian"
 #define ERIK_CRESTCOLLAR_SEIKRET_SUIT_ID "erik-crestcollar-seikret-suit"
 
+// Support Hunters
+
+#define SUPPORT_HUNTER_OLIVIA_DEFAULT_ID   "olivia-default-outfit"
+#define SUPPORT_HUNTER_ROSSO_QUEMATRICE_ID "rosso-quematrice"
+#define SUPPORT_HUNTER_ALESSA_BALAHARA_ID  "alessa-balahara"
+#define SUPPORT_HUNTER_MINA_CHATACABRA_ID  "mina-chatacabra"
+#define SUPPORT_HUNTER_KAI_INGOT_ID        "kai-ingot"
+#define SUPPORT_HUNTER_GRIFFIN_CONGA_ID    "griffin-conga"
+#define SUPPORT_HUNTER_NIGHTMIST_INGOT_ID  "nightmist-ingot"
+#define SUPPORT_HUNTER_FABIUS_DEFAULT_ID   "fabius-default-outfit"
+#define SUPPORT_HUNTER_NADIA_DEFAULT_ID    "nadia-default-outfit"
+
 // Unnamed NPCS
 
 #define NPC_MALE_ID                   "npc-male"

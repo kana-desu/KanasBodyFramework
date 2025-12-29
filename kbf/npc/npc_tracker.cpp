@@ -3,12 +3,12 @@
 
 #include <kbf/hook/hook_manager.hpp>
 
-#include <kbf/npc/armour_id_to_npc_id.hpp>
+#include <kbf/npc/get_npc_id.hpp>
 #include <kbf/data/armour/armour_list.hpp>
 #include <kbf/data/armour/find_object_armours.hpp>
 #include <kbf/util/re_engine/reinvoke.hpp>
 #include <kbf/util/string/ptr_to_hex_string.hpp>
-#include <kbf/npc/get_npc_name_from_armour.hpp>
+#include <kbf/npc/get_npc_name.hpp>
 #include <kbf/util/re_engine/print_re_object.hpp>
 #include <kbf/data/armour/format_full_armour_id.hpp>
 #include <kbf/util/re_engine/find_transform.hpp>
@@ -350,8 +350,12 @@ namespace kbf {
     bool NpcTracker::fetchNpcs_MainMenu_EquippedArmourSet(const NpcInfo& info, PersistentNpcInfo& pInfo) {
         if (info.pointers.Transform == nullptr) return false;
 
+        std::string gameObjName = "";
+		REApi::ManagedObject* gameobj = REInvokePtr<REApi::ManagedObject>(info.pointers.Transform, "get_GameObject", {});
+		if (gameobj) gameObjName = REInvokeStr(gameobj, "get_Name", {});
+
         pInfo.armourInfo.body = findFirstNPCArmourInObjectFromList(info.pointers.Transform);
-        pInfo.npcID = getNpcIDFromArmourSet(pInfo.armourInfo.body.value());
+        pInfo.npcID = getNpcID(gameObjName, pInfo.armourInfo.body.value());
 
         return pInfo.armourInfo.body.value() != ArmourList::DefaultArmourSet();
     }
@@ -661,7 +665,11 @@ namespace kbf {
 			if (pInfo.armourInfo.helm == helmPlaceholder) pInfo.armourInfo.helm = ArmourList::DefaultArmourSet();
         }
 
-		pInfo.npcID = getNpcIDFromArmourSet(pInfo.armourInfo.body.value());
+        std::string gameObjName = "";
+        REApi::ManagedObject* gameobj = REInvokePtr<REApi::ManagedObject>(info.pointers.Transform, "get_GameObject", {});
+        if (gameobj) gameObjName = REInvokeStr(gameobj, "get_Name", {});
+
+		pInfo.npcID = getNpcID(gameObjName, pInfo.armourInfo.body.value());
 
         return pInfo.armourInfo.body.value() != ArmourList::DefaultArmourSet();
     }
