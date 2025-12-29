@@ -225,9 +225,11 @@ namespace kbf {
 			std::string characterSex = (armour.characterFemale ? "F" : "M");
 			std::string sex = (armour.set.female ? "F" : "M");
 
-			// Replace any illegal filename characters in the armour set name with underscores
 			std::string armourNameSanitized = armour.set.name;
+			// Replace any illegal filename characters in the armour set name with underscores
 			std::replace(armourNameSanitized.begin(), armourNameSanitized.end(), '/', '_');
+			// Replace dots with ampersands to not conflict with file extension
+			std::replace(armourNameSanitized.begin(), armourNameSanitized.end(), '.', '&');
 
 			return std::format("{}-{}~{}.json", characterSex, sex, armourNameSanitized);
 		}
@@ -253,6 +255,8 @@ namespace kbf {
 
 			// Restore illegal characters
 			std::replace(armourName.begin(), armourName.end(), '_', '/');
+			// Restore dots
+			std::replace(armourName.begin(), armourName.end(), '&', '.');
 
 			if (!ArmourList::isValidArmourSet(armourName, female))
 				return false;

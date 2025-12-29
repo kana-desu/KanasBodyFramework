@@ -646,6 +646,7 @@ namespace kbf {
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a crash where a memory access fault would occur while trying to apply bone modifiers during normal gameplay.");
+            WRAP_BULLET("-", "Fixed armour caches lot loading for armours with dots in the name (e.g. Analytic E.Y.E.)");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.1.1")) {
