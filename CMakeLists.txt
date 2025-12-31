@@ -47,6 +47,7 @@ set(KBF_SOURCES
     "kbf/gui/panels/lists/player_list_panel.cpp"
     "kbf/gui/panels/lists/preset_group_panel.cpp"
     "kbf/gui/panels/lists/preset_panel.cpp"
+    "kbf/gui/panels/presets/combine_presets_panel.cpp"
     "kbf/gui/panels/presets/create_preset_group_from_bundle_panel.cpp"
     "kbf/gui/panels/presets/create_preset_group_panel.cpp"
     "kbf/gui/panels/presets/create_preset_panel.cpp"

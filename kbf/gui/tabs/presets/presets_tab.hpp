@@ -5,6 +5,7 @@
 #include <kbf/gui/panels/unique_panel.hpp>
 #include <kbf/gui/panels/info/info_popup_panel.hpp>
 #include <kbf/gui/panels/presets/create_preset_panel.hpp>
+#include <kbf/gui/panels/presets/combine_presets_panel.hpp>
 #include <kbf/gui/panels/presets/edit_preset_panel.hpp>
 #include <kbf/gui/panels/presets/import_fbs_presets_panel.hpp>
 
@@ -36,10 +37,12 @@ namespace kbf {
 		std::string bundleViewed = "";
 
 		UniquePanel<CreatePresetPanel>     createPresetPanel;
+		UniquePanel<CombinePresetsPanel>   combinePresetsPanel;
 		UniquePanel<EditPresetPanel>       editPresetPanel;
 		UniquePanel<ImportFbsPresetsPanel> importFBSPresetsPanel;
 		UniquePanel<InfoPopupPanel>        warnDeleteBundlePanel;
 		void openCreatePresetPanel();
+		void openCombinePresetsPanel();
 		void openEditPresetPanel(const std::string& presetUUID);
 		void openImportFBSPresetsPanel();
 		void openWarnDeleteBundlePanel(const std::string& bundleName);

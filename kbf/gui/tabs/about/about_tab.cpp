@@ -644,6 +644,7 @@ namespace kbf {
             CImGui::Spacing();
             CImGui::SeparatorText("Additions");
             WRAP_BULLET("-", "Added the ability to apply presets to individual support hunters.");
+            WRAP_BULLET("-", "Added the ability to combine multiple presets into a single preset.");
             CImGui::SeparatorText("Changes");
             CImGui::SeparatorText("Fixes");
             WRAP_BULLET("-", "Fixed a crash where a memory access fault would occur while trying to apply bone modifiers during normal gameplay.");

@@ -20,6 +20,10 @@ namespace kbf {
             openCreatePresetPanel();
         }
 
+        if (CImGui::Button("Combine Presets", buttonSize)) {
+            openCombinePresetsPanel();
+        }
+
         bool canImportFBSpresets = dataManager.fbsDirectoryFound() && !importFBSPresetsPanel.isVisible();
         if (!canImportFBSpresets) CImGui::BeginDisabled();
         if (CImGui::Button("Import FBS Presets as Bundle", buttonSize)) {
@@ -53,6 +57,7 @@ namespace kbf {
 	void PresetsTab::drawPopouts() {
         editPresetPanel.draw();
         createPresetPanel.draw();
+		combinePresetsPanel.draw();
         importFBSPresetsPanel.draw();
 		warnDeleteBundlePanel.draw();
     };
@@ -60,6 +65,7 @@ namespace kbf {
     void PresetsTab::closePopouts() {
         editPresetPanel.close();
         createPresetPanel.close();
+        combinePresetsPanel.close();
         importFBSPresetsPanel.close();
 		warnDeleteBundlePanel.close();
 	}
@@ -551,6 +557,18 @@ namespace kbf {
             createPresetPanel.close();
         });
     }
+
+    void PresetsTab::openCombinePresetsPanel() {
+        combinePresetsPanel.openNew("Combine Presets", "CombinePresetsPanel", dataManager, wsSymbolFont, wsArmourFont);
+        combinePresetsPanel.get()->focus();
+        combinePresetsPanel.get()->onCancel([&]() {
+            combinePresetsPanel.close();
+        });
+        combinePresetsPanel.get()->onCombine([&](const Preset& preset) {
+            dataManager.addPreset(preset);
+            combinePresetsPanel.close();
+        });
+	}
 
     void PresetsTab::openEditPresetPanel(const std::string& presetUUID) {
         const Preset* preset = dataManager.getPresetByUUID(presetUUID);

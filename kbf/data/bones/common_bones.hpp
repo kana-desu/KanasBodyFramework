@@ -144,4 +144,43 @@ namespace kbf {
 		return COMMON_BONE_CATEGORY_OTHER;
 	}
 
+	inline bool isHeadBone(const std::string& boneName) {
+		bool isHead = false;
+		isHead |= COMMON_HEAD_BONES.find(boneName) != COMMON_HEAD_BONES.end();
+		return isHead;
+	}
+
+	inline bool isBodyBone(const std::string& boneName) {
+		bool isBody = false;
+		isBody |= COMMON_CHEST_BONES.find(boneName) != COMMON_CHEST_BONES.end();
+		isBody |= COMMON_BACK_BONES.find(boneName) != COMMON_BACK_BONES.end();
+		isBody |= COMMON_SPINE_BONES.find(boneName) != COMMON_SPINE_BONES.end();
+		isBody |= COMMON_HIP_BONES.find(boneName) != COMMON_HIP_BONES.end();
+		return isBody;
+	}
+
+	inline bool isArmsBone(const std::string& boneName) {
+		bool isArms = false;
+		isArms |= COMMON_UPPER_ARM_BONES.find(boneName) != COMMON_UPPER_ARM_BONES.end();
+		isArms |= COMMON_LOWER_ARM_BONES.find(boneName) != COMMON_LOWER_ARM_BONES.end();
+		isArms |= COMMON_HAND_BONES.find(boneName) != COMMON_HAND_BONES.end();
+		return isArms;
+	}
+
+	inline bool isLegsBone(const std::string& boneName) {
+		bool isLegs = false;
+		isLegs |= COMMON_HIP_BONES.find(boneName) != COMMON_HIP_BONES.end();
+		isLegs |= COMMON_THIGH_BONES.find(boneName) != COMMON_THIGH_BONES.end();
+		isLegs |= COMMON_LOWER_LEG_BONES.find(boneName) != COMMON_LOWER_LEG_BONES.end();
+		isLegs |= COMMON_FOOT_BONES.find(boneName) != COMMON_FOOT_BONES.end();
+		return isLegs;
+	}
+
+	inline bool isCustomOrUncommonBone(const std::string& boneName) {
+		bool isCustomOrUncommon = false;
+		isCustomOrUncommon |= COMMON_CUSTOM_BONES.find(boneName) != COMMON_CUSTOM_BONES.end();
+		isCustomOrUncommon |= getCommonBoneCategory(boneName) == COMMON_BONE_CATEGORY_OTHER;
+		return isCustomOrUncommon;
+	}
+
 }
