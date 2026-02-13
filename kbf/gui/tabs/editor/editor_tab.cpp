@@ -449,6 +449,14 @@ namespace kbf {
         CImGui::Spacing();
         CImGui::Separator();
         CImGui::Spacing();
+
+#pragma region Part Column Toggle
+        std::string partCheckboxText = " Parts Column ";
+        const float partCheckboxWidth = CImGui::CalcTextSize(partCheckboxText.c_str()).x + 37; // IDK, bruteforced the number
+        CImGui::SetCursorPosX(CImGui::GetContentRegionAvail().x - partCheckboxWidth);
+        CImGui::Checkbox(partCheckboxText.c_str(), &m_showPartColumn);
+        CImGui::SetItemTooltip("A column specifically to modify the parts and materials of the whole armour set");
+#pragma endregion
         CImGui::Spacing();
 
         const std::vector<ArmourSet> armourSets = ArmourDataManager::get().getFilteredArmourSets(filterStr);
@@ -473,7 +481,7 @@ namespace kbf {
 
             CImGui::PushStyleVar(ImGuiStyleVar_CellPadding, LIST_PADDING);
 
-            CImGui::BeginTable("##AssignedPresetGridTable", 7, assignedPresetGridFlags);
+            CImGui::BeginTable("##AssignedPresetGridTable", 7 + m_showPartColumn, assignedPresetGridFlags);
 
             CImGui::TableSetupColumn("",       fixedNoSortFlags, 0.0f);
             CImGui::TableSetupColumn("Armour", fixedNoSortFlags, 0.0f);
@@ -482,6 +490,8 @@ namespace kbf {
 			CImGui::TableSetupColumn("Arms",   stretchNoSortFlags, 0.0f);
 			CImGui::TableSetupColumn("Waist",  stretchNoSortFlags, 0.0f);
             CImGui::TableSetupColumn("Legs",   stretchNoSortFlags, 0.0f);
+            if (m_showPartColumn)
+                CImGui::TableSetupColumn("Parts",   stretchNoSortFlags, 0.0f);
             CImGui::TableSetupScrollFreeze(0, 1);
             CImGui::TableHeadersRow();
 
@@ -489,6 +499,58 @@ namespace kbf {
             CImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(LIST_PADDING.x, 0.0f));
 
             constexpr float rowHeight = 40.0f;
+
+            #pragma region Defaults Row
+
+            // Adds the default row back
+            if (filterStr.empty()) {
+                CImGui::TableNextRow();
+                CImGui::TableSetColumnIndex(1);
+                CImGui::PushFont(wsArmourFont, FONT_SIZE_DEFAULT_WILDS_ARMOUR);
+                CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (rowHeight - CImGui::GetTextLineHeight()) * 0.5f);
+                CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));
+                CImGui::Text("Default");
+                CImGui::PopStyleColor();
+                CImGui::PopFont();
+
+                Preset* helmPreset = nullptr;
+                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_HELM))
+                    helmPreset = dataManager.getPresetByUUID((**presetGroup).helmPresets.at(ArmourSet::DEFAULT));
+
+                Preset* bodyPreset = nullptr;
+                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_BODY))
+                    bodyPreset = dataManager.getPresetByUUID((**presetGroup).bodyPresets.at(ArmourSet::DEFAULT));
+
+                Preset* armsPreset = nullptr;
+                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_ARMS))
+                    armsPreset = dataManager.getPresetByUUID((**presetGroup).armsPresets.at(ArmourSet::DEFAULT));
+
+                Preset* coilPreset = nullptr;
+                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_COIL))
+                    coilPreset = dataManager.getPresetByUUID((**presetGroup).coilPresets.at(ArmourSet::DEFAULT));
+
+                Preset* legsPreset = nullptr;
+                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_LEGS))
+                    legsPreset = dataManager.getPresetByUUID((**presetGroup).legsPresets.at(ArmourSet::DEFAULT));
+
+                CImGui::TableSetColumnIndex(2);
+                drawPresetGroupEditor_AssignedPresetsTableCell(helmPreset, ArmourSet::DEFAULT, ArmourPiece::AP_HELM, 2, rowHeight);
+                CImGui::TableSetColumnIndex(3);
+                drawPresetGroupEditor_AssignedPresetsTableCell(bodyPreset, ArmourSet::DEFAULT, ArmourPiece::AP_BODY, 3, rowHeight);
+                CImGui::TableSetColumnIndex(4);
+                drawPresetGroupEditor_AssignedPresetsTableCell(armsPreset, ArmourSet::DEFAULT, ArmourPiece::AP_ARMS, 4, rowHeight);
+                CImGui::TableSetColumnIndex(5);
+                drawPresetGroupEditor_AssignedPresetsTableCell(coilPreset, ArmourSet::DEFAULT, ArmourPiece::AP_COIL, 5, rowHeight);
+                CImGui::TableSetColumnIndex(6);
+                drawPresetGroupEditor_AssignedPresetsTableCell(legsPreset, ArmourSet::DEFAULT, ArmourPiece::AP_LEGS, 6, rowHeight);
+
+                if (m_showPartColumn) {
+                    // Can't set default parts so its just disabled colour, and never added functionality
+                    CImGui::TableSetColumnIndex(7);
+                    colourDisabledCell(7);
+                }
+            }
+            #pragma endregion
 
             for (const ArmourSet& armour : armourSets) {
                 CImGui::TableNextRow();
@@ -507,10 +569,12 @@ namespace kbf {
                 CImGui::PushFont(wsArmourFont, FONT_SIZE_DEFAULT_WILDS_ARMOUR);
                 CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (rowHeight - CImGui::GetTextLineHeight()) * 0.5f);
 
-                std::string displayName = armour.name == ANY_ARMOUR_ID ? "Default" : armour.name;
-                if (armour.name == ANY_ARMOUR_ID) CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));
-                CImGui::Text(displayName.c_str());
-				if (armour.name == ANY_ARMOUR_ID) CImGui::PopStyleColor();
+                //std::string displayName = armour.name == ANY_ARMOUR_ID ? "Default" : armour.name;
+                /*if (armour.name == ANY_ARMOUR_ID) 
+                    CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));*/
+                CImGui::Text(armour.name.c_str());
+				/*if (armour.name == ANY_ARMOUR_ID) 
+                    CImGui::PopStyleColor();*/
                 CImGui::PopFont();
 
 				Preset* helmPreset = nullptr;
@@ -543,6 +607,15 @@ namespace kbf {
 				drawPresetGroupEditor_AssignedPresetsTableCell(coilPreset, armour, ArmourPiece::AP_COIL, 5, rowHeight);
                 CImGui::TableSetColumnIndex(6);
                 drawPresetGroupEditor_AssignedPresetsTableCell(legsPreset, armour, ArmourPiece::AP_LEGS, 6, rowHeight);
+
+                if (m_showPartColumn) {
+                    Preset* partPreset = nullptr;
+                    if ((**presetGroup).armourHasPresetUUID(armour, ArmourPiece::AP_PART))
+                        partPreset = dataManager.getPresetByUUID((**presetGroup).partPresets.at(armour));
+
+                    CImGui::TableSetColumnIndex(7);
+                    drawPresetGroupEditor_AssignedPresetsTableCell(nullptr, armour, ArmourPiece::AP_PART, 7, rowHeight);
+            }
             }
 
             CImGui::EndTable();
@@ -554,12 +627,13 @@ namespace kbf {
 
     void EditorTab::drawPresetGroupEditor_AssignedPresetsTableCell(Preset* preset, ArmourSet armour, ArmourPiece piece, int column, float rowHeight) {
         constexpr ImVec4 hasPresetColor{ 0.3f, 0.6f, 0.3f, 0.35f };
-        constexpr ImVec4 disabledColor{ 0.8f, 0.3f, 0.3f, 0.15f };
         constexpr float armourSexMarkerOffsetBefore = 5.0f;
         constexpr float armourSexMarkerOffset = 17.5f;
 
         ArmourPieceFlags residentPieces = ArmourDataManager::get().getResidentArmourPieces(armour);
-		bool isNotAssignable = piece != ArmourPiece::AP_SET && !(residentPieces & getArmourPieceFlag(piece));
+
+        if (piece == ArmourPiece::AP_SET) throw "AP_SET is actually used";
+		bool isNotAssignable = !(residentPieces & getArmourPieceFlag(piece)) && piece != ArmourPiece::AP_PART;
 
         if (preset) {
             std::string bodyArmourSexMarkSymbol = preset->female ? WS_FONT_FEMALE : WS_FONT_MALE;
@@ -581,9 +655,8 @@ namespace kbf {
         }
 
         if (isNotAssignable) {
-            // Disable selectable and colour cell bg red
-			CImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, CImGui::GetColorU32(disabledColor), column);
             CImGui::BeginDisabled();
+            colourDisabledCell(column);
         }
 
         std::string bodySelectableId = std::format("##{}_{}_{}", armour.name, armour.female, std::to_string(static_cast<int>(piece)));
@@ -642,6 +715,12 @@ namespace kbf {
         } else if (showTooltip) {
             CImGui::SetTooltip(preset->name.c_str());
 		}
+    }
+
+    void EditorTab::colourDisabledCell(int column) {
+        constexpr ImVec4 disabledColor{ 0.8f, 0.3f, 0.3f, 0.15f };
+        // Disable selectable and colour cell bg red
+        CImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, CImGui::GetColorU32(disabledColor), column);
     }
 
     bool EditorTab::canSavePresetGroup(std::string& errMsg) const {

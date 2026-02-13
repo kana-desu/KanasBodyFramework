@@ -178,6 +178,7 @@ namespace kbf {
 
 	ArmourPieceFlags ArmourDataManager::getResidentArmourPieces(const ArmourSet& set) const {
 		if (knownNpcPrefabs.contains(set)) return ArmourPieceFlagBits::APF_BODY; // All prefabs apply under 'body' only
+		if (set == ArmourSet::DEFAULT) return ArmourPieceFlagBits::APF_ALL;
 
 		auto it = knownArmourSeries.find(set);
 		if (it != knownArmourSeries.end()) {

@@ -18,6 +18,7 @@ namespace kbf {
 		std::unordered_map<ArmourSet, std::string> armsPresets;
 		std::unordered_map<ArmourSet, std::string> coilPresets;
 		std::unordered_map<ArmourSet, std::string> legsPresets;
+		std::unordered_map<ArmourSet, std::string> partPresets;
 
 		FormatMetadata metadata;
 
@@ -31,7 +32,8 @@ namespace kbf {
 				bodyPresets == other.bodyPresets &&
 				armsPresets == other.armsPresets &&
 				coilPresets == other.coilPresets &&
-				legsPresets == other.legsPresets);
+				legsPresets == other.legsPresets &&
+				partPresets == other.partPresets);
 		}
 
 		std::unordered_map<ArmourSet, std::string>* getPresetMap(ArmourPiece piece) {
@@ -43,6 +45,7 @@ namespace kbf {
 			case ArmourPiece::AP_ARMS: return &armsPresets;
 			case ArmourPiece::AP_COIL: return &coilPresets;
 			case ArmourPiece::AP_LEGS: return &legsPresets;
+			case ArmourPiece::AP_PART: return &partPresets;
 			default:                   return nullptr;
 			}
 		}
@@ -56,6 +59,7 @@ namespace kbf {
 			case ArmourPiece::AP_ARMS: return armsPresets.find(armour) != armsPresets.end();
 			case ArmourPiece::AP_COIL: return coilPresets.find(armour) != coilPresets.end();
 			case ArmourPiece::AP_LEGS: return legsPresets.find(armour) != legsPresets.end();
+			case ArmourPiece::AP_PART: return partPresets.find(armour) != partPresets.end();
 			default:                   return false;
 			}
 		}

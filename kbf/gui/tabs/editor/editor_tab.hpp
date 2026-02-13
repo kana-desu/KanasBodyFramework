@@ -140,7 +140,10 @@ namespace kbf {
 		std::function<void(void)> savePresetCb = [&]() { dataManager.updatePreset(openObject.ptrBefore.preset->uuid, *openObject.ptrAfter.preset); };
 
 		bool needsEditNone = false;
+		bool m_showPartColumn = false;
 		Preset* presetToEdit = nullptr;
+
+		void colourDisabledCell(int column);
 	};
 
 }

@@ -16,7 +16,8 @@ namespace kbf {
 		AP_COIL = 5,
 		AP_MAX_EXCLUDING_SLINGER  = 5,
 		AP_SLINGER = 6,
-		AP_MAX = 6
+		AP_PART = 7,
+		AP_MAX = 7
 	};
 
 	typedef enum ArmourPieceFlagBits {
