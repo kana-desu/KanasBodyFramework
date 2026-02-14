@@ -459,7 +459,7 @@ namespace kbf {
 #pragma endregion
         CImGui::Spacing();
 
-        const std::vector<ArmourSet> armourSets = ArmourDataManager::get().getFilteredArmourSets(filterStr);
+        std::vector<ArmourSet> armourSets = ArmourDataManager::get().getFilteredArmourSets(filterStr);
         if (armourSets.size() == 0) {
             constexpr char const* noArmourStr = "Armour Set Search Found Zero Results.";
             preAlignCellContentHorizontal(noArmourStr);
@@ -500,57 +500,9 @@ namespace kbf {
 
             constexpr float rowHeight = 40.0f;
 
-            #pragma region Defaults Row
-
-            // Adds the default row back
-            if (filterStr.empty()) {
-                CImGui::TableNextRow();
-                CImGui::TableSetColumnIndex(1);
-                CImGui::PushFont(wsArmourFont, FONT_SIZE_DEFAULT_WILDS_ARMOUR);
-                CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (rowHeight - CImGui::GetTextLineHeight()) * 0.5f);
-                CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));
-                CImGui::Text("Default");
-                CImGui::PopStyleColor();
-                CImGui::PopFont();
-
-                Preset* helmPreset = nullptr;
-                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_HELM))
-                    helmPreset = dataManager.getPresetByUUID((**presetGroup).helmPresets.at(ArmourSet::DEFAULT));
-
-                Preset* bodyPreset = nullptr;
-                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_BODY))
-                    bodyPreset = dataManager.getPresetByUUID((**presetGroup).bodyPresets.at(ArmourSet::DEFAULT));
-
-                Preset* armsPreset = nullptr;
-                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_ARMS))
-                    armsPreset = dataManager.getPresetByUUID((**presetGroup).armsPresets.at(ArmourSet::DEFAULT));
-
-                Preset* coilPreset = nullptr;
-                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_COIL))
-                    coilPreset = dataManager.getPresetByUUID((**presetGroup).coilPresets.at(ArmourSet::DEFAULT));
-
-                Preset* legsPreset = nullptr;
-                if ((**presetGroup).armourHasPresetUUID(ArmourSet::DEFAULT, ArmourPiece::AP_LEGS))
-                    legsPreset = dataManager.getPresetByUUID((**presetGroup).legsPresets.at(ArmourSet::DEFAULT));
-
-                CImGui::TableSetColumnIndex(2);
-                drawPresetGroupEditor_AssignedPresetsTableCell(helmPreset, ArmourSet::DEFAULT, ArmourPiece::AP_HELM, 2, rowHeight);
-                CImGui::TableSetColumnIndex(3);
-                drawPresetGroupEditor_AssignedPresetsTableCell(bodyPreset, ArmourSet::DEFAULT, ArmourPiece::AP_BODY, 3, rowHeight);
-                CImGui::TableSetColumnIndex(4);
-                drawPresetGroupEditor_AssignedPresetsTableCell(armsPreset, ArmourSet::DEFAULT, ArmourPiece::AP_ARMS, 4, rowHeight);
-                CImGui::TableSetColumnIndex(5);
-                drawPresetGroupEditor_AssignedPresetsTableCell(coilPreset, ArmourSet::DEFAULT, ArmourPiece::AP_COIL, 5, rowHeight);
-                CImGui::TableSetColumnIndex(6);
-                drawPresetGroupEditor_AssignedPresetsTableCell(legsPreset, ArmourSet::DEFAULT, ArmourPiece::AP_LEGS, 6, rowHeight);
-
-                if (m_showPartColumn) {
-                    // Can't set default parts so its just disabled colour, and never added functionality
-                    CImGui::TableSetColumnIndex(7);
-                    colourDisabledCell(7);
-                }
-            }
-            #pragma endregion
+            // Add default armour set back in at front as not in list by default
+            // O(N) -- Too bad!
+            armourSets.insert(armourSets.begin(), ArmourSet::DEFAULT);
 
             for (const ArmourSet& armour : armourSets) {
                 CImGui::TableNextRow();
@@ -563,18 +515,23 @@ namespace kbf {
                     CImGui::SetCursorPos(ImVec2(cursorPos.x + sexMarkerOffset.x, cursorPos.y + sexMarkerOffset.y));
                     drawSexMarker(wsSymbolFont, !armour.female, false, true);
                 }
+                else if (m_showPartColumn) {
+                    // Can't set default parts so its just disabled colour, and never added functionality
+                    CImGui::TableSetColumnIndex(7);
+                    colourDisabledCell(7);
+                }
 
                 // Armour Name
                 CImGui::TableSetColumnIndex(1);
                 CImGui::PushFont(wsArmourFont, FONT_SIZE_DEFAULT_WILDS_ARMOUR);
                 CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (rowHeight - CImGui::GetTextLineHeight()) * 0.5f);
 
-                //std::string displayName = armour.name == ANY_ARMOUR_ID ? "Default" : armour.name;
-                /*if (armour.name == ANY_ARMOUR_ID) 
-                    CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));*/
+                std::string displayName = armour.name == ANY_ARMOUR_ID ? "Default" : armour.name;
+                if (armour.name == ANY_ARMOUR_ID) 
+                    CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.365f, 0.678f, 0.886f, 0.8f));
                 CImGui::Text(armour.name.c_str());
-				/*if (armour.name == ANY_ARMOUR_ID) 
-                    CImGui::PopStyleColor();*/
+				if (armour.name == ANY_ARMOUR_ID) 
+                    CImGui::PopStyleColor();
                 CImGui::PopFont();
 
 				Preset* helmPreset = nullptr;
@@ -615,7 +572,7 @@ namespace kbf {
 
                     CImGui::TableSetColumnIndex(7);
                     drawPresetGroupEditor_AssignedPresetsTableCell(nullptr, armour, ArmourPiece::AP_PART, 7, rowHeight);
-            }
+                }
             }
 
             CImGui::EndTable();
