@@ -414,10 +414,11 @@ namespace kbf {
 		// 1. Add partsPresets field to preset groups
 		// 2. Add matsPresets field to preset groups
 
+		size_t presetGroupUpgradeCnt = 0;
+
 		rapidjson::Value& arr = doc["preset_groups"];
 		auto& alloc = doc.GetAllocator();
 		for (auto presetGroup = arr.MemberBegin(); presetGroup != arr.MemberEnd(); ++presetGroup) {
-			const char* name = presetGroup->name.GetString();
 			rapidjson::Value& presetGroupContent = presetGroup->value;
 			presetGroupContent[FORMAT_VERSION_ID] = "1.2.0";
 			bool gotUpgraded = false;
@@ -431,13 +432,15 @@ namespace kbf {
 				gotUpgraded = true;
 			}
 
-			if (gotUpgraded) {
-				DEBUG_STACK.fpush<FILE_UPGRADER_LOG_TAG>(
-					DebugStack::Color::COL_INFO,
-					".KBF file \"{}\" upgraded to 1.2.0.",
-					name
-				);
-			}
+			if (gotUpgraded) presetGroupUpgradeCnt++;
+		}
+
+		if (presetGroupUpgradeCnt > 0) {
+			DEBUG_STACK.fpush<FILE_UPGRADER_LOG_TAG>(
+				DebugStack::Color::COL_INFO,
+				".KBF file upgrade to 1.2.0 complete. {} Preset Groups had missing keys filled.",
+				presetGroupUpgradeCnt
+			);
 		}
 
 		return true;
