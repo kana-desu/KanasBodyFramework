@@ -46,19 +46,25 @@ namespace kbf {
             if (m_instance == nullptr) {
                 m_instance = reframework::API::get()->get_managed_singleton(m_name.c_str());
                 if (m_instance == nullptr) return false;
-
-                if (!checkREPtrValidity(m_instance, m_typedef)) {
-                    DEBUG_STACK.push(std::format(
-                        "{} Failed to get singleton instance for {}",
-                        RE_SINGLETON_LOG_TAG, m_name
-                    ));
-
-                    m_instance = nullptr;
-                    return false;
-                }
             }
+            if (checkREPtrValidity(m_instance, m_typedef)) return true;
+            
+            // Pointer is invalid, try to refetch once
+            DEBUG_STACK.fpush<RE_SINGLETON_LOG_TAG>(
+                DebugStack::Color::COL_WARNING,
+                "Singleton {} had an invalid pointer, attempting to re-fetch...",
+                m_name);
+            m_instance = reframework::API::get()->get_managed_singleton(m_name.c_str());
+            if (checkREPtrValidity(m_instance, m_typedef)) return true;
 
-            return true;
+            // Failed to reftech -- everything might break.
+            DEBUG_STACK.fpush<RE_SINGLETON_LOG_TAG>(
+                DebugStack::Color::COL_WARNING,
+                "Failed to get singleton instance for {}. Returned pointer was not the expected type.",
+                m_name);
+
+            m_instance = nullptr;
+            return false;
         }
 
     private:
