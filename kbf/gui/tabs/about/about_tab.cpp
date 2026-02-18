@@ -472,7 +472,7 @@ namespace kbf {
             WRAP_BULLET("-", "Fixed a bug causing players to not be fetched properly in online mode on some systems.");
             WRAP_BULLET("-", "Fixed a bug causing performance degradation when trying to fetch info for players that had not been set up yet (e.g. in tent).");
             WRAP_BULLET("-", "Fixed a bug causing preset dependencies of a preset group to not be correctly selected when selecting a preset group in the .kbf / .zip export panel.");
-            WRAP_BULLET("-", "Deferred initialization of KBF to the Main Menu scene to ensure global game data is always intiialized before being read.");
+            WRAP_BULLET("-", "Deferred initialization of KBF to the Main Menu scene to ensure global game data is always initialized before being read.");
             CImGui::Spacing();
         }
         if (CImGui::CollapsingHeader("v1.1.2")) {

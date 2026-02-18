@@ -5,8 +5,10 @@
 #include <kbf/data/ids/preset_ids.hpp>
 #include <kbf/util/id/uuid_generator.hpp>
 #include <kbf/util/functional/invoke_callback.hpp>
+#include <kbf/util/string/to_lower.hpp>
 #include <kbf/debug/debug_stack.hpp>
 #include <kbf/util/font/default_font_sizes.hpp>
+#include <kbf/gui/shared/alignment.hpp>
 
 #include <format>
 
@@ -38,6 +40,7 @@ namespace kbf {
 
     void ImportFbsPresetsPanel::initializeBuffers() {
         std::strcpy(presetBundleBuffer, bundleName.c_str());
+        std::strcpy(filterBuffer, "");
     }
 
     bool ImportFbsPresetsPanel::draw() {
@@ -132,17 +135,41 @@ namespace kbf {
 
         CImGui::Spacing();
 
+        CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+        constexpr char const* exportHintStr = "Click to select presets to import.";
+        preAlignCellContentHorizontal(exportHintStr);
+        CImGui::Text(exportHintStr);
+        CImGui::Spacing();
+        CImGui::PopStyleColor();
+
+        const bool noSelection = selectedPresets.empty();
+
         drawPresetList(presets, autoswitchPresetsOnly, presetsFemale);
 
-        CImGui::Spacing();
-        CImGui::Spacing();
-
         static constexpr const char* kCancelLabel = "Cancel";
-        static constexpr const char* kCreateLabel = "Create";
+        static constexpr const char* kClearLabel = "Clear";
+        const std::string selectedStr = std::format("Import {} Selected", selectedPresets.size());
+        const char* kImportLabel = noSelection ? "Import All" : selectedStr.c_str();
 
+        CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(CImGui::GetStyle().ItemSpacing.x, 10));
+
+        // A button to clear the selection
+        if (noSelection) CImGui::BeginDisabled();
+        if (CImGui::Button(kClearLabel)) selectedPresets.clear();
+        if (noSelection) CImGui::EndDisabled();
+
+        CImGui::SameLine();
+
+        CImGui::PushItemWidth(-1);
+        CImGui::InputTextWithHint("##Search", "Search...", filterBuffer, IM_ARRAYSIZE(filterBuffer));
+        CImGui::PopItemWidth();
+
+        CImGui::PopStyleVar();
+
+        float spacingy = CImGui::GetStyle().ItemSpacing.y;
         float spacing = CImGui::GetStyle().ItemSpacing.x;
         float buttonWidth1 = CImGui::CalcTextSize(kCancelLabel).x + CImGui::GetStyle().FramePadding.x * 2;
-        float buttonWidth2 = CImGui::CalcTextSize(kCreateLabel).x + CImGui::GetStyle().FramePadding.x * 2;
+        float buttonWidth2 = CImGui::CalcTextSize(kImportLabel).x + CImGui::GetStyle().FramePadding.x * 2;
         float totalWidth = buttonWidth1 + buttonWidth2 + spacing;
 
         float availableWidth = CImGui::GetContentRegionAvail().x;
@@ -166,8 +193,8 @@ namespace kbf {
 
         const bool bundleEmpty = bundleName.empty();
         if (bundleEmpty) CImGui::BeginDisabled();
-        if (CImGui::Button(kCreateLabel)) {
-			std::vector<Preset> presetsToCreate = createPresetList(autoswitchPresetsOnly);
+        if (CImGui::Button(kImportLabel)) {
+			std::vector<Preset> presetsToCreate = createPresetList(autoswitchPresetsOnly, !noSelection);
             INVOKE_REQUIRED_CALLBACK(createCallback, presetsToCreate);
         }
         if (bundleEmpty) CImGui::EndDisabled();
@@ -181,29 +208,36 @@ namespace kbf {
         CImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.02f, 0.02f, 0.02f, 1.0f));
         CImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10, 10));
 
-        const float height = -(CImGui::GetFrameHeightWithSpacing() + 10.0f); // Leave space for the search bar
+        const float height = -(CImGui::GetFrameHeightWithSpacing() * 2); // Leave space for the search bar
         CImGui::BeginChild("PresetGroupChild", ImVec2(0, height), true, ImGuiWindowFlags_HorizontalScrollbar);
 
         float contentRegionWidth = CImGui::GetContentRegionAvail().x;
         const float selectableHeight = CImGui::GetTextLineHeight();
 
-        if (presets.size() == 0) {
-            const char* noneFoundStr = "No FBS Presets Found";
-            CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
-            CImGui::SetCursorPosX(CImGui::GetCursorPosX() + (CImGui::GetColumnWidth() - CImGui::CalcTextSize(noneFoundStr).x) * 0.5f);
-            CImGui::Text(noneFoundStr);
-            CImGui::PopStyleColor();
-		}
-
-        for (const FBSPreset& fbspreset : presets)
+        bool anyShown = false;
+        for (size_t it = 0; it < presets.size(); ++it)
         {
+            const FBSPreset& fbspreset = presets[it];
 			const Preset& preset = fbspreset.preset;
 			bool autoSwitch = fbspreset.autoswitchingEnabled;
 
 			if (!autoSwitch && autoSwitchOnly) continue;
 
+            std::string filterStr{ filterBuffer };
+            const auto valor = toLower(preset.name).find(toLower(filterStr));
+            if (!filterStr.empty() && valor == std::string::npos) continue;
+
+            //A variable for showing the nothing found
+            anyShown = true;
+
+            bool selected = selectedPresets.contains(preset.uuid);
+
             ImVec2 pos = CImGui::GetCursorScreenPos();
-            CImGui::Selectable(("##Selectable_Preset_" + preset.name).c_str(), false, 0, ImVec2(0.0f, selectableHeight));
+            if (CImGui::Selectable(("##Selectable_Preset_" + preset.name).c_str(), selected, ImGuiSelectableFlags_SelectOnClick, ImVec2(0.0f, selectableHeight))) {
+                if (selected) selectedPresets.erase(preset.uuid);
+                else selectedPresets.insert(preset.uuid);
+                selected = !selected;
+            };
 
             // Sex Mark
             std::string sexMarkSymbol = female ? WS_FONT_FEMALE : WS_FONT_MALE;
@@ -377,16 +411,25 @@ namespace kbf {
             //CImGui::PopFont();
         }
 
+        if (presets.size() == 0 || !anyShown) {
+            const char* noneFoundStr = "No FBS Presets Found";
+            CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+            CImGui::SetCursorPosX(CImGui::GetCursorPosX() + (CImGui::GetColumnWidth() - CImGui::CalcTextSize(noneFoundStr).x) * 0.5f);
+            CImGui::Text(noneFoundStr);
+            CImGui::PopStyleColor();
+		}
+
         CImGui::EndChild();
         CImGui::PopStyleVar();
         CImGui::PopStyleColor();
 
     }
 
-    std::vector<Preset> ImportFbsPresetsPanel::createPresetList(bool autoswitchOnly) const {
+    std::vector<Preset> ImportFbsPresetsPanel::createPresetList(bool autoswitchOnly, bool selectionsOnly) const {
         std::vector<Preset> presetsToCreate{};
         for (const FBSPreset& fbspreset : presets) {
             if (autoswitchOnly && !fbspreset.autoswitchingEnabled) continue;
+            if (selectionsOnly && !selectedPresets.contains(fbspreset.preset.uuid)) continue;
             Preset processedPreset = fbspreset.preset;
             processedPreset.bundle = bundleName;
             presetsToCreate.push_back(processedPreset);

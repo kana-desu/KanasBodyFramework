@@ -19,7 +19,8 @@ namespace kbf {
 			const std::string& strID,
 			const KBFDataManager& dataManager,
 			ImFont* wsSymbolFont,
-			ImFont* wsArmourFont);
+			ImFont* wsArmourFont,
+			std::string defaultBundle = "");
 
 		bool draw() override;
 		void onCombine(std::function<void(Preset)> callback) { combineCallback = callback; }

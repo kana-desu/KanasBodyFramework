@@ -52,6 +52,9 @@ namespace kbf {
 		ImFont* wsArmourFont;
 
 		std::function<void(std::string)> openPresetInEditorCb;
+
+		std::string getBundleViewed();
+		bool inBundlesTab = true;
 	};
 
 }

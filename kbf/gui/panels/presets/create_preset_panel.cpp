@@ -19,12 +19,13 @@ namespace kbf {
         const std::string& strID,
         const KBFDataManager& dataManager,
         ImFont* wsSymbolFont,
-        ImFont* wsArmourFont
+        ImFont* wsArmourFont,
+        std::string defaultBundle
     ) : iPanel(name, strID), dataManager{ dataManager }, wsSymbolFont{ wsSymbolFont }, wsArmourFont{ wsArmourFont } {
         preset        = Preset{};
         preset.name   = "New Preset";
         preset.uuid   = uuid::v4::UUID::New().String();
-        preset.bundle = PRESET_DEFAULT_BUNDLE;
+        preset.bundle = defaultBundle.empty() ? PRESET_DEFAULT_BUNDLE : defaultBundle;
         preset.female = true;
         preset.armour = ArmourSet{ ANY_ARMOUR_ID, false };
 

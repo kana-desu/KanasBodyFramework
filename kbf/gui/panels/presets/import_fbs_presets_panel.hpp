@@ -31,6 +31,8 @@ namespace kbf {
 		std::string bundleName = "Imported FBS Presets";
 		bool presetsFemale = true;
 		std::vector<FBSPreset> presets;
+		std::unordered_set<std::string> selectedPresets;
+		char filterBuffer[128];
 
 		// Loading threading stuff
 		void postToMainThread(std::function<void()> func);
@@ -51,7 +53,7 @@ namespace kbf {
 		void drawPresetList(const std::vector<FBSPreset>& presets, bool autoSwitchOnly, const bool female);
 		void drawArmourSetName(const ArmourSet& armourSet, const float offsetBefore, const float offsetAfter);
 
-		std::vector<Preset> createPresetList(bool autoswitchOnly) const;
+		std::vector<Preset> createPresetList(bool autoswitchOnly, bool selectionsOnly) const;
 
 		std::function<void(std::vector<Preset>)> createCallback;
 		std::function<void()> cancelCallback;
