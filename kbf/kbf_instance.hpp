@@ -115,6 +115,25 @@ namespace kbf {
 			CImGui::Spacing();
 			CImGui::Separator();
 
+			#if KBF_DEBUG_BUILD
+			CImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.902f, 0.635f, 0.235f, 1.000f));
+			if (CImGui::Button("(DEBUG) Force Initialize KBF", ImVec2(CImGui::GetContentRegionAvail().x, 0))) {
+				initialize();
+				// Put anything initialization stuff here temporarily that makes debugging a particular scenario over multiple hot-reloads easier.
+
+				// Quest-end debug
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isOfflineorMainMenu);
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isinQuestEndAnnounce);
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isAlwaysOn);
+				//SituationWatcher::get().addCustomSituation(CustomSituation::isInGame);
+			}
+			CImGui::PopStyleColor();
+			#endif
+
+			CImGui::Separator();
+			CImGui::Spacing();
+			CImGui::Separator();
+
 			if (initialized.load()) {
 				if (CImGui::Button("Kana's Body Framework", ImVec2(CImGui::GetContentRegionAvail().x, 0))) {
 					drawWindow = !drawWindow;
