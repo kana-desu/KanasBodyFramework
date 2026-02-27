@@ -32,6 +32,11 @@ namespace kbf {
         void onLeaveSituation(KnownSituation situation, std::function<void()> callback) { leaveSituationCallbacks[situation].addCallback(callback); }
 		void onLeaveSituation(CustomSituation situation, std::function<void()> callback) { leaveCustomSituationCallbacks[situation].addCallback(callback); }
 
+		void addKnownSituation(KnownSituation situation); 
+        void removeKnownSituation(KnownSituation situation);
+		void addCustomSituation(CustomSituation situation); 
+        void removeCustomSituation(CustomSituation situation);
+
     private:
         SituationWatcher() { initialize(); }
         void initialize();
@@ -40,11 +45,6 @@ namespace kbf {
         static bool checkMultiplayerSafe();
         bool checkCustomSituation(CustomSituation situation);
         void updateCustomSituations();
-
-		void addKnownSituation(KnownSituation situation); 
-        void removeKnownSituation(KnownSituation situation);
-		void addCustomSituation(CustomSituation situation); 
-        void removeCustomSituation(CustomSituation situation);
 
         // Known Situation Hooks
         static int  situationPreStart(int argc, void** argv, REFrameworkTypeDefinitionHandle* arg_tys, unsigned long long ret_addr);
