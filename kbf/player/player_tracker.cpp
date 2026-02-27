@@ -286,10 +286,13 @@ namespace kbf {
 
         saveSelectHunterTransformCache              = nullptr;
         saveSelectSceneControllerCache              = nullptr;
-        characterCreatorHunterTransformCache        = nullptr;
-        guildCardHunterTransformCache               = nullptr;
         saveSelectHashedArmourTransformsCache       = std::nullopt;
+        characterCreatorHunterTransformCache        = nullptr;
+        charaMakeSceneControllerCache               = nullptr;
         characterCreatorHashedArmourTransformsCache = std::nullopt;
+        guildCardHunterTransformCache               = nullptr;
+        guildCardHunterGameObjCache                 = nullptr;
+        guildCardSceneControllerCache               = nullptr;
         guildCardHashedArmourTransformsCache        = std::nullopt;
     }
 
