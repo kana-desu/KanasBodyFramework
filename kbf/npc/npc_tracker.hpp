@@ -6,7 +6,9 @@
 #include <kbf/npc/npc_cache.hpp>
 #include <kbf/npc/npc_fetch_flags.hpp>
 #include <kbf/situation/lobby_type.hpp>
+#include <kbf/data/npc/quest_clear_npc_type.hpp>
 #include <kbf/situation/custom_situation.hpp>
+#include <kbf/situation/known_situation.hpp>
 
 #include <unordered_set>
 
@@ -50,6 +52,9 @@ namespace kbf {
         bool fetchNpcs_MainMenu_EquippedArmourSet(const NpcInfo& outInfo, PersistentNpcInfo& pInfo);
         void fetchNpcs_NormalGameplay();
         void fetchNpcs_NormalGameplay_SingleNpc(size_t i, bool useCache);
+        void fetchNpcs_QuestClearCutscene();
+        bool fetchNpcs_QuestClearCutscene_BasicInfo(QuestClearNpcType npcType, NpcInfo& outInfo);
+        bool fetchNpcs_QuestClearCutscene_PersistentInfo(const NpcInfo& info, PersistentNpcInfo& pInfo);
         NpcFetchFlags fetchNpc_BasicInfo(size_t i, NpcInfo& out);
         bool fetchNpc_PersistentInfo(size_t i, const NpcInfo& info, PersistentNpcInfo& pInfo);
 		void fetchNpc_Visibility(NpcInfo& info);
@@ -95,8 +100,11 @@ namespace kbf {
         RESingleton npcManager{ "app.NpcManager" };
         bool needsAllNpcFetch = false;
 
-        std::optional<CustomSituation> lastSituation = std::nullopt;
+        std::optional<std::variant<CustomSituation, KnownSituation>> lastSituation = std::nullopt;
         size_t frameBoneFetchCount = 0;
+
+        // Quest Clear animation Refs
+        std::unordered_map<QuestClearNpcType, QuestClearNpcCache> questClearCaches;
 
         // Cutscene end tracking
         bool frameIsCutscene    = false;

@@ -61,7 +61,10 @@ namespace kbf {
 		static ArmorSetID getArmourSetIDFromArmourSeries(uint32_t series, bool female);
 		ArmourSet getArmourSetFromArmourID(const ArmorSetID& setId) const;
 		ArmourSet getArmourSetFromNpcPrefab(const std::string& npcPrefabPath, bool female) const;
+		std::string getNpcPrefabFromAlias(const std::string& alias) const;
+		std::string getNpcPrefabPrimaryTransformName(const std::string& prefabPath);
 		REApi::ManagedObject* getNpcPrefabPrimaryTransform(const std::string& prefabPath, REApi::ManagedObject* baseTransform);
+		std::vector<std::string> getPartnerCostumePrefabs(size_t partnerId) const;
 		std::string getPartnerCostumePrefab(size_t partnerId, size_t costumeId) const;
 
 		bool hasArmourSetMapping(const ArmourSet& set) const;

@@ -109,6 +109,25 @@ namespace kbf {
 		return ArmourSet::DEFAULT;
 	}
 
+	// Note, this function will return the FIRST prefab present if there is more than one prefab for the set (i.e. both genders)
+	std::string ArmourDataManager::getNpcPrefabFromAlias(const std::string& alias) const {
+		if (alias.empty()) return "";
+
+		for (const auto& [prefabPth, data] : npcPrefabToArmourSetMap) {
+			if (data.name == alias) {
+				return prefabPth;
+			}
+		}
+
+		return "";
+	}
+
+	std::string ArmourDataManager::getNpcPrefabPrimaryTransformName(const std::string& prefabPath) {
+		auto it = npcPrefabToPrimaryTransformNameMap.find(prefabPath);
+		if (it == npcPrefabToPrimaryTransformNameMap.end()) return "";
+		return it->second;
+	}
+
 	REApi::ManagedObject* ArmourDataManager::getNpcPrefabPrimaryTransform(const std::string& prefabPath, REApi::ManagedObject* baseTransform) {
 		// We want to find these components WITHOUT relying on the name of them. This is because doing so is:
 		//  - Slow with string checks
@@ -157,6 +176,20 @@ namespace kbf {
 		}
 
 		return nullptr;
+	}
+
+	std::vector<std::string> ArmourDataManager::getPartnerCostumePrefabs(size_t partnerId) const {
+		std::vector<std::string> result;
+
+		auto it = partnerIdToCostumePrefabMap.find(partnerId);
+		if (it != partnerIdToCostumePrefabMap.end()) {
+			result.reserve(it->second.size());
+			for (const auto& [costumeId, prefab] : it->second) {
+				result.push_back(prefab);
+			}
+		}
+
+		return result;
 	}
 
 	std::string ArmourDataManager::getPartnerCostumePrefab(size_t partnerId, size_t costumeId) const {

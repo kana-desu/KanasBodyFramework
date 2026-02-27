@@ -5,6 +5,7 @@
 
 #include <kbf/enums/armor_parts.hpp>
 #include <kbf/data/npc/npc_data_manager.hpp>
+#include <kbf/data/npc/npc_prefab_alias_mappings.hpp>
 #include <kbf/data/armour/find_object_armours.hpp>
 #include <kbf/util/re_engine/reinvoke.hpp>
 #include <kbf/util/string/ptr_to_hex_string.hpp>
@@ -12,7 +13,10 @@
 #include <kbf/data/armour/format_full_armour_id.hpp>
 #include <kbf/util/re_engine/find_transform.hpp>
 #include <kbf/util/re_engine/dump_components.hpp>
+#include <kbf/util/re_engine/search_scene.hpp>
+#include <kbf/util/re_engine/dump_visible_meshes.hpp>
 #include <kbf/util/re_engine/re_memory_ptr.hpp>
+#include <kbf/util/re_engine/get_component.hpp>
 #include <kbf/debug/debug_stack.hpp>
 #include <kbf/data/ids/special_armour_ids.hpp>
 
@@ -199,13 +203,14 @@ namespace kbf {
         if (dataManager.settings().enableDuringQuestsOnly && !inQuest) return;
 
         frameBoneFetchCount = 0;
-        std::optional<CustomSituation> thisUpdateSituation = std::nullopt;
+        std::optional<std::variant<CustomSituation, KnownSituation>> thisUpdateSituation = std::nullopt;
 
         const bool mainMenu         = SituationWatcher::inCustomSituation(CustomSituation::isInMainMenuScene);
         const bool saveSelect       = SituationWatcher::inCustomSituation(CustomSituation::isInSaveSelectGUI);
         const bool characterCreator = SituationWatcher::inCustomSituation(CustomSituation::isInCharacterCreator);
         const bool guildCard        = SituationWatcher::inCustomSituation(CustomSituation::isInHunterGuildCard);
         const bool cutscene         = SituationWatcher::inCustomSituation(CustomSituation::isInCutscene);
+        const bool questClear       = SituationWatcher::inSituation(KnownSituation::isinQuestEndAnnounce);
 
         // Try refetch once after cutscene ends/begins to avoid being untracked.
         needsAllNpcFetch |= (frameIsCutscene && !cutscene) || (!frameIsCutscene && cutscene);
@@ -216,6 +221,7 @@ namespace kbf {
         else if (characterCreator) thisUpdateSituation = CustomSituation::isInCharacterCreator;
         else if (guildCard       ) thisUpdateSituation = CustomSituation::isInHunterGuildCard; 
         else if (cutscene        ) thisUpdateSituation = CustomSituation::isInCutscene;        
+        else if (questClear      ) thisUpdateSituation = KnownSituation::isinQuestEndAnnounce;
 
         if (thisUpdateSituation != lastSituation) {
             lastSituation = thisUpdateSituation;
@@ -227,6 +233,7 @@ namespace kbf {
         else if (characterCreator) return; // Npcs still show up in the list when in outfit selector so just ignore.
         else if (guildCard       ) return;
         else if (cutscene        ) fetchNpcs_NormalGameplay();
+        else if (questClear      ) fetchNpcs_QuestClearCutscene();
         else                       fetchNpcs_NormalGameplay();
     }
 
@@ -521,6 +528,152 @@ namespace kbf {
         if (!npcSlotTable.contains(i)) npcSlotTable.insert(i);
         npcInfos[i] = std::move(info);
         npcsToFetch[i] = false; // TODO: Probs need to move this to PInfo loop
+    }
+
+    void NpcTracker::fetchNpcs_QuestClearCutscene() {
+        for (size_t i = QuestClearNpcType::MIN; i < QuestClearNpcType::MAX; i++) {
+            QuestClearNpcType npcType = static_cast<QuestClearNpcType>(i);
+
+            NpcInfo info{};
+            bool fetched = fetchNpcs_QuestClearCutscene_BasicInfo(npcType, info);
+            if (!fetched) continue;
+
+            if (!persistentNpcInfos[info.index].has_value()) {
+                PersistentNpcInfo pInfo{};
+                pInfo.index = info.index;
+
+                bool fetchedPInfo = fetchNpcs_QuestClearCutscene_PersistentInfo(info, pInfo);
+                if (fetchedPInfo) {
+                    npcApplyDelays[info.index] = std::chrono::high_resolution_clock::now();
+                    persistentNpcInfos[info.index] = std::move(pInfo);
+                }
+            }
+
+            if (!npcSlotTable.contains(info.index)) npcSlotTable.insert(info.index);
+            npcInfos[info.index] = std::move(info);
+        }
+    }
+
+    bool NpcTracker::fetchNpcs_QuestClearCutscene_BasicInfo(QuestClearNpcType npcType, NpcInfo& outInfo) {
+        // TODO: We do 3 redundant searches of the whole scene list here, we will need this func to export the entire possible list of NPC infos at once.
+
+        bool usedCache = false;
+        if (questClearCaches.contains(npcType)) {
+            const auto& cache = questClearCaches[npcType];
+            if (cache.isValid()) {
+                outInfo.index              = cache.index;
+                outInfo.pointers.Transform = cache.Transform;
+                outInfo.prefabPath         = cache.prefabPath;
+
+                usedCache = true;
+            }
+        }
+
+        if (!usedCache) {
+            size_t index = 0;
+
+            // Get prefabs we expect to encounter
+            std::vector<std::string> npcCostumePrefabs{};
+            switch (npcType) {
+            case QuestClearNpcType::ALMA:   index =  8; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(2); break;
+            case QuestClearNpcType::ERIK:   index =  0; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(3); break;
+            case QuestClearNpcType::GEMMA:  index = 10; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(4); break;
+            case QuestClearNpcType::WERNER: {
+                std::string prefab = ArmourDataManager::get().getNpcPrefabFromAlias(NpcPrefabAliasMappings::getPrefabAlias("NPC101_00_009"));
+                index = 5;
+                npcCostumePrefabs = std::vector<std::string>{ prefab }; 
+            } break;
+            default: {
+                DEBUG_STACK.fpush<LOG_TAG>(DebugStack::Color::COL_ERROR, "Unexpected Quest Clear NPC Type encountered while fetching basic info.");
+                return false;
+            }
+            }
+
+            outInfo.index = index;
+
+            // Strip them into object names which we will partially match against
+            std::unordered_set<std::string> potentialObjNames{};
+            std::unordered_map<std::string, std::string> prefabNameToPathReverseMapping{};
+            for (const auto& prefabPath : npcCostumePrefabs) {
+                std::string objName = ArmourDataManager::get().getNpcPrefabPrimaryTransformName(prefabPath);
+                if (objName.empty()) continue;
+
+                potentialObjNames.insert(objName);
+                prefabNameToPathReverseMapping.emplace(objName, prefabPath);
+            }
+
+            // DEBUG
+            if (index == 10) {
+                potentialObjNames.insert("ch04_004_0073");
+                prefabNameToPathReverseMapping.emplace("ch04_004_0073", "GameDesign/NPC/_Prefab/Model/Human/ch04_004_0073.pfb");
+            }
+
+            // Check if there are any similar objects in the scene.
+            REApi::ManagedObject* currentScene = getCurrentScene();
+            if (currentScene == nullptr) return false;
+
+            // TODO: We might want to use via.TransformSkeleton instead here (why tf does this even exist??)
+            static const REApi::ManagedObject* transformType = REApi::get()->typeof("via.Transform");
+            REApi::ManagedObject* transformComponents = REInvokePtr<REApi::ManagedObject>(currentScene, "findComponents(System.Type)", { (void*)transformType });
+            const int numComponents = REInvoke<int>(transformComponents, "GetLength", { (void*)0 }, InvokeReturnType::DWORD);
+
+            for (int i = 0; i < numComponents; i++) {
+                REApi::ManagedObject* transform = REInvokePtr<REApi::ManagedObject>(transformComponents, "get_Item", { (void*)i });
+                if (transform == nullptr) continue;
+
+                REApi::ManagedObject* gameObject = REInvokePtr<REApi::ManagedObject>(transform, "get_GameObject", {});
+                if (gameObject == nullptr) continue;
+
+                std::string objName = REInvokeStr(gameObject, "get_Name", {});
+                if (potentialObjNames.contains(objName)) {
+                    std::string prefabPath = prefabNameToPathReverseMapping.at(objName);
+
+                    REApi::ManagedObject* joints = REInvokePtr<REApi::ManagedObject>(transform, "get_Joints", {});
+                    int arrSize = REInvoke<int>(joints, "GetLength(System.Int32)", { (void*)0 }, InvokeReturnType::DWORD);
+
+                    std::unordered_map<std::string, REApi::ManagedObject*> bones;
+                    for (size_t i = 0; i < arrSize; i++) {
+                        REApi::ManagedObject* joint = REInvokePtr<REApi::ManagedObject>(joints, "get_Item(System.Int32)", { (void*)i });
+                        if (joint) {
+                            std::string jointName = REInvokeStr(joint, "get_Name", {});
+                            bool isValid = REInvoke<bool>(joint, "get_Valid", {}, InvokeReturnType::BOOL);
+                            DEBUG_STACK.fpush<LOG_TAG>("Joint: {} | Valid = {}", jointName, isValid ? "True" : "False");
+                        }
+                    }
+
+                    // Object we're looking for
+                    outInfo.pointers.Transform = transform;
+                    outInfo.prefabPath         = prefabPath;
+                    questClearCaches[npcType] = QuestClearNpcCache{ index, transform, prefabPath };
+                }
+            }
+        }
+
+        // Force visibility to be true... they should basically always be in frame... or at least having bones updated.
+        outInfo.visible = outInfo.pointers.Transform != nullptr;
+
+        return true;
+    }
+
+    bool NpcTracker::fetchNpcs_QuestClearCutscene_PersistentInfo(const NpcInfo& info, PersistentNpcInfo& pInfo) {
+        bool fetchedArmour = fetchNpcs_MainMenu_EquippedArmourSet(info, pInfo);
+        if (!fetchedArmour) return false;
+
+        // These objects are hella weird, almost like the prefab just dumps all the mesh components into the scene...
+        // There doesn't seem to be a parent object containing all this
+        pInfo.Transform_base = info.pointers.Transform;
+        pInfo.Transform_body = info.pointers.Transform;
+
+        bool fetchedBones = fetchNpc_Bones(info, pInfo);
+        if (!fetchedBones) return false;
+
+        bool fetchedParts = fetchNpc_Parts(info, pInfo);
+        if (!fetchedParts) return false;
+
+        bool fetchedMats = fetchNpc_Materials(info, pInfo);
+        if (!fetchedMats) return false;
+
+        return true;
     }
 
     NpcFetchFlags NpcTracker::fetchNpc_BasicInfo(size_t i, NpcInfo& out) {
