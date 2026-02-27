@@ -11,11 +11,10 @@ extern "C" {
 
     // Hot reload dll exports
     HOT_RELOAD_EXPORT void initialize_kbf() { kbf::preInitialize(); }
-    HOT_RELOAD_EXPORT void kbf_on_draw_ui() { kbf::onDrawUi(); }
-    HOT_RELOAD_EXPORT void kbf_on_pre_update_motion() { kbf::onPreUpdateMotion(); }
-    HOT_RELOAD_EXPORT void kbf_on_post_update_motion() { kbf::onPostUpdateMotion(); }
-	HOT_RELOAD_EXPORT void kbf_on_post_late_update_behavior() { kbf::onPostLateUpdateBehavior(); }
-    HOT_RELOAD_EXPORT void kbf_on_unload() { kbf::HookManager::remove_all(); }
+    HOT_RELOAD_EXPORT void kbf_draw_ui() { kbf::drawUI(); }
+    HOT_RELOAD_EXPORT void kbf_fetch() { kbf::fetch(); }
+	HOT_RELOAD_EXPORT void kbf_apply() { kbf::apply(); }
+    HOT_RELOAD_EXPORT void kbf_unload() { kbf::HookManager::remove_all(); }
     HOT_RELOAD_EXPORT void kbf_force_initialize_reframework(const REFrameworkPluginInitializeParam* param) {
         kbf::forceInitializeReframework(param);
 	}
@@ -35,16 +34,15 @@ extern "C" {
         reframework::API::get()->log_info(LOG_STRING("Initializing..."));
 
         try {
-            const auto onPreUpdateMotionHook  = []() { kbf::onPreUpdateMotion(); };
-            const auto onPostUpdateMotionHook = []() { kbf::onPostUpdateMotion(); };
-			const auto onPostLateUpdateBehaviorHook = []() { kbf::onPostLateUpdateBehavior(); };
-            const auto onImguiDrawUiHook = [](REFImGuiFrameCbData* data) { kbf::onDrawUi(); };
+            const auto kbfFetchHook = []() { kbf::fetch(); };
+			const auto kbfApplyHook = []() { kbf::apply(); };
+            const auto kbfDrawUIHook = [](REFImGuiFrameCbData* data) { kbf::drawUI(); };
 
+            // Note, we completely bypass KBF's Entry Point manager in release mode for performance.
             const REFrameworkPluginFunctions* functions = param->functions;
-            functions->on_imgui_draw_ui(onImguiDrawUiHook);
-            functions->on_pre_application_entry("UpdateMotion", onPreUpdateMotionHook);
-            functions->on_post_application_entry("UpdateMotion", onPostUpdateMotionHook);
-			functions->on_post_application_entry("LateUpdateBehavior", onPostLateUpdateBehaviorHook);
+            functions->on_imgui_draw_ui(kbfDrawUIHook);
+            functions->on_pre_application_entry("UpdateMotion",       kbfFetchHook);
+			functions->on_post_application_entry("LateUpdateBehavior", kbfApplyHook);
 
             return true;
         }

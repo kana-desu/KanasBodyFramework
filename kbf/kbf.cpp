@@ -85,26 +85,24 @@ namespace kbf {
         return EXCEPTION_EXECUTE_HANDLER;
 	}
 
-    void KBF::onPreUpdateMotion() {
+    void KBF::fetch() {
         if (pluginDisabled) return;
 
         __try {
-            get().instance.onPreUpdateMotion();
+            get().instance.fetch();
         }
-        __except (handleException("onPreUpdateMotion", GetExceptionInformation())) {
+        __except (handleException("fetch", GetExceptionInformation())) {
             pluginDisabled = true;
         }
     }
 
-    void KBF::onPostUpdateMotion() { }
-
-	void KBF::onPostLateUpdateBehavior() {
+	void KBF::apply() {
         if (pluginDisabled) return;
 
         __try {
-		    get().instance.onPostLateUpdateBehavior();
+		    get().instance.apply();
         }
-        __except (handleException("onPostLateUpdateBehavior", GetExceptionInformation())) {
+        __except (handleException("apply", GetExceptionInformation())) {
             pluginDisabled = true;
         }
     }

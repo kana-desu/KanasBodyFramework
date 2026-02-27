@@ -11,8 +11,7 @@ extern lua_State* g_lua;
 namespace kbf {
 	inline void preInitialize() { CImGui::initializeFuncs(); }
 	inline void forceInitializeReframework(const REFrameworkPluginInitializeParam* param) { reframework::API::initialize(param); }
-	inline void onPreUpdateMotion() { kbf::KBF::onPreUpdateMotion(); }
-	inline void onPostUpdateMotion() { kbf::KBF::onPostUpdateMotion(); }
-	inline void onPostLateUpdateBehavior() { kbf::KBF::onPostLateUpdateBehavior(); }
-	inline void onDrawUi() { kbf::KBF::drawInstanceUI(); }
+	inline void fetch() { kbf::KBF::fetch(); }
+	inline void apply() { kbf::KBF::apply(); }
+	inline void drawUI() { kbf::KBF::drawInstanceUI(); }
 }

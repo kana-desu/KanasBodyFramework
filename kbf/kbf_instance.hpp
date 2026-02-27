@@ -122,10 +122,10 @@ namespace kbf {
 				// Put anything initialization stuff here temporarily that makes debugging a particular scenario over multiple hot-reloads easier.
 
 				// Quest-end debug
-				//SituationWatcher::get().addKnownSituation(KnownSituation::isOfflineorMainMenu);
-				//SituationWatcher::get().addKnownSituation(KnownSituation::isinQuestEndAnnounce);
-				//SituationWatcher::get().addKnownSituation(KnownSituation::isAlwaysOn);
-				//SituationWatcher::get().addCustomSituation(CustomSituation::isInGame);
+				SituationWatcher::get().addKnownSituation(KnownSituation::isOfflineorMainMenu);
+				SituationWatcher::get().addKnownSituation(KnownSituation::isinQuestEndAnnounce);
+				SituationWatcher::get().addKnownSituation(KnownSituation::isAlwaysOn);
+				SituationWatcher::get().addCustomSituation(CustomSituation::isInGame);
 			}
 			CImGui::PopStyleColor();
 			#endif
@@ -206,14 +206,14 @@ namespace kbf {
 		}
 
 		__declspec(noinline)
-		void onPreUpdateMotion() {
+		void fetch() {
 			if (!initialized.load()) return;
 			if (!kbfDataManager.settings().enabled) return;
 
 			CpuProfiler::GlobalTimelineProfiler.get()->resetAccumulatedAll();
 			CpuProfiler::GlobalMultiScopeProfiler.get()->resetAccumulatedAll();
 
-			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "(Pre) OnUpdateMotion");
+			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "Fetch");
 
 			if (kbfDataManager.settings().enabled) {
 				BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler.get(), "Player Fetch");
@@ -227,15 +227,15 @@ namespace kbf {
 				END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler.get(), "NPC Fetch");
 			}
 
-			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "(Pre) OnUpdateMotion");
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "Fetch");
 		}
 
 		__declspec(noinline)
-		void onPostLateUpdateBehavior() {
+		void apply() {
 			if (!initialized.load()) return;
 			if (!kbfDataManager.settings().enabled) return;
 
-			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "(Post) OnLateUpdateBehavior");
+			BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "Apply");
 
 			if (kbfDataManager.settings().enablePlayers) {
 				BEGIN_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler.get(), "Player Apply");
@@ -249,7 +249,7 @@ namespace kbf {
 				END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalMultiScopeProfiler.get(), "NPC Apply");
 			}
 
-			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "(Post) OnLateUpdateBehavior");
+			END_CPU_PROFILING_BLOCK(CpuProfiler::GlobalTimelineProfiler.get(), "Apply");
 		}
 
 		bool isInitialized() const { return initialized.load(); }

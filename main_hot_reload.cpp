@@ -1,4 +1,5 @@
 #include "plugin.hpp"
+#include <kbf/entry_points.hpp>
 
 #include <kbf/debug/log_string.hpp>
 #include <kbf/util/io/kbf_asset_path.hpp>
@@ -24,15 +25,13 @@ static HMODULE g_logicDll;
 static const REFrameworkPluginInitializeParam* g_param;
 
 // Hooks
-static void (*onUnloadFn)() = nullptr;
-static void (*onDrawUiFn)() = nullptr;
-static void (*onPreUpdateMotionFn)()  = nullptr;
-static void (*onPostUpdateMotionFn)() = nullptr;
-static void (*onPostLateUpdateBehaviorFn)() = nullptr;
-static void onDrawUiHook(REFImGuiFrameCbData* data) { if(g_logicDll && onDrawUiFn) onDrawUiFn(); }
-static void onPreUpdateMotionHook() { if (g_logicDll && onPreUpdateMotionFn) onPreUpdateMotionFn(); }
-static void onPostUpdateMotionHook() { if (g_logicDll && onPostUpdateMotionFn) onPostUpdateMotionFn(); }
-static void onPostLateUpdateBehaviorHook() { if (g_logicDll && onPostLateUpdateBehaviorFn) onPostLateUpdateBehaviorFn(); }
+static void (*kbfUnloadFn)()  = nullptr;
+static void (*kbfDrawUIFn)() = nullptr;
+static void (*kbfFetchFn)()  = nullptr;
+static void (*kbfApplyFn)()  = nullptr;
+static void kbfDrawUI(REFImGuiFrameCbData* data) { if(g_logicDll && kbfDrawUIFn) kbfDrawUIFn(); }
+static void kbfFetch() { if (g_logicDll && kbfFetchFn) kbfFetchFn(); }
+static void kbfApply() { if (g_logicDll && kbfApplyFn) kbfApplyFn(); }
 
 static bool copyHotReloadableDll() {
     // Create HotReload directory if it doesn't exist
@@ -47,7 +46,7 @@ static bool copyHotReloadableDll() {
     if (std::filesystem::exists(hotReloadDllPathAbsolute)) {
         bool reloaded = false;
         if (g_logicDll) {
-            if (onUnloadFn) onUnloadFn();
+            if (kbfUnloadFn) kbfUnloadFn();
             FreeLibrary(g_logicDll);
             g_logicDll = nullptr;
         }
@@ -83,20 +82,17 @@ static void loadLogicDll(const REFrameworkPluginInitializeParam* param) {
     }
     if (!g_logicDll) return reframework::API::get()->log_error(LOG_STRING("Failed to load KBF logic DLL: {}"), dllPathAbsolute.string());
 
-    onDrawUiFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_on_draw_ui"));
-    if (!onDrawUiFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_on_draw_ui function from KBF logic DLL."));
+    kbfDrawUIFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_draw_ui"));
+    if (!kbfDrawUIFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_draw_ui function from KBF logic DLL."));
 
-    onPreUpdateMotionFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_on_pre_update_motion"));
-    if (!onPreUpdateMotionFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_on_pre_update_motion function from KBF logic DLL."));
+    kbfFetchFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_fetch"));
+    if (!kbfFetchFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_fetch function from KBF logic DLL."));
 
-    onPostUpdateMotionFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_on_post_update_motion"));
-    if (!onPostUpdateMotionFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_on_post_update_motion function from KBF logic DLL."));
+	kbfApplyFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_apply"));
+	if (!kbfApplyFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_apply function from KBF logic DLL."));
 
-	onPostLateUpdateBehaviorFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_on_post_late_update_behavior"));
-	if (!onPostLateUpdateBehaviorFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_on_post_late_update_behavior function from KBF logic DLL."));
-
-	onUnloadFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_on_unload"));
-	if (!onUnloadFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_on_unload function from KBF logic DLL."));
+	kbfUnloadFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "kbf_unload"));
+	if (!kbfUnloadFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get kbf_unload function from KBF logic DLL."));
 
 	auto initializeFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "initialize_kbf"));
     if (!initializeFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get initialize_kbf function from KBF logic DLL."));
@@ -146,11 +142,21 @@ extern "C" {
 
         try {
             const REFrameworkPluginFunctions* functions = param->functions;
-            functions->on_imgui_draw_ui(onDrawUiHook);
-            functions->on_pre_application_entry("UpdateMotion", onPreUpdateMotionHook);
-            functions->on_post_application_entry("UpdateMotion", onPostUpdateMotionHook);
-            functions->on_post_application_entry("LateUpdateBehavior", onPostLateUpdateBehaviorHook);
+
+            // Don't bind these functions through KBF's entry points as they should never be touched
+            functions->on_imgui_draw_ui(kbfDrawUI);
             functions->on_post_application_entry("EndRendering", processHotReload);
+
+            // This loop hooks EVERY entry point so that we have compile-time function definitions that we can hook into at runtime.
+            //  This lets us choose where plugin code is called at runtime, rather than at compile time.
+            for (size_t i = 0; i < kbf::EntryPoints::ENTRY_POINT_NAMES.size(); i++) {
+                functions->on_pre_application_entry(kbf::EntryPoints::ENTRY_POINT_NAMES[i], kbf::EntryPoints::PRE_HOOKS[i]);
+                functions->on_post_application_entry(kbf::EntryPoints::ENTRY_POINT_NAMES[i], kbf::EntryPoints::POST_HOOKS[i]);
+            }
+
+            // Set-up default kbf entry points
+            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::PRE_FUNCTION,  "UpdateMotion",       kbfFetch);
+            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::POST_FUNCTION, "LateUpdateBehavior", kbfApply);
 
             return true;
         }

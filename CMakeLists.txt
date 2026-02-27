@@ -78,10 +78,12 @@ set(KBF_SOURCES
     "kbf/situation/situation_watcher.cpp"
     "kbf/watchers/fs_watcher_win.cpp"
     "kbf/watchers/kbf_dll_update_listener.cpp"
+    "kbf/entry_points.cpp"
     "kbf/kbf.cpp" 
 )
 
 set(KBF_HOT_RELOADER_SOURCES
+    "kbf/entry_points.cpp"
     "kbf/watchers/fs_watcher_win.cpp"
     "kbf/watchers/kbf_dll_update_listener.cpp"
 )

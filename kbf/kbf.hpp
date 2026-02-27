@@ -11,9 +11,8 @@ namespace kbf {
 		static KBF& get();
 		static KBFInstance& getInstance() { return get().instance; }
 
-		static void onPreUpdateMotion();
-		static void onPostUpdateMotion();
-		static void onPostLateUpdateBehavior();
+		static void fetch();
+		static void apply();
 
 		void drawUI();
 		static void drawInstanceUI() { get().drawUI(); }
