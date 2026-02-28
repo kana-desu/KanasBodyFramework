@@ -122,10 +122,10 @@ namespace kbf {
 				// Put anything initialization stuff here temporarily that makes debugging a particular scenario over multiple hot-reloads easier.
 
 				// Quest-end debug
-				SituationWatcher::get().addKnownSituation(KnownSituation::isOfflineorMainMenu);
-				SituationWatcher::get().addKnownSituation(KnownSituation::isinQuestEndAnnounce);
-				SituationWatcher::get().addKnownSituation(KnownSituation::isAlwaysOn);
-				SituationWatcher::get().addCustomSituation(CustomSituation::isInGame);
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isOfflineorMainMenu);
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isinQuestEndAnnounce);
+				//SituationWatcher::get().addKnownSituation(KnownSituation::isAlwaysOn);
+				//SituationWatcher::get().addCustomSituation(CustomSituation::isInGame);
 			}
 			CImGui::PopStyleColor();
 			#endif
