@@ -41,7 +41,7 @@ extern "C" {
             // Note, we completely bypass KBF's Entry Point manager in release mode for performance.
             const REFrameworkPluginFunctions* functions = param->functions;
             functions->on_imgui_draw_ui(kbfDrawUIHook);
-            functions->on_pre_application_entry("UpdateMotion",       kbfFetchHook);
+            functions->on_pre_application_entry("UpdateMotion",        kbfFetchHook);
 			functions->on_post_application_entry("LateUpdateBehavior", kbfApplyHook);
 
             return true;

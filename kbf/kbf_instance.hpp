@@ -28,8 +28,8 @@ namespace kbf {
 
 			CpuProfiler::GlobalTimelineProfiler = CpuProfiler::Builder()
 				.setWindowSize(1.0)
-				.addBlock("(Pre) OnUpdateMotion")
-				.addBlock("(Post) OnLateUpdateBehavior")
+				.addBlock("Fetch")
+				.addBlock("Apply")
 				.build();
 
 			// TODO: Better naming conventions for this would be `method::tag - info` etc...

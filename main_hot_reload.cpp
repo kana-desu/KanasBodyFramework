@@ -96,6 +96,14 @@ static void loadLogicDll(const REFrameworkPluginInitializeParam* param) {
 
 	auto initializeFn = reinterpret_cast<void(*)()>(GetProcAddress(g_logicDll, "initialize_kbf"));
     if (!initializeFn) return reframework::API::get()->log_error(LOG_STRING("Failed to get initialize_kbf function from KBF logic DLL."));
+
+    // If the logic DLL exposes a helper to accept an EntryPoints pointer, set
+    // it so both modules share the same EntryPoints instance during hot-reload.
+    auto setEntrypointsOverride = reinterpret_cast<void(*)(kbf::EntryPoints*)>(GetProcAddress(g_logicDll, "kbf_set_entrypoints_override"));
+    if (setEntrypointsOverride) {
+        setEntrypointsOverride(&kbf::EntryPoints::instance());
+    }
+
     initializeFn();
 
 	auto forceInitReframeworkFn = reinterpret_cast<void(*)(const REFrameworkPluginInitializeParam*)>(GetProcAddress(g_logicDll, "kbf_force_initialize_reframework"));
@@ -154,9 +162,19 @@ extern "C" {
                 functions->on_post_application_entry(kbf::EntryPoints::ENTRY_POINT_NAMES[i], kbf::EntryPoints::POST_HOOKS[i]);
             }
 
-            // Set-up default kbf entry points
-            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::PRE_FUNCTION,  "UpdateMotion",       kbfFetch);
-            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::POST_FUNCTION, "LateUpdateBehavior", kbfApply);
+            // To ensure the EntryPoints singleton is shared between this loader
+            // (the main plugin) and the hot-reloaded logic DLL, override the
+            // instance pointer in the logic module (if it exists) to point to
+            // the main module's instance. The logic DLL will call
+            // `kbf_force_initialize_reframework` after load which can then call
+            // `kbf::EntryPoints::setInstanceOverride` on its side; however we
+            // proactively set it here in case the logic DLL reads bindings
+            // immediately.
+            kbf::EntryPoints::setInstanceOverride(&kbf::EntryPoints::instance());
+
+            // Set-up default kbf entry points (tagged so UI can detect them)
+            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::PRE_FUNCTION,  "UpdateMotion",       kbfFetch,  true, "kbf::fetch");
+            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::POST_FUNCTION, "LateUpdateBehavior", kbfApply,  true, "kbf::apply");
 
             return true;
         }

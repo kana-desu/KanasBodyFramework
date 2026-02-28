@@ -4,6 +4,7 @@
 #include <functional>
 #include <cstdint>
 #include <utility>
+#include <string>
 
 #define NUM_RE_ENTRY_POINTS 376
 
@@ -19,24 +20,38 @@ namespace kbf {
 
 	class EntryPoints {
 	public:
-		static EntryPoints& instance() {
-			static EntryPoints s_instance;
-			return s_instance;
-		}
+		// Returns the process-wide EntryPoints instance. If an external override
+		// has been provided (via `setInstanceOverride`) that pointer will be
+		// returned. Otherwise a local singleton is used.
+		static EntryPoints& instance();
 
+		// Allows an external module to override the instance returned by
+		// `instance()` in this module. Useful when multiple DLLs should
+		// observe the same EntryPoints object (hot-reload scenario).
+		static void setInstanceOverride(EntryPoints* inst);
+		static EntryPoints* getInstanceOverride();
 		struct Binding {
 			EntryCallback callback;
 			EntryTiming timing{ EntryTiming::PRE_FUNCTION };
 			bool active{ true };
+			std::string tag{};
 		};
 
 		bool isValid(uint32_t entry, uint32_t binding) const;
 		EntryPointHandle addBinding(EntryTiming timing, const char* name, EntryCallback fn, bool active = true);
+		// Optional tag can be provided for introspection / identification (may be nullptr)
+		EntryPointHandle addBinding(EntryTiming timing, const char* name, EntryCallback fn, bool active, const char* tag);
 		void setActive(EntryPointHandle handle, bool active);
 		void removeBinding(EntryPointHandle handle);
 		void dispatch(int index, EntryTiming timing);
 		void dispatch(const char* name, EntryTiming timing);
 		std::vector<EntryPointHandle> getActiveHandles(const char* name) const;
+		std::vector<EntryPointHandle> getActiveHandles(int entryIndex) const;
+
+        // Introspection helpers
+        EntryTiming getBindingTiming(EntryPointHandle handle) const;
+        void* getBindingFunctionPointer(EntryPointHandle handle) const; // returns raw function pointer if stored as plain function, else nullptr
+        std::string getBindingTag(EntryPointHandle handle) const;
 
 		static const std::array<const char*, NUM_RE_ENTRY_POINTS>& getEntryPointNames() { return ENTRY_POINT_NAMES; }
 

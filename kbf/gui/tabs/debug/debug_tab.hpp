@@ -6,6 +6,8 @@
 #include <kbf/data/mesh/materials/mesh_material.hpp>
 
 #include <kbf/cimgui/cimgui_funcs.hpp>
+#include <kbf/entry_points.hpp>
+#include <kbf/entry_points.hpp>
 
 namespace kbf {
 
@@ -45,6 +47,7 @@ namespace kbf {
 		void drawNpcList();
 		void drawNpcListRow(NpcInfo info, const std::optional<PersistentNpcInfo>& pInfo);
 		void drawCacheTab();
+		void drawHooksTab();
 		void drawBoneCacheTab();
 		void drawBoneCacheTab_BoneList(const std::string& label, const std::vector<std::string>& bones);
 		void drawPartCacheTab();
@@ -67,6 +70,21 @@ namespace kbf {
 		bool showWarn = true;
 		bool showError = true;
 		bool showDebug = false;
+
+        // Hooks UI state
+        struct HookBindingUI {
+            std::string function_name; // label for the target function
+            int entry_index = -1; // single entry point selection, (none) == -1
+            bool pre_enabled = false;
+            bool post_enabled = false;
+            kbf::EntryPointHandle pre_handle = kbf::EntryPoints::INVALID_HANDLE;
+            kbf::EntryPointHandle post_handle = kbf::EntryPoints::INVALID_HANDLE;
+        };
+
+		std::vector<HookBindingUI> hooks_ui_entries{
+			HookBindingUI{ "kbf::fetch" },
+			HookBindingUI{ "kbf::apply" }
+		};
 	};
 
 }

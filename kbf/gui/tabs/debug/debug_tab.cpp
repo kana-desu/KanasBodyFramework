@@ -13,16 +13,17 @@
 #include <kbf/data/armour/armour_data_manager.hpp>
 #include <kbf/gui/shared/sex_marker.hpp>
 #include <kbf/data/ids/special_armour_ids.hpp>
+#include <kbf/entry_points.hpp>
+#include <kbf/kbf.hpp>
+#include <kbf/npc/npc_tracker.hpp>
+#include <kbf/player/player_tracker.hpp>
 
 #include <chrono>
 #include <sstream>
 
-// Remove this stupid windows macro
-#undef ERROR
-
 namespace kbf {
 
-	void DebugTab::draw() {
+    void DebugTab::draw() {
         if (CImGui::BeginTabBar("DebugTabs")) {
             if (CImGui::BeginTabItem("Log")) {
                 drawDebugTab();
@@ -52,9 +53,134 @@ namespace kbf {
                 drawCacheTab();
                 CImGui::EndTabItem();
             }
+            if (CImGui::BeginTabItem("Hooks")) {
+                drawHooksTab();
+                CImGui::EndTabItem();
+            }
             CImGui::EndTabBar();
         }
-	}
+    }
+
+    void DebugTab::drawHooksTab() {
+#if KBF_DEBUG_BUILD
+        CImGui::BeginChild("HooksList");
+
+        constexpr ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_PadOuterX;
+        CImGui::BeginTable("##HooksTable", 2, tableFlags);
+        CImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(LIST_PADDING.x, 0.0f));
+
+        const auto& names = EntryPoints::getEntryPointNames();
+
+        for (size_t idx = 0; idx < hooks_ui_entries.size(); ++idx) {
+            HookBindingUI& e = hooks_ui_entries[idx];
+
+            // On first draw after init, try to pick up default bindings from EntryPoints (as set in main_hot_reload.cpp)
+            if (e.entry_index == -1 && (e.pre_handle == EntryPoints::INVALID_HANDLE && e.post_handle == EntryPoints::INVALID_HANDLE)) {
+                // Scan all entry points for active handles and try to find ones whose tag matches
+                // the function identifier (tags are assigned when bindings are created).
+                for (int entry = 0; entry < NUM_RE_ENTRY_POINTS && e.entry_index == -1; ++entry) {
+                    auto handles = EntryPoints::instance().getActiveHandles(entry);
+                    for (auto h : handles) {
+                        std::string tag = EntryPoints::instance().getBindingTag(h);
+                        if (tag.empty()) continue;
+                        if (tag == e.function_name) {
+                            e.entry_index = entry;
+                            auto timing = EntryPoints::instance().getBindingTiming(h);
+                            if (timing == EntryTiming::PRE_FUNCTION) {
+                                e.pre_enabled = true;
+                                e.pre_handle = h;
+                            }
+                            else {
+                                e.post_enabled = true;
+                                e.post_handle = h;
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Snapshot old state to detect changes
+            int old_entry = e.entry_index;
+            bool old_pre = e.pre_enabled;
+            bool old_post = e.post_enabled;
+
+            CImGui::TableNextRow();
+            CImGui::TableNextColumn();
+            CImGui::Text(e.function_name.c_str());
+
+            CImGui::TableNextColumn();
+
+            // Pre/Post hook toggles
+            std::string preLabel = std::string("Pre##pre_") + std::to_string(idx);
+            CImGui::Checkbox(preLabel.c_str(), &e.pre_enabled);
+            CImGui::SameLine();
+            std::string postLabel = std::string("Post##post_") + std::to_string(idx);
+            CImGui::Checkbox(postLabel.c_str(), &e.post_enabled);
+            CImGui::SameLine();
+
+            // Entrypoint selector
+            std::string preview = e.entry_index >= 0 ? names[e.entry_index] : "(none)";
+            std::string comboId = std::string("##entry_combo_") + std::to_string(idx);
+            std::string comboLabel = std::string("Entry Point") + comboId;
+            if (CImGui::BeginCombo(comboLabel.c_str(), preview.c_str(), 0)) {
+                // (none) option
+                bool noneSelected = (e.entry_index == -1);
+                if (CImGui::Selectable((std::string("(none)") + "##none_" + std::to_string(idx)).c_str(), noneSelected)) {
+                    e.entry_index = -1;
+                }
+                if (noneSelected) CImGui::SetItemDefaultFocus();
+
+                for (int i = 0; i < NUM_RE_ENTRY_POINTS; ++i) {
+                    bool selected = (e.entry_index == i);
+                    std::string itemLabel = std::string(names[i]) + "##entry_" + std::to_string(idx) + "_" + std::to_string(i);
+                    if (CImGui::Selectable(itemLabel.c_str(), selected)) {
+                        e.entry_index = i;
+                    }
+                    if (selected) CImGui::SetItemDefaultFocus();
+                }
+                CImGui::EndCombo();
+            }
+
+            // If anything changed (checkbox toggled or new entry selected), rebind immediately
+            bool changed = (old_entry != e.entry_index) || (old_pre != e.pre_enabled) || (old_post != e.post_enabled);
+            if (changed) {
+                // Remove previous handles if present
+                if (e.pre_handle != EntryPoints::INVALID_HANDLE) {
+                    EntryPoints::instance().removeBinding(e.pre_handle);
+                    e.pre_handle = EntryPoints::INVALID_HANDLE;
+                }
+                if (e.post_handle != EntryPoints::INVALID_HANDLE) {
+                    EntryPoints::instance().removeBinding(e.post_handle);
+                    e.post_handle = EntryPoints::INVALID_HANDLE;
+                }
+
+                if (e.entry_index >= 0) {
+                    const char* entryName = names[e.entry_index];
+                    if (e.pre_enabled) {
+                        EntryCallback cb = []() { kbf::KBF::fetch(); };
+                        if (e.function_name == "kbf::apply") cb = []() { kbf::KBF::apply(); };
+                        e.pre_handle = EntryPoints::instance().addBinding(EntryTiming::PRE_FUNCTION, entryName, cb, true, e.function_name.c_str());
+                    }
+                    if (e.post_enabled) {
+                        EntryCallback cb = []() { kbf::KBF::fetch(); };
+                        if (e.function_name == "kbf::apply") cb = []() { kbf::KBF::apply(); };
+                        e.post_handle = EntryPoints::instance().addBinding(EntryTiming::POST_FUNCTION, entryName, cb, true, e.function_name.c_str());
+                    }
+                }
+            }
+        }
+
+        CImGui::PopStyleVar();
+        CImGui::EndTable();
+        CImGui::EndChild();
+#else
+        CImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.902f, 0.635f, 0.235f, 1.0f));
+        preAlignCellContentHorizontal("Hooks are disabled in release builds.");
+        CImGui::Text("Hooks are disabled in release builds.");
+        CImGui::PopStyleColor(); 
+#endif
+    }
 
     void DebugTab::drawPopouts() {};
     void DebugTab::closePopouts() {};

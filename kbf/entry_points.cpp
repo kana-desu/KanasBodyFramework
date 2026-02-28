@@ -3,10 +3,22 @@
 
 namespace kbf {
 
+    // Pointer that can be set by external module to unify the EntryPoints
+    // singleton across DLL boundaries (hot-reload helper). If null, the
+    // local internal singleton will be used.
+    static EntryPoints* g_instance_override = nullptr;
+
+
     // ===== Helper for handle encoding =====
     inline EntryPointHandle makeHandle(uint32_t entry, uint32_t binding) {
         return (static_cast<uint64_t>(entry) << 32) | binding;
     }
+    
+// Exported helper for other DLLs to call into this module and set their
+// local instance override pointer to a host-provided EntryPoints pointer.
+extern "C" __declspec(dllexport) void kbf_set_entrypoints_override(kbf::EntryPoints* inst) {
+    kbf::EntryPoints::setInstanceOverride(inst);
+}
 
     inline std::pair<uint32_t, uint32_t> decodeHandle(EntryPointHandle handle) {
         uint32_t entry = static_cast<uint32_t>(handle >> 32);
@@ -19,9 +31,28 @@ namespace kbf {
             binding < m_bindings[entry].size();
     }
 
+    // Instance management (defined here to avoid inline static in header)
+    EntryPoints& EntryPoints::instance() {
+        if (g_instance_override) return *g_instance_override;
+        static EntryPoints s_instance;
+        return s_instance;
+    }
+
+    void EntryPoints::setInstanceOverride(EntryPoints* inst) {
+        g_instance_override = inst;
+    }
+
+    EntryPoints* EntryPoints::getInstanceOverride() {
+        return g_instance_override;
+    }
+
     // ===== EntryPoints Implementation =====
 
     EntryPointHandle EntryPoints::addBinding(EntryTiming timing, const char* name, EntryCallback fn, bool active) {
+        return addBinding(timing, name, std::move(fn), active, nullptr);
+    }
+
+    EntryPointHandle EntryPoints::addBinding(EntryTiming timing, const char* name, EntryCallback fn, bool active, const char* tag) {
         if (!name || !fn) return INVALID_HANDLE;
 
         // Find entry index
@@ -35,7 +66,9 @@ namespace kbf {
         if (entryIndex < 0) return INVALID_HANDLE;
 
         auto& vec = m_bindings[entryIndex];
-        vec.push_back(Binding{ std::move(fn), timing, active });
+        Binding b{ std::move(fn), timing, active };
+        if (tag) b.tag = std::string(tag);
+        vec.push_back(std::move(b));
         return makeHandle(entryIndex, static_cast<uint32_t>(vec.size() - 1));
     }
 
@@ -78,8 +111,7 @@ namespace kbf {
     }
 
     std::vector<EntryPointHandle> EntryPoints::getActiveHandles(const char* name) const {
-        std::vector<EntryPointHandle> result;
-        if (!name) return result;
+        if (!name) return {};
 
         int entryIndex = -1;
         for (size_t i = 0; i < ENTRY_POINT_NAMES.size(); ++i) {
@@ -88,6 +120,11 @@ namespace kbf {
                 break;
             }
         }
+        return getActiveHandles(entryIndex);
+    }
+
+    std::vector<EntryPointHandle> EntryPoints::getActiveHandles(int entryIndex) const {
+        std::vector<EntryPointHandle> result;
         if (entryIndex < 0) return result;
 
         const auto& vec = m_bindings[entryIndex];
@@ -97,6 +134,32 @@ namespace kbf {
         }
 
         return result;
+    }
+
+    EntryTiming EntryPoints::getBindingTiming(EntryPointHandle handle) const {
+        auto [entryIndex, bindingIndex] = decodeHandle(handle);
+        if (!isValid(entryIndex, bindingIndex)) return EntryTiming::PRE_FUNCTION;
+        return m_bindings[entryIndex][bindingIndex].timing;
+    }
+
+    void* EntryPoints::getBindingFunctionPointer(EntryPointHandle handle) const {
+        auto [entryIndex, bindingIndex] = decodeHandle(handle);
+        if (!isValid(entryIndex, bindingIndex)) return nullptr;
+        const auto& fn = m_bindings[entryIndex][bindingIndex].callback;
+        if (!fn) return nullptr;
+        // Try to extract a plain function pointer target
+        using fn_ptr_t = void(*)();
+        if (auto target = fn.template target<fn_ptr_t>()) {
+            return reinterpret_cast<void*>(*target);
+        }
+        return nullptr;
+    }
+
+
+    std::string EntryPoints::getBindingTag(EntryPointHandle handle) const {
+        auto [entryIndex, bindingIndex] = decodeHandle(handle);
+        if (!isValid(entryIndex, bindingIndex)) return std::string();
+        return m_bindings[entryIndex][bindingIndex].tag;
     }
 
 }
