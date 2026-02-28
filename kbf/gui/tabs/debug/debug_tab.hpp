@@ -7,7 +7,6 @@
 
 #include <kbf/cimgui/cimgui_funcs.hpp>
 #include <kbf/entry_points.hpp>
-#include <kbf/entry_points.hpp>
 
 namespace kbf {
 
