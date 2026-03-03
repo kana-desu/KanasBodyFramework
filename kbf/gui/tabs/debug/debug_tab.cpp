@@ -62,6 +62,8 @@ namespace kbf {
     }
 
     void DebugTab::drawHooksTab() {
+        CImGui::Spacing();
+
 #if KBF_DEBUG_BUILD
         CImGui::BeginChild("HooksList");
 
