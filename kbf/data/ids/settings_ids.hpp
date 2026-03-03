@@ -16,3 +16,5 @@
 #define SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID "hideWeaponsOutsideOfCombatOnly"
 #define SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID "hideSlingerOutsideOfCombatOnly"
 #define SETTINGS_ENABLE_PROFILING_ID                    "enableProfiling"
+#define SETTINGS_SHOW_JOINTS_WHEN_EDITING_ID            "showJointsWhenEditing"
+#define SETTINGS_SHOW_JOINT_NAMES_WHEN_EDITING_ID       "showJointNamesWhenEditing"

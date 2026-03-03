@@ -1177,6 +1177,8 @@ namespace kbf {
         parseBool(config, SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID, SETTINGS_HIDE_WEAPONS_OUTSIDE_OF_COMBAT_ONLY_ID, &out->hideWeaponsOutsideOfCombatOnly);
         parseBool(config, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, SETTINGS_HIDE_SLINGER_OUTSIDE_OF_COMBAT_ONLY_ID, &out->hideSlingerOutsideOfCombatOnly);
         parseBool(config, SETTINGS_ENABLE_PROFILING_ID, SETTINGS_ENABLE_PROFILING_ID, &out->enableProfiling);
+        parseBool(config, SETTINGS_SHOW_JOINTS_WHEN_EDITING_ID, SETTINGS_SHOW_JOINTS_WHEN_EDITING_ID, &out->showJointsWhenEditing);
+        parseBool(config, SETTINGS_SHOW_JOINT_NAMES_WHEN_EDITING_ID, SETTINGS_SHOW_JOINT_NAMES_WHEN_EDITING_ID, &out->showJointNamesWhenEditing);
 
         DEBUG_STACK.push(std::format("{} Loaded Settings from {}", KBF_DATA_MANAGER_LOG_TAG, settingsPath.string()), DebugStack::Color::COL_SUCCESS);
         return true;
@@ -1219,6 +1221,10 @@ namespace kbf {
         writer.Bool(settings.hideSlingerOutsideOfCombatOnly);
         writer.Key(SETTINGS_ENABLE_PROFILING_ID);
         writer.Bool(settings.enableProfiling);
+        writer.Key(SETTINGS_SHOW_JOINTS_WHEN_EDITING_ID);
+        writer.Bool(settings.showJointsWhenEditing);
+        writer.Key(SETTINGS_SHOW_JOINT_NAMES_WHEN_EDITING_ID);
+        writer.Bool(settings.showJointNamesWhenEditing);
         writer.EndObject();
 
         bool success = writeJsonFile(settingsPath.string(), s.GetString());

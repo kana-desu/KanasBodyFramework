@@ -6,6 +6,8 @@ namespace kbf {
 		bool  enabled                        = true;
 		bool  enablePlayers                  = true;
 		bool  enableNpcs                     = true;
+		bool  showJointsWhenEditing          = true;
+		bool  showJointNamesWhenEditing      = false;
 		float delayOnEquip                   = 0.050;
 		float applicationRange               = 30.0f;
 		int   maxConcurrentApplications      = 10;

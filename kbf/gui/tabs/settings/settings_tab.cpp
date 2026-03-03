@@ -137,6 +137,21 @@ namespace kbf {
 		drawTabBarSeparator("Performance", "SettingsTabPerformance");
 		CImGui::Spacing();
 
+		CImGui::Spacing();
+		CImGui::Spacing();
+		drawTabBarSeparator("Editor", "SettingsTabEditor");
+		CImGui::Spacing();
+
+		pushToggleColors(settings.showJointsWhenEditing);
+		settingsChanged |= CImGui::Toggle(" Show Joints when Editing", &settings.showJointsWhenEditing, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("If enabled, joints will be rendered when editing presets in the editor.");
+
+		pushToggleColors(settings.showJointNamesWhenEditing);
+		settingsChanged |= CImGui::Toggle(" Show Joint Names when Editing", &settings.showJointNamesWhenEditing, ImGuiToggleFlags_Animated);
+		popToggleColors();
+		CImGui::SetItemTooltip("If enabled, joint names will be displayed when editing presets.");
+
 		CImGui::PushItemWidth(-1);
 		settingsChanged |= CImGui::DragFloat("##Slider1", &settings.delayOnEquip,     0.001f, 0.0f, 2.0f, "Delay on Equip: %.3fs", ImGuiSliderFlags_AlwaysClamp);
 		CImGui::SetItemTooltip(
