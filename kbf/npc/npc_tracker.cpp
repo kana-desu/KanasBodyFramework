@@ -635,8 +635,6 @@ namespace kbf {
 
                 const std::string prefabPath = prefabNameToPathReverseMapping.at(objName);
 
-                DEBUG_STACK.fpush("Transform @ {}", uintptr_t(t));
-
                 outInfo.pointers.Transform                          = Acc000_050;
                 outInfo.optionalPointers.QuestClearCostumeTransform = t;
                 outInfo.prefabPath                                  = prefabPath;
