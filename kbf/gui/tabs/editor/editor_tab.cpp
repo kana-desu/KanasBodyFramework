@@ -826,13 +826,30 @@ namespace kbf {
 		const Preset* currentPreviewPreset = dataManager.getPreviewedPreset();
 		bool needsPreviewBefore = currentPreviewPreset != nullptr && currentPreviewPreset->uuid == openObject.ptrAfter.preset->uuid;
         bool needsPreviewCurrent = needsPreviewBefore;
+
+        // Revert callback that preserves preview state, otherwise preview will be reverted with the preset.
+        auto revertWithPreviewPreserve = [this]() {
+            const Preset* beforePreview = dataManager.getPreviewedPreset();
+            std::string beforeUuid;
+            if (beforePreview) beforeUuid = beforePreview->uuid;
+
+            bool wasPreviewingThis = !beforeUuid.empty() && openObject.ptrAfter.preset && beforeUuid == openObject.ptrAfter.preset->uuid;
+
+            openObject.revertPreset();
+            initializePresetBuffers(openObject.ptrAfter.preset);
+
+            if (wasPreviewingThis) {
+                dataManager.previewPreset(openObject.ptrAfter.preset);
+            }
+        };
+
         bool drawTabContent = drawStickyNavigationWidget(
             std::format("Editing Preset \"{}\"", presetBefore.name),
             &needsPreviewCurrent,
             // Callback funcs
             nullptr,  // TODO: Func that checks if required armour equipped
             [this]() { return *openObject.ptrBefore.preset != *openObject.ptrAfter.preset; },
-            [this]() { openObject.revertPreset(); initializePresetBuffers(openObject.ptrAfter.preset); },
+            revertWithPreviewPreserve,
             [this](std::string& errMsg) { return canSavePreset(errMsg); },
             savePresetCb);
 
