@@ -30,6 +30,7 @@ namespace kbf {
 		// observe the same EntryPoints object (hot-reload scenario).
 		static void setInstanceOverride(EntryPoints* inst);
 		static EntryPoints* getInstanceOverride();
+		void clearBindings();
 		struct Binding {
 			EntryCallback callback;
 			EntryTiming timing{ EntryTiming::PRE_FUNCTION };

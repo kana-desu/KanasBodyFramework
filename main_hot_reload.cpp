@@ -104,6 +104,11 @@ static void loadLogicDll(const REFrameworkPluginInitializeParam* param) {
         setEntrypointsOverride(&kbf::EntryPoints::instance());
     }
 
+    // Set-up default kbf entry points (tagged so UI can detect them)
+    kbf::EntryPoints::instance().clearBindings(); // Make sure to clear any stale ones
+    kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::PRE_FUNCTION,  "UpdateMotion",       kbfFetch, true, "kbf::fetch");
+    kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::POST_FUNCTION, "LateUpdateBehavior", kbfApply, true, "kbf::apply");
+
     initializeFn();
 
 	auto forceInitReframeworkFn = reinterpret_cast<void(*)(const REFrameworkPluginInitializeParam*)>(GetProcAddress(g_logicDll, "kbf_force_initialize_reframework"));
@@ -171,10 +176,6 @@ extern "C" {
             // proactively set it here in case the logic DLL reads bindings
             // immediately.
             kbf::EntryPoints::setInstanceOverride(&kbf::EntryPoints::instance());
-
-            // Set-up default kbf entry points (tagged so UI can detect them)
-            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::PRE_FUNCTION,  "UpdateMotion",       kbfFetch,  true, "kbf::fetch");
-            kbf::EntryPoints::instance().addBinding(kbf::EntryTiming::POST_FUNCTION, "LateUpdateBehavior", kbfApply,  true, "kbf::apply");
 
             return true;
         }

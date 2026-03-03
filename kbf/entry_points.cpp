@@ -1,5 +1,6 @@
 #include <kbf/entry_points.hpp>
 #include <string_view>
+#include <reframework/API.hpp>
 
 namespace kbf {
 
@@ -44,6 +45,23 @@ extern "C" __declspec(dllexport) void kbf_set_entrypoints_override(kbf::EntryPoi
 
     EntryPoints* EntryPoints::getInstanceOverride() {
         return g_instance_override;
+    }
+
+    void EntryPoints::clearBindings() {
+        // Count existing bindings for logging
+        size_t total = 0;
+        for (const auto& vec : m_bindings) total += vec.size();
+
+        // Log via reframework if available
+        try {
+            reframework::API::get()->log_info("KBF: Clearing %llu EntryPoints bindings", static_cast<unsigned long long>(total));
+        }
+        catch (...) {
+            // ignore if API not initialized
+        }
+        for (auto& vec : m_bindings) {
+            vec.clear();
+        }
     }
 
     // ===== EntryPoints Implementation =====
