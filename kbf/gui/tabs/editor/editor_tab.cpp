@@ -1209,6 +1209,7 @@ namespace kbf {
 
             CImGui::TableNextRow();
             CImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, rowCol);
+            ImVec2 rowStartCompact = CImGui::GetCursorScreenPos();
             CImGui::TableNextColumn();
             CImGui::PopStyleVar();
 
@@ -1238,6 +1239,17 @@ namespace kbf {
             bone.modifier->setRotation(rotation);
 
             if (bone.isSymmetryProxy) *bone.reflectedModifier = bone.modifier->reflect();
+
+            // Draw selectable to show hover on table rows
+            ImVec2 rowEndCompact = CImGui::GetCursorScreenPos();
+            ImVec2 rowSizeCompact = ImVec2(0.0f, rowEndCompact.y - rowStartCompact.y);
+            ImVec2 curPos = CImGui::GetCursorScreenPos();
+            ImVec2 selStart = curPos;
+            selStart.y -= rowSizeCompact.y - 5.0f; // small visual tweak like other tables
+            CImGui::SetCursorScreenPos(selStart);
+            CImGui::SetNextItemAllowOverlap();
+            CImGui::Selectable(("##row_" + boneKey).c_str(), false, ImGuiSelectableFlags_SpanAllColumns, rowSizeCompact);
+            CImGui::SetCursorScreenPos(curPos);
 
             i++;
         }
@@ -1329,6 +1341,7 @@ namespace kbf {
             // Top Row
             CImGui::TableNextRow();
             CImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, rowCol);
+            ImVec2 rowStart = CImGui::GetCursorScreenPos();
 
             CImGui::TableSetColumnIndex(2);
             CImGui::SetCursorPosY(CImGui::GetCursorPosY() + (CImGui::GetFrameHeight() - CImGui::GetTextLineHeight()) * 0.5f);
@@ -1379,6 +1392,18 @@ namespace kbf {
             CImGui::PopStyleVar();
 
             if (bone.isSymmetryProxy) *bone.reflectedModifier = bone.modifier->reflect();
+
+            // Draw selectable to show hover on table rows
+            ImVec2 rowEnd = CImGui::GetCursorScreenPos();
+            ImVec2 rowSize = ImVec2(0.0f, rowEnd.y - rowStart.y);
+            ImVec2 curPos2 = CImGui::GetCursorScreenPos();
+            ImVec2 selStart2 = curPos2;
+            selStart2.y -= rowSize.y - 5.0f;
+            CImGui::SetCursorScreenPos(selStart2);
+            CImGui::SetNextItemAllowOverlap();
+            CImGui::Selectable(("##row_" + boneKey).c_str(), false, ImGuiSelectableFlags_SpanAllColumns, rowSize);
+            CImGui::SetCursorScreenPos(curPos2);
+
             i++;
         }
 
