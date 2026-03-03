@@ -59,15 +59,17 @@ namespace kbf {
 	};
 
 	struct QuestClearNpcCache {
-		size_t index                               = ~0u;
-		reframework::API::ManagedObject* Transform = nullptr;
-		std::string prefabPath                     = "";
+		size_t index                                      = ~0u;
+		reframework::API::ManagedObject* Transform        = nullptr;
+		reframework::API::ManagedObject* CostumeTransform = nullptr;
+		std::string prefabPath                            = "";
 
 		bool isValid() const {
 			static const reframework::API::TypeDefinition* def_ViaTransform = REApi::get()->tdb()->find_type("via.Transform");
 
 			if (index == ~0u) return false;
-			if (!checkREPtrValidity(Transform, def_ViaTransform)) return false;
+			if (!checkREPtrValidity(Transform,        def_ViaTransform)) return false;
+			if (!checkREPtrValidity(CostumeTransform, def_ViaTransform)) return false;
 
 			return !prefabPath.empty();
 		}

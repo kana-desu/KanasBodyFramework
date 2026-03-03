@@ -104,6 +104,7 @@ namespace kbf {
         size_t frameBoneFetchCount = 0;
 
         // Quest Clear animation Refs
+        RESingleton playerManager{ "app.PlayerManager" };
         std::unordered_map<QuestClearNpcType, QuestClearNpcCache> questClearCaches;
 
         // Cutscene end tracking

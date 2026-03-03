@@ -28,6 +28,7 @@ namespace kbf {
 		reframework::API::ManagedObject* EventModelSetupper;
 		reframework::API::ManagedObject* VolumeOccludee;
 		reframework::API::ManagedObject* MeshBoundary;
+		reframework::API::ManagedObject* QuestClearCostumeTransform;
 	};
 
 	struct NpcInfo {

@@ -561,9 +561,10 @@ namespace kbf {
         if (questClearCaches.contains(npcType)) {
             const auto& cache = questClearCaches[npcType];
             if (cache.isValid()) {
-                outInfo.index              = cache.index;
-                outInfo.pointers.Transform = cache.Transform;
-                outInfo.prefabPath         = cache.prefabPath;
+                outInfo.index                                       = cache.index;
+                outInfo.pointers.Transform                          = cache.Transform;
+                outInfo.optionalPointers.QuestClearCostumeTransform = cache.CostumeTransform;
+                outInfo.prefabPath                                  = cache.prefabPath;
 
                 usedCache = true;
             }
@@ -575,13 +576,13 @@ namespace kbf {
             // Get prefabs we expect to encounter
             std::vector<std::string> npcCostumePrefabs{};
             switch (npcType) {
-            case QuestClearNpcType::ALMA:   index =  8; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(2); break;
-            case QuestClearNpcType::ERIK:   index =  0; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(3); break;
+            case QuestClearNpcType::ALMA:   index = 8; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(2); break;
+            case QuestClearNpcType::ERIK:   index = 0; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(3); break;
             case QuestClearNpcType::GEMMA:  index = 10; npcCostumePrefabs = ArmourDataManager::get().getPartnerCostumePrefabs(4); break;
             case QuestClearNpcType::WERNER: {
                 std::string prefab = ArmourDataManager::get().getNpcPrefabFromAlias(NpcPrefabAliasMappings::getPrefabAlias("NPC101_00_009"));
                 index = 5;
-                npcCostumePrefabs = std::vector<std::string>{ prefab }; 
+                npcCostumePrefabs = std::vector<std::string>{ prefab };
             } break;
             default: {
                 DEBUG_STACK.fpush<LOG_TAG>(DebugStack::Color::COL_ERROR, "Unexpected Quest Clear NPC Type encountered while fetching basic info.");
@@ -602,55 +603,52 @@ namespace kbf {
                 prefabNameToPathReverseMapping.emplace(objName, prefabPath);
             }
 
-            // DEBUG
-            if (index == 10) {
-                potentialObjNames.insert("ch04_004_0073");
-                prefabNameToPathReverseMapping.emplace("ch04_004_0073", "GameDesign/NPC/_Prefab/Model/Human/ch04_004_0073.pfb");
-            }
+            // DEBUG - If hot reloading, uncomment this to ensure data maps are loaded for a costume you're debugging.
+            //if (index == 10) {
+            //    potentialObjNames.insert("ch04_004_0073");
+            //    prefabNameToPathReverseMapping.emplace("ch04_004_0073", "GameDesign/NPC/_Prefab/Model/Human/ch04_004_0073.pfb");
+            //}
+            //if (index == 8) {
+            //    // Try ch00_500_0003 too??
+            //    potentialObjNames.clear();
+            //    prefabNameToPathReverseMapping.clear();
+            //    potentialObjNames.insert("ch04_000_0072");
+            //    prefabNameToPathReverseMapping.emplace("ch04_000_0072", "GameDesign/NPC/_Prefab/Model/Human/ch04_000_0072.pfb");
+            //}
 
-            // Check if there are any similar objects in the scene.
-            REApi::ManagedObject* currentScene = getCurrentScene();
-            if (currentScene == nullptr) return false;
+            // Quest clear npc models live attached to the MasterPlayer object
+            REApi::ManagedObject* MasterPlayerInfo = REInvokePtr<REApi::ManagedObject>(playerManager.get(), "getMasterPlayer", {});
+            if (!MasterPlayerInfo) return false;
 
-            // TODO: We might want to use via.TransformSkeleton instead here (why tf does this even exist??)
-            static const REApi::ManagedObject* transformType = REApi::get()->typeof("via.Transform");
-            REApi::ManagedObject* transformComponents = REInvokePtr<REApi::ManagedObject>(currentScene, "findComponents(System.Type)", { (void*)transformType });
-            const int numComponents = REInvoke<int>(transformComponents, "GetLength", { (void*)0 }, InvokeReturnType::DWORD);
+            REApi::ManagedObject* MasterPlayerObj = REInvokePtr<REApi::ManagedObject>(MasterPlayerInfo, "get_Object", {});
+            if (!MasterPlayerObj) return false;
 
-            for (int i = 0; i < numComponents; i++) {
-                REApi::ManagedObject* transform = REInvokePtr<REApi::ManagedObject>(transformComponents, "get_Item", { (void*)i });
-                if (transform == nullptr) continue;
+            REApi::ManagedObject* MasterPlayerTransform = REInvokePtr<REApi::ManagedObject>(MasterPlayerObj, "get_Transform", {});
+            if (!MasterPlayerTransform) return false;
 
-                REApi::ManagedObject* gameObject = REInvokePtr<REApi::ManagedObject>(transform, "get_GameObject", {});
-                if (gameObject == nullptr) continue;
+            REApi::ManagedObject* Acc000_050 = findTransform(MasterPlayerTransform, "Acc000_050");
+            if (!Acc000_050) return false;
 
-                std::string objName = REInvokeStr(gameObject, "get_Name", {});
-                if (potentialObjNames.contains(objName)) {
-                    std::string prefabPath = prefabNameToPathReverseMapping.at(objName);
+            for (const std::string& objName : potentialObjNames) {
+                REApi::ManagedObject* t = findTransform(Acc000_050, objName);
+                if (!t) continue;
 
-                    REApi::ManagedObject* joints = REInvokePtr<REApi::ManagedObject>(transform, "get_Joints", {});
-                    int arrSize = REInvoke<int>(joints, "GetLength(System.Int32)", { (void*)0 }, InvokeReturnType::DWORD);
+                const std::string prefabPath = prefabNameToPathReverseMapping.at(objName);
 
-                    std::unordered_map<std::string, REApi::ManagedObject*> bones;
-                    for (size_t i = 0; i < arrSize; i++) {
-                        REApi::ManagedObject* joint = REInvokePtr<REApi::ManagedObject>(joints, "get_Item(System.Int32)", { (void*)i });
-                        if (joint) {
-                            std::string jointName = REInvokeStr(joint, "get_Name", {});
-                            bool isValid = REInvoke<bool>(joint, "get_Valid", {}, InvokeReturnType::BOOL);
-                            DEBUG_STACK.fpush<LOG_TAG>("Joint: {} | Valid = {}", jointName, isValid ? "True" : "False");
-                        }
-                    }
+                DEBUG_STACK.fpush("Transform @ {}", uintptr_t(t));
 
-                    // Object we're looking for
-                    outInfo.pointers.Transform = transform;
-                    outInfo.prefabPath         = prefabPath;
-                    questClearCaches[npcType] = QuestClearNpcCache{ index, transform, prefabPath };
-                }
+                outInfo.pointers.Transform                          = Acc000_050;
+                outInfo.optionalPointers.QuestClearCostumeTransform = t;
+                outInfo.prefabPath                                  = prefabPath;
+                questClearCaches[npcType]                           = QuestClearNpcCache{ index, Acc000_050, t, prefabPath };
+                break;
             }
         }
 
+        if (!outInfo.pointers.Transform || !outInfo.optionalPointers.QuestClearCostumeTransform) return false;
+
         // Force visibility to be true... they should basically always be in frame... or at least having bones updated.
-        outInfo.visible = outInfo.pointers.Transform != nullptr;
+        outInfo.visible = true;
 
         return true;
     }
@@ -659,10 +657,8 @@ namespace kbf {
         bool fetchedArmour = fetchNpcs_MainMenu_EquippedArmourSet(info, pInfo);
         if (!fetchedArmour) return false;
 
-        // These objects are hella weird, almost like the prefab just dumps all the mesh components into the scene...
-        // There doesn't seem to be a parent object containing all this
         pInfo.Transform_base = info.pointers.Transform;
-        pInfo.Transform_body = info.pointers.Transform;
+        pInfo.Transform_body = info.optionalPointers.QuestClearCostumeTransform;
 
         bool fetchedBones = fetchNpc_Bones(info, pInfo);
         if (!fetchedBones) return false;
