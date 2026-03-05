@@ -8,6 +8,8 @@
 #include <kbf/util/re_engine/print_re_object.hpp>
 
 #include <string>
+#include <thread>
+#include <chrono>
 
 #define SITUATION_WATCHER_LOG_TAG "[SituationWatcher]"
 
@@ -102,20 +104,36 @@ namespace kbf {
 
         int count = REInvoke<int>(object, "get_Count", {}, InvokeReturnType::DWORD);
 
-        instance.currentSituations.clear();
+        // Build a new set of situations from the managed list
+        std::unordered_set<KnownSituation> newSituations{};
         std::string infoSituationStr = "";
         for (int i = 0; i < count; i++) {
-            uint32_t rawSituationId = REInvoke<uint32_t>(object, "get_Item", { (void*)i }, InvokeReturnType::DWORD); // this upcast to void* might be sus
+            uint32_t rawSituationId = REInvoke<uint32_t>(object, "get_Item", { (void*)i }, InvokeReturnType::DWORD);
             KnownSituation situation = static_cast<KnownSituation>(static_cast<int>(rawSituationId));
-            
+
             if      (situation == KnownSituation::DUPLICATE_isinQuestPlayingasGuest) situation = KnownSituation::isinQuestPlayingasGuest;
             else if (situation == KnownSituation::DUPLICATE_isinTrainingArea)        situation = KnownSituation::isinTrainingArea;
 
-            instance.addKnownSituation(situation); // Should this really trigger every time? Too bad!
+            newSituations.insert(situation);
 
             std::string situationName = "UNKNOWN";
             if (SITUATION_NAMES.contains(i)) situationName = SITUATION_NAMES.at(i);
             infoSituationStr += "\n   - [" + std::to_string(i) + "] " + situationName;
+        }
+
+        // Determine removed situations (present before but not now)
+        auto prevSituations = instance.currentSituations; // copy to avoid mutating while iterating
+        for (auto prev : prevSituations) {
+            if (!newSituations.contains(prev)) {
+                instance.removeKnownSituation(prev);
+            }
+        }
+
+        // Determine added situations (present now but not before)
+        for (auto cur : newSituations) {
+            if (!instance.currentSituations.contains(cur)) {
+                instance.addKnownSituation(cur);
+            }
         }
 
         instance.multiplayerSafe = checkMultiplayerSafe();
@@ -260,6 +278,13 @@ namespace kbf {
 			enterSituationCallbacks[situation].triggerAllCallbacks();
         }
         currentSituations.insert(situation); 
+
+        // If the quest end announce starts, also add the custom "clear animation" situation
+        if (situation == KnownSituation::isinQuestEndAnnounce) {
+            // increase epoch to invalidate any pending removals
+            questClearEpoch.fetch_add(1);
+            addCustomSituation(CustomSituation::isInQuestClearAnimation);
+        }
     }
 
     void SituationWatcher::removeKnownSituation(KnownSituation situation) { 
@@ -268,6 +293,21 @@ namespace kbf {
             leaveSituationCallbacks[situation].triggerAllCallbacks();
         }
         currentSituations.erase(situation); 
+
+        // When the quest end announce finishes, keep the clear animation custom situation active for 1s
+        if (situation == KnownSituation::isinQuestEndAnnounce) {
+            // capture current epoch and schedule a delayed removal of the quest-clear custom situation
+            int myEpoch = questClearEpoch.load();
+            SituationWatcher* self = this;
+
+            std::thread([self, myEpoch]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(questClearExpireDelayMs));
+                // if epoch hasn't changed in the meantime, it's safe to remove
+                if (self->questClearEpoch.load() == myEpoch) {
+                    self->removeCustomSituation(CustomSituation::isInQuestClearAnimation);
+                }
+            }).detach();
+        }
     }
 
 	void SituationWatcher::addCustomSituation(CustomSituation situation) { 

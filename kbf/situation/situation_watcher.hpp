@@ -10,6 +10,7 @@
 #include <reframework/API.hpp>
 
 #include <unordered_set>
+#include <atomic>
 
 using REApi = reframework::API;
 
@@ -78,6 +79,10 @@ namespace kbf {
         // Cutscene Tracker Singleton
         RESingleton CutScenePropsControllerManager{ "app.CutScenePropsControllerManager" };
         int currentCutsceneId = -1;
+
+        // Epoch counter used to keep isInQuestClearAnimation active for 1s after isinQuestEndAnnounce ends (eliminates pop-in)
+        std::atomic<int> questClearEpoch{ 0 };
+        static constexpr size_t questClearExpireDelayMs{ 1000 };
     };
 
 }

@@ -210,7 +210,7 @@ namespace kbf {
         const bool characterCreator = SituationWatcher::inCustomSituation(CustomSituation::isInCharacterCreator);
         const bool guildCard        = SituationWatcher::inCustomSituation(CustomSituation::isInHunterGuildCard);
         const bool cutscene         = SituationWatcher::inCustomSituation(CustomSituation::isInCutscene);
-        const bool questClear       = SituationWatcher::inSituation(KnownSituation::isinQuestEndAnnounce);
+        const bool questClear       = SituationWatcher::inCustomSituation(CustomSituation::isInQuestClearAnimation);
 
         // Try refetch once after cutscene ends/begins to avoid being untracked.
         needsAllNpcFetch |= (frameIsCutscene && !cutscene) || (!frameIsCutscene && cutscene);
@@ -221,7 +221,7 @@ namespace kbf {
         else if (characterCreator) thisUpdateSituation = CustomSituation::isInCharacterCreator;
         else if (guildCard       ) thisUpdateSituation = CustomSituation::isInHunterGuildCard; 
         else if (cutscene        ) thisUpdateSituation = CustomSituation::isInCutscene;        
-        else if (questClear      ) thisUpdateSituation = KnownSituation::isinQuestEndAnnounce;
+        else if (questClear      ) thisUpdateSituation = CustomSituation::isInQuestClearAnimation;
 
         if (thisUpdateSituation != lastSituation) {
             lastSituation = thisUpdateSituation;
