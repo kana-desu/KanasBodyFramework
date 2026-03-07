@@ -525,7 +525,8 @@ namespace CImGui {
     IM_FUNC_SIG(ButtonBehavior,          bool, SIG_ButtonBehavior);
     IM_FUNC_SIG(MarkItemEdited,          void, SIG_MarkItemEdited);
     // Functions that need wrappers to handle their opaque ptr return types / inconvenient signatures
-    IM_FUNC_SIG_EXPLICIT(GetWindowDrawListOpaque, ImDrawList*);
+    IM_FUNC_SIG_EXPLICIT(GetWindowDrawListOpaque,     ImDrawList*);
+    IM_FUNC_SIG_EXPLICIT(GetBackgroundDrawListOpaque, ImDrawList*);
     IM_FUNC_SIG_EXPLICIT(GetMainViewportOpaque,	  ImGuiViewport*);
     IM_FUNC_SIG_EXPLICIT(GetStylePtr,             ImGuiStyle*);
     IM_FUNC_SIG_EXPLICIT(GetCursorPosByArg,          void, SIG_GetCursorPosByArg);
@@ -683,9 +684,10 @@ namespace CImGui {
     IM_FUNC(MarkItemEdited,         void, (SIG_MarkItemEdited), (ARG_MarkItemEdited));
 
     // Functions that return opaque pointers / need wrappers for convenience
-    IM_FUNC(GetWindowDrawListOpaque, ImDrawList*, (), ());
-    IM_FUNC(GetMainViewportOpaque,   ImGuiViewport*, (), ());
-    IM_FUNC(GetStylePtr,             ImGuiStyle*, (), ());
+    IM_FUNC(GetWindowDrawListOpaque,     ImDrawList*, (), ());
+    IM_FUNC(GetBackgroundDrawListOpaque, ImDrawList*, (), ());
+    IM_FUNC(GetMainViewportOpaque,       ImGuiViewport*, (), ());
+    IM_FUNC(GetStylePtr,                ImGuiStyle*, (), ());
     IM_FUNC(GetCursorPosByArg,          void, (SIG_GetCursorPosByArg), (ARG_GetCursorPosByArg));
     IM_FUNC(CalcTextSizeByArg,          void, (ImVec2* pOut, const char* text, const char* text_end = nullptr, bool hide_text_after_double_hash = false, float wrap_width = -1.0f), (ARG_CalcTextSizeByArg));
 	IM_FUNC(GetContentRegionAvailByArg, void, (SIG_GetContentRegionAvailByArg), (ARG_GetContentRegionAvailByArg));
@@ -857,19 +859,20 @@ namespace CImGui {
 		IM_GET_FUNC(MarkItemEdited);
 
         // Functions that wrap around an ImGui function with a different name
-        IM_GET_FUNC_EXPLICIT(GetWindowDrawListOpaque,    igGetWindowDrawList);
-        IM_GET_FUNC_EXPLICIT(GetMainViewportOpaque,      igGetMainViewport);
-        IM_GET_FUNC_EXPLICIT(GetStylePtr,                igGetStyle);
-		IM_GET_FUNC_EXPLICIT(GetCursorPosByArg,          igGetCursorPos);
-        IM_GET_FUNC_EXPLICIT(CalcTextSizeByArg,          igCalcTextSize);
-		IM_GET_FUNC_EXPLICIT(GetContentRegionAvailByArg, igGetContentRegionAvail);
-		IM_GET_FUNC_EXPLICIT(GetWindowSizeByArg,         igGetWindowSize);
-		IM_GET_FUNC_EXPLICIT(GetCursorScreenPosByArg,    igGetCursorScreenPos);
-		IM_GET_FUNC_EXPLICIT(GetItemRectMinByArg,        igGetItemRectMin);
-        IM_GET_FUNC_EXPLICIT(StyleColorsClassicByArg,    igStyleColorsClassic);
-        IM_GET_FUNC_EXPLICIT(StyleColorsDarkByArg,       igStyleColorsDark);
-        IM_GET_FUNC_EXPLICIT(GetMousePosByArg,           igGetMousePos);
-        IM_GET_FUNC_EXPLICIT(TableGetCellBgRectByArg,    igTableGetCellBgRect);
+        IM_GET_FUNC_EXPLICIT(GetWindowDrawListOpaque,     igGetWindowDrawList);
+        IM_GET_FUNC_EXPLICIT(GetBackgroundDrawListOpaque, igGetBackgroundDrawList_Nil);
+        IM_GET_FUNC_EXPLICIT(GetMainViewportOpaque,       igGetMainViewport);
+        IM_GET_FUNC_EXPLICIT(GetStylePtr,                 igGetStyle);
+		IM_GET_FUNC_EXPLICIT(GetCursorPosByArg,           igGetCursorPos);
+        IM_GET_FUNC_EXPLICIT(CalcTextSizeByArg,           igCalcTextSize);
+		IM_GET_FUNC_EXPLICIT(GetContentRegionAvailByArg,  igGetContentRegionAvail);
+		IM_GET_FUNC_EXPLICIT(GetWindowSizeByArg,          igGetWindowSize);
+		IM_GET_FUNC_EXPLICIT(GetCursorScreenPosByArg,     igGetCursorScreenPos);
+		IM_GET_FUNC_EXPLICIT(GetItemRectMinByArg,         igGetItemRectMin);
+        IM_GET_FUNC_EXPLICIT(StyleColorsClassicByArg,     igStyleColorsClassic);
+        IM_GET_FUNC_EXPLICIT(StyleColorsDarkByArg,        igStyleColorsDark);
+        IM_GET_FUNC_EXPLICIT(GetMousePosByArg,            igGetMousePos);
+        IM_GET_FUNC_EXPLICIT(TableGetCellBgRectByArg,     igTableGetCellBgRect);
 
         ASSERT_LOADED(Begin);
         ASSERT_LOADED(End);                    
@@ -1020,6 +1023,7 @@ namespace CImGui {
         ASSERT_LOADED(MarkItemEdited ); 
 
         ASSERT_LOADED(GetWindowDrawListOpaque);
+        ASSERT_LOADED(GetBackgroundDrawListOpaque);
         ASSERT_LOADED(GetMainViewportOpaque);	
         ASSERT_LOADED(GetStylePtr);         
         ASSERT_LOADED(GetCursorPosByArg);
@@ -1076,6 +1080,11 @@ namespace CImGui {
 
     inline std::unique_ptr<ImDrawListTransparent> GetWindowDrawList() {
         ImDrawList* dl = GetWindowDrawListOpaque();
+        return std::make_unique<ImDrawListTransparent>(dl);
+    }
+
+    inline std::unique_ptr<ImDrawListTransparent> GetBackgroundDrawList() {
+        ImDrawList* dl = GetBackgroundDrawListOpaque();
         return std::make_unique<ImDrawListTransparent>(dl);
     }
 
