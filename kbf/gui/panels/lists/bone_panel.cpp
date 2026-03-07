@@ -111,7 +111,7 @@ namespace kbf {
         float contentRegionWidth = CImGui::GetContentRegionAvail().x;
         size_t boneDrawCount = 0;
 
-
+        bool somethingHovered = false;
         if (boneList.size() != 0) {
             for (const std::string& bone : boneList)
             {
@@ -122,6 +122,11 @@ namespace kbf {
 
                 if (CImGui::Selectable(bone.c_str())) {
                     INVOKE_REQUIRED_CALLBACK(selectCallback, bone);
+                }
+                // Hover handling
+                if (CImGui::IsItemHovered()) {
+                    INVOKE_OPTIONAL_CALLBACK(hoverCallback, HoveredBone{ std::optional<std::string>{bone}, std::nullopt, HoverSource::BonePanel });
+                    somethingHovered = true;
                 }
             }
         }
@@ -138,6 +143,11 @@ namespace kbf {
         CImGui::EndChild();
         CImGui::PopStyleVar();
         CImGui::PopStyleColor();
+
+        if (!somethingHovered) {
+            // signal none from BonePanel source
+            INVOKE_OPTIONAL_CALLBACK(hoverCallback, HoveredBone{ std::nullopt, std::nullopt, HoverSource::BonePanel });
+        }
     }
 
 }

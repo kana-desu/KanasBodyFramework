@@ -15,6 +15,8 @@
 #include <kbf/util/io/kbf_asset_path.hpp>
 
 #include <kbf/cimgui/cimgui_funcs.hpp>
+#include <kbf/gui/world_space/bone_visualizer.hpp>
+#include <memory>
 
 #include <string>
 
@@ -28,7 +30,7 @@ namespace kbf {
 			NpcTracker& npcTracker
 		) : dataManager{ dataManager },
 			playerTracker{ playerTracker },
-			npcTracker{ npcTracker } {}
+	npcTracker{ npcTracker } {}
 
 		~KBFWindow() = default;
 
@@ -62,6 +64,8 @@ namespace kbf {
 		SettingsTab     settingsTab{ dataManager };
 		DebugTab        debugTab{ dataManager, playerTracker, npcTracker };
 		AboutTab        aboutTab{ dataManager };
+
+		std::unique_ptr<BoneVisualizer> boneVisualizer;
 
 		KBFTab tab = KBFTab::About;
 

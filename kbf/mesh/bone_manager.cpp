@@ -7,10 +7,25 @@
 
 #include <kbf/data/bones/bone_cache_manager.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <optional>
+#include <glm/vec3.hpp>
 
 #define KBF_BONE_MANAGER_LOG_TAG "[BoneManager]"
 
 namespace kbf {
+
+    // UPDATE NOTE: This func is reverse engineered from get_LocalXXX ASM. It will need updating frequently.
+    template<int64_t Offset>
+    inline uintptr_t getJointTransformPtr(REApi::ManagedObject*& bone) {
+        uint64_t rax = *(uint64_t*)(bone + 0x10); //qword ptr [r8 + 0x10]
+        if (rax == 0) return 0;
+
+        int64_t rcx = (int64_t)*(int32_t*)(bone + 0x18);
+        rax = *(uint64_t*)(rax + Offset);
+        rcx = rcx << 0x04;
+
+        return rax + rcx;
+    }
 
 	BoneManager::BoneManager(
 		KBFDataManager& dataManager,
@@ -39,6 +54,21 @@ namespace kbf {
 		initialized = loadBones();
 	}
 
+    std::optional<glm::vec3> BoneManager::getBoneWorldPosition(ArmourPiece piece, const std::string& boneName) const {
+        size_t idx = static_cast<size_t>(piece);
+        if (idx >= partBones.size()) return std::nullopt;
+        auto itMap = partBones[idx].find(boneName);
+        if (itMap == partBones[idx].end()) return std::nullopt;
+
+		static const reframework::API::TypeDefinition* def_Joint = REApi::get()->tdb()->find_type("via.Joint");
+		REApi::ManagedObject* joint = itMap->second;
+        if (!checkREPtrValidity(joint, def_Joint)) return std::nullopt;
+
+        // Use same layout as modifyBone: position pointer is at offset 0x18 from joint transform
+		glm::vec3 pos = REInvoke<glm::vec3>(joint, "get_Position", {}, InvokeReturnType::BYTES);
+		return pos;
+    }
+
 	BoneManager::BoneApplyStatusFlag BoneManager::applyPreset(const Preset* preset, ArmourPiece piece) {
 		if (preset == nullptr) return BoneApplyStatusFlag::BONE_APPLY_ERROR_NULL_PRESET;
 
@@ -56,19 +86,6 @@ namespace kbf {
 		}
 
 		return BoneApplyStatusFlag::BONE_APPLY_SUCCESS;
-	}
-
-	// UPDATE NOTE: This func is reverse engineered from get_LocalXXX ASM. It will need updating frequently.
-	template<int64_t Offset>
-	inline uintptr_t getJointTransformPtr(REApi::ManagedObject*& bone) {
-		uint64_t rax = *(uint64_t*)(bone + 0x10); //qword ptr [r8 + 0x10]
-		if (rax == 0) return 0;
-
-		int64_t rcx = (int64_t)*(int32_t*)(bone + 0x18);
-		rax = *(uint64_t*)(rax + Offset);
-		rcx = rcx << 0x04;
-
-		return rax + rcx;
 	}
 
 	bool BoneManager::modifyBone(REApi::ManagedObject* bone, const BoneModifier& modifier) {

@@ -6,6 +6,7 @@
 #include <kbf/cimgui/cimgui_funcs.hpp>
 
 #include <functional>
+#include <kbf/gui/shared/hovered_bone.hpp>
 
 namespace kbf {
 
@@ -23,6 +24,7 @@ namespace kbf {
 		void onSelectBone(std::function<void(std::string)> callback) { selectCallback = callback; }
 		void onCheckBoneDisabled(std::function<bool(std::string)> callback) { checkDisableBoneCallback = callback; }
 		void onAddDefaults(std::function<void(void)> callback) { addDefaultsCallback = callback; }
+        void onHover(std::function<void(HoveredBone)> callback) { hoverCallback = callback; }
 
 	private:
 		KBFDataManager& dataManager;
@@ -37,6 +39,7 @@ namespace kbf {
 		std::function<void(std::string)> selectCallback;
 		std::function<bool(std::string)> checkDisableBoneCallback;
 		std::function<void(void)>        addDefaultsCallback;
+        std::function<void(HoveredBone)> hoverCallback;
 
 		ImFont* wsSymbolFont;
 	};

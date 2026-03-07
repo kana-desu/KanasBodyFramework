@@ -17,6 +17,8 @@
 #include <kbf/data/bones/sortable_bone_modifier.hpp>
 
 #include <kbf/cimgui/cimgui_funcs.hpp>
+#include <kbf/gui/shared/hovered_bone.hpp>
+#include <optional>
 
 namespace kbf {
 
@@ -42,11 +44,21 @@ namespace kbf {
 		void editPreset(Preset* preset);
 		void editPresetDeferred(Preset* preset) { presetToEdit = preset; }
 
+		void setHoveredBone(HoveredBone hb);
+		const HoveredBone& getHoveredBone() const { return hoveredBone; }
+
+		const std::optional<ArmourPiece>& getActiveArmourTab() const { return activeArmourTab; }
+
 	private:
 		EditableObject openObject;
 		KBFDataManager& dataManager;
 		ImFont* wsSymbolFont;
 		ImFont* wsArmourFont;
+
+		std::optional<ArmourPiece> activeArmourTab = std::nullopt;
+		HoveredBone hoveredBone{};
+		static constexpr size_t hoveredBoneClearDelay = 5;
+		size_t hoveredBoneClearDelayCounter = 0; // Flag to put frame delay on bone hover clear to eliminate selection flicker
 
 		void drawNoEditor();
 		void openSelectPresetPanel();
@@ -94,6 +106,7 @@ namespace kbf {
 			std::vector<SortableBoneModifier>& sortableModifiers,
 			BoneModifierMap& modifiers,
 			float modLimit,
+			bool& boneHovered,
 			bool enableWarnings = true);
 		void drawBoneModifierTable(
 			std::string tableName, 
@@ -102,6 +115,7 @@ namespace kbf {
 			std::vector<SortableBoneModifier>& sortableModifiers,
 			BoneModifierMap& modifiers,
 			float modLimit,
+			bool& boneHovered,
 			bool enableWarnings = true);
 		void drawCompactBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, ImVec2 size, std::string fmtPrefix = "");
 		void drawBoneModifierGroup(const std::string& strID, glm::vec3& group, float limit, float width, float speed);

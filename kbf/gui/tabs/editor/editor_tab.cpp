@@ -140,6 +140,25 @@ namespace kbf {
         CImGui::PopStyleVar();
     }
 
+    void EditorTab::setHoveredBone(HoveredBone hb) {
+        // If incoming has a primary (a bone hovered), always update
+        if (hb.primary.has_value() || hb.secondary.has_value()) {
+            hoveredBone = hb;
+            return;
+        }
+
+        // Make sure clears from the bone select panel dont just unconditionally overwrite the editor table
+        if (hb.source == HoverSource::BonePanel && hoveredBone.source == HoverSource::EditorTable) {
+            return;
+        }
+
+        if (hb.source == HoverSource::EditorTable && hoveredBone.source == HoverSource::BonePanel) {
+            return;
+        }
+
+        hoveredBone = HoveredBone{};
+    }
+
     void EditorTab::openSelectPresetPanel() {
         presetPanel.openNew("Select Preset", "EditPanel_NpcTab", dataManager, wsSymbolFont, wsArmourFont, false);
         presetPanel.get()->focus();
@@ -201,6 +220,10 @@ namespace kbf {
     void EditorTab::openSelectBonePanel(ArmourPiece piece) {
         selectBonePanel.openNew("Add Bone Modifier", "EditPreset_BoneModifierPanel", dataManager, &openObject.ptrAfter.preset, piece, wsSymbolFont);
         selectBonePanel.get()->focus();
+        // Forward hover events from the bone panel to this editor tab so the visualizer can highlight
+        selectBonePanel.get()->onHover([&](const HoveredBone& hb) {
+            setHoveredBone(hb);
+        });
 
         selectBonePanel.get()->onSelectBone([&, piece](std::string name) {
             switch (piece) {
@@ -878,6 +901,7 @@ namespace kbf {
                 CImGui::Spacing();
                 drawPresetEditor_Properties(p);
                 CImGui::EndTabItem();
+                activeArmourTab = std::nullopt;
             }
             if (CImGui::IsItemClicked()) selectBonePanel.close();
 
@@ -885,24 +909,27 @@ namespace kbf {
                 CImGui::Spacing();
                 drawPresetEditor_BoneModifiers(p, ArmourPiece::AP_SET);
                 CImGui::EndTabItem();
+                activeArmourTab = ArmourPiece::AP_SET;
             }
             if (CImGui::IsItemClicked()) selectBonePanel.close();
 
-            drawPresetEditor_ArmourTab("Head",  ArmourPiece::AP_HELM, "helmet",     p, residentPieces);
-            drawPresetEditor_ArmourTab("Body",  ArmourPiece::AP_BODY, "chestpiece", p, residentPieces);
-            drawPresetEditor_ArmourTab("Arms",  ArmourPiece::AP_ARMS, "vambraces",  p, residentPieces);
-            drawPresetEditor_ArmourTab("Waist", ArmourPiece::AP_COIL, "coil",       p, residentPieces);
-            drawPresetEditor_ArmourTab("Legs",  ArmourPiece::AP_LEGS, "greaves",    p, residentPieces);
+            if (drawPresetEditor_ArmourTab("Head",  ArmourPiece::AP_HELM, "helmet",     p, residentPieces)) activeArmourTab = ArmourPiece::AP_HELM;
+            if (drawPresetEditor_ArmourTab("Body",  ArmourPiece::AP_BODY, "chestpiece", p, residentPieces)) activeArmourTab = ArmourPiece::AP_BODY;
+            if (drawPresetEditor_ArmourTab("Arms",  ArmourPiece::AP_ARMS, "vambraces",  p, residentPieces)) activeArmourTab = ArmourPiece::AP_ARMS;
+            if (drawPresetEditor_ArmourTab("Waist", ArmourPiece::AP_COIL, "coil",       p, residentPieces)) activeArmourTab = ArmourPiece::AP_COIL;
+            if (drawPresetEditor_ArmourTab("Legs",  ArmourPiece::AP_LEGS, "greaves",    p, residentPieces)) activeArmourTab = ArmourPiece::AP_LEGS;
 
             if (CImGui::BeginTabItem("Parts")) {
                 CImGui::Spacing();
                 drawPresetEditor_PartVisibilities(p);
                 CImGui::EndTabItem();
+                activeArmourTab = std::nullopt;
             }
             if (CImGui::BeginTabItem("Materials")) {
                 CImGui::Spacing();
                 drawPresetEditor_MaterialParams(p);
                 CImGui::EndTabItem();
+                activeArmourTab = std::nullopt;
             }
             if (CImGui::IsItemClicked()) selectBonePanel.close();
 
@@ -1069,6 +1096,7 @@ namespace kbf {
         else {
             auto categorizedModifiers = getProcessedModifiers(*boneModifiers, categorizeBones, *useSymmetry);
 
+            bool hoveredAnyBone = false;
             for (auto& [categoryName, sortableModifiers] : categorizedModifiers) {
                 bool display = true;
                 if (categorizeBones) display = CImGui::CollapsingHeader(categoryName.c_str(), ImGuiTreeNodeFlags_SpanFullWidth);
@@ -1077,11 +1105,21 @@ namespace kbf {
 
 					bool displayBoneWarnings = piece != ArmourPiece::AP_SET; // Only display warnings for specific pieces, not base armature
                     if (compactMode) {
-                        drawCompactBoneModifierTable(categoryName, armourWithSex, piece, sortableModifiers, *boneModifiers, *modLimit, displayBoneWarnings);
+                        drawCompactBoneModifierTable(categoryName, armourWithSex, piece, sortableModifiers, *boneModifiers, *modLimit, hoveredAnyBone, displayBoneWarnings);
                     }
                     else {
-                        drawBoneModifierTable(categoryName, armourWithSex, piece, sortableModifiers, *boneModifiers, *modLimit, displayBoneWarnings);
+                        drawBoneModifierTable(categoryName, armourWithSex, piece, sortableModifiers, *boneModifiers, *modLimit, hoveredAnyBone, displayBoneWarnings);
                     }
+                }
+            }
+
+            if (!hoveredAnyBone) {
+                if (hoveredBoneClearDelayCounter > hoveredBoneClearDelay) {
+                    setHoveredBone(HoveredBone{});
+                    hoveredBoneClearDelayCounter = 0;
+                }
+                else {
+                    hoveredBoneClearDelayCounter++;
                 }
             }
         }
@@ -1142,6 +1180,7 @@ namespace kbf {
         std::vector<SortableBoneModifier>& sortableModifiers,
         BoneModifierMap& modifiers,
         float modLimit,
+        bool& boneHovered,
         bool enableWarnings
     ) {
         constexpr float deleteButtonScale = 1.2f;
@@ -1242,14 +1281,24 @@ namespace kbf {
 
             // Draw selectable to show hover on table rows
             ImVec2 rowEndCompact = CImGui::GetCursorScreenPos();
-            ImVec2 rowSizeCompact = ImVec2(0.0f, rowEndCompact.y - rowStartCompact.y);
+            ImVec2 rowSizeCompact = ImVec2(0.0f, rowEndCompact.y - rowStartCompact.y + 1.0f); // add 1 to reduce selection flicker
             ImVec2 curPos = CImGui::GetCursorScreenPos();
             ImVec2 selStart = curPos;
-            selStart.y -= rowSizeCompact.y - 5.0f; // small visual tweak like other tables
+            selStart.y -= rowSizeCompact.y;
             CImGui::SetCursorScreenPos(selStart);
             CImGui::SetNextItemAllowOverlap();
             CImGui::Selectable(("##row_" + boneKey).c_str(), false, ImGuiSelectableFlags_SpanAllColumns, rowSizeCompact);
             CImGui::SetCursorScreenPos(curPos);
+
+            // Hover detection for this compact row
+            if (CImGui::IsItemHovered()) {
+                boneHovered |= true;
+                HoveredBone hb;
+                hb.primary = bone.boneName;
+                if (bone.isSymmetryProxy) hb.secondary = bone.reflectedBoneName;
+                hb.source = HoverSource::EditorTable;
+                setHoveredBone(hb);
+            }
 
             i++;
         }
@@ -1275,6 +1324,7 @@ namespace kbf {
         std::vector<SortableBoneModifier>& sortableModifiers,
         BoneModifierMap& modifiers,
         float modLimit,
+        bool& boneHovered,
         bool enableWarnings
     ) {
         constexpr float deleteButtonScale = 1.2f;
@@ -1398,11 +1448,21 @@ namespace kbf {
             ImVec2 rowSize = ImVec2(0.0f, rowEnd.y - rowStart.y);
             ImVec2 curPos2 = CImGui::GetCursorScreenPos();
             ImVec2 selStart2 = curPos2;
-            selStart2.y -= rowSize.y - 5.0f;
+            selStart2.y -= rowSize.y;
             CImGui::SetCursorScreenPos(selStart2);
             CImGui::SetNextItemAllowOverlap();
             CImGui::Selectable(("##row_" + boneKey).c_str(), false, ImGuiSelectableFlags_SpanAllColumns, rowSize);
             CImGui::SetCursorScreenPos(curPos2);
+            
+            // Hover detection for this row
+            if (CImGui::IsItemHovered()) {
+                boneHovered |= true;
+                HoveredBone hb;
+                hb.primary = bone.boneName;
+                if (bone.isSymmetryProxy) hb.secondary = bone.reflectedBoneName;
+                hb.source = HoverSource::EditorTable;
+                setHoveredBone(hb);
+            }
 
             i++;
         }

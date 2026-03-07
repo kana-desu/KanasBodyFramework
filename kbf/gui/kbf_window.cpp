@@ -11,6 +11,7 @@
 #include <kbf/data/preset/preset_group.hpp>
 #include <kbf/data/preset/player_override.hpp>
 #include <kbf/util/string/to_lower.hpp>
+#include <kbf/situation/camera_manager.hpp>
 
 #include <vector>
 #include <algorithm>
@@ -35,6 +36,9 @@ namespace kbf {
         settingsTab.setOnReloadDataCallback([&]() { editorTab.editNone(); });
 
 		DEBUG_STACK.push(std::format("{} Hello from Kana! ^o^ - Framework initialized.", KBF_WINDOW_LOG_TAG), DebugStack::Color::COL_INFO);
+
+		// Initialize BoneVisualizer after editorTab is constructed
+		boneVisualizer = std::make_unique<BoneVisualizer>(dataManager, playerTracker, npcTracker, editorTab);
     }
 
     void KBFWindow::initializeFonts() {
@@ -144,6 +148,8 @@ namespace kbf {
         CImGui::PopStyleVar();
 
         CImGui::PopFont();
+
+        if (boneVisualizer) boneVisualizer->draw();
 
         CImGui::End();
         CImGui::PopStyleVar(2);

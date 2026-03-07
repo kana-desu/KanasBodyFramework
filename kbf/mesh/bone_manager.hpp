@@ -7,6 +7,7 @@
 #include <reframework/API.hpp>
 
 #include <array>
+#include <glm/glm.hpp>
 
 using REApi = reframework::API;
 
@@ -39,6 +40,8 @@ namespace kbf {
 			std::unordered_map<std::string, REApi::ManagedObject*>& outMap);
 
 		bool isInitialized() const { return initialized; }
+
+		std::optional<glm::vec3> getBoneWorldPosition(ArmourPiece piece, const std::string& boneName) const;
 
 	private:
 		bool modifyBone(REApi::ManagedObject* bone, const BoneModifier& modifier);

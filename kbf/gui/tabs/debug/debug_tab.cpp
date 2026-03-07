@@ -6,6 +6,7 @@
 #include <kbf/data/ids/font_symbols.hpp>
 #include <kbf/profiling/cpu_profiler.hpp>
 #include <kbf/debug/debug_stack.hpp>
+#include <kbf/situation/camera_manager.hpp>
 #include <kbf/util/string/copy_to_clipboard.hpp>
 #include <kbf/util/font/default_font_sizes.hpp>
 #include <kbf/util/string/ptr_to_hex_string.hpp>
@@ -410,6 +411,14 @@ namespace kbf {
 
     void DebugTab::drawSituationTab() {
 		CImGui::BeginChild("SituationList");
+
+        CImGui::Spacing();
+        CImGui::SeparatorText("Camera");
+        CImGui::Spacing();
+
+        std::optional<glm::vec3> camPos = CameraManager::instance().getPosition();
+        std::string cameraPosStr = camPos.has_value() ? std::format("{:3f}, {:3f}, {:3f}", camPos.value().x, camPos.value().y, camPos.value().z) : "N/A";
+        CImGui::Text("Position: %s", cameraPosStr.c_str());
         
         constexpr ImGuiTableFlags tableFlags = ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_PadOuterX;
 
