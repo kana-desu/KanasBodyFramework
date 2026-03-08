@@ -450,7 +450,22 @@ namespace kbf {
         //    CImGui::SeparatorText("Fixes");
         //    CImGui::Spacing();
         //}
-        if (CImGui::CollapsingHeader("v1.2.0", ImGuiTreeNodeFlags_DefaultOpen)) {
+        if (CImGui::CollapsingHeader("v1.2.1", ImGuiTreeNodeFlags_DefaultOpen)) {
+            CImGui::Spacing();
+            CImGui::SeparatorText("Additions");
+            WRAP_BULLET("-", "Added support for editing bones during quest clear cutscenes.");
+            WRAP_BULLET("-", "Added visualization for bone positions and names when editing a preset in the editor.");
+            WRAP_BULLET("-", "Added the ability to import a selection of presets from FBS in the import panel (thank you Mrextremo1!).");
+            WRAP_BULLET("-", "Added debug support for changing game hook entry points at runtime.");
+            WRAP_BULLET("-", "Added a force initialize button to debug builds.");
+            CImGui::SeparatorText("Changes");
+            WRAP_BULLET("-", "Creating / Combining a new preset now fills the 'bundle' field with the currently inspected bundle.");
+            CImGui::SeparatorText("Fixes");
+            WRAP_BULLET("-", "Fixed a bug where clicking 'revert' on a preset in the editor would unintentionally flip the 'preview' toggle off.");
+            WRAP_BULLET("-", "Fixed a bug causing certain player caches not to be invalidated when they should be.");
+            CImGui::Spacing();
+        }
+        if (CImGui::CollapsingHeader("v1.2.0")) {
             CImGui::Spacing();
             CImGui::SeparatorText("Important Notes");
             WRAP_BULLET("-", "Version 1.2.0 brings a substantial rewrite of KBF's backend.");
