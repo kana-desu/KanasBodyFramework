@@ -28,20 +28,8 @@ These are some rough notes to help with handling game updates and ensuring all t
 - Run the stack trace addresses through `dia2dump.exe` via a script like `debug/resolve_symbols_example.bat` against the pdb for the relevant KBF version.
 - This will tell you exactly where exceptions occur and makes it much easier to fix.
 
-### Update the Max size of the NPC list
-
-- The size of the NPC list may get larger with updates; not updating will mean certain npcs are never tracked.
-- The size of the NPC list is defined in the game's Singleton `app.NpcManager > _NpcList`.
-- Compile macro for it found in `npc/NpcTracker.hpp`
-
-### Updating Armour Lists & NPC IDs.
-
-- Update entries in `data/armour/armour_list.cpp`
-- For NPCs, it might be necessary to add any new armour sets for them into their NPC ID Map: `npc/armour_id_to_npc.hpp` & `npc/get_npc_name_from_armour.hpp` (this really needs a better system)
-- Make sure to ship a new `data/armour/armour_list.json` file with the new version of the mod.
-
 ### Common Code Problem Areas
 - `XXX.applyPreset()` methods usually are the source of bugs after updates as they are the core functionality of the mod. Try disabling these first to identify the problem.
 
 ### File IO
-- A bunch of stuff needs to be updated it `data/kbf_data_manager` to handle new NPC configs, settings, etc.
+- A bunch of stuff needs to be updated it `data/kbf_data_manager` to handle new NPC configs, costumes, settings, etc.
